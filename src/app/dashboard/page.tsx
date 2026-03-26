@@ -80,7 +80,7 @@ export default function Dashboard() {
       setIsRecording(true)
       setRecordingTime(0)
       timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000)
-    } catch (err) {
+    } catch {
       alert('Please allow microphone access to record your voice.')
     }
   }
