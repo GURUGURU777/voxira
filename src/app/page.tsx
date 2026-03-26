@@ -1,282 +1,397 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
-const QUICK_GOALS = ['abundance', 'confidence', 'heal anxiety', 'pass my exam', 'win the game', 'inner peace', 'attract love'];
+/* ══════════════════════════════════════════════════════════
+   VOXIRA LANDING PAGE — Production Build
+   Navy-blue palette matching dashboard V3
+   ══════════════════════════════════════════════════════════ */
 
-const SOLFEGGIO = [
-  { hz: '396', name: 'Liberation' },
-  { hz: '417', name: 'Change' },
-  { hz: '432', name: 'Harmony' },
-  { hz: '528', name: 'Miracle' },
-  { hz: '639', name: 'Connection' },
-  { hz: '741', name: 'Expression' },
-  { hz: '852', name: 'Intuition' },
-  { hz: '963', name: 'Crown' },
-];
-
-function EnergyWaves({ intensity = 1, height = 80, className = '' }: { intensity?: number; height?: number; className?: string }) {
+function VoxiraLogo({ size = 200 }: { size?: number }) {
+  const xCenter = 128;
   return (
-    <svg width="100%" height={height} viewBox={`0 0 600 ${height}`} className={className} aria-hidden>
-      <path d={`M-20 ${height/2} Q60 ${height*0.15}, 140 ${height/2} Q220 ${height*0.85}, 300 ${height/2} Q380 ${height*0.15}, 460 ${height/2} Q540 ${height*0.85}, 640 ${height/2}`} fill="none" stroke="#0A1E2E" strokeWidth={8 * intensity} opacity={0.5}/>
-      <path d={`M-40 ${height/2+2} Q80 ${height*0.2}, 160 ${height/2+2} Q240 ${height*0.8}, 320 ${height/2+2} Q400 ${height*0.2}, 480 ${height/2+2} Q560 ${height*0.8}, 640 ${height/2+2}`} fill="none" stroke="#0D2940" strokeWidth={7 * intensity} opacity={0.4}/>
-      <path d={`M-10 ${height/2} Q50 ${height*0.2}, 120 ${height/2} Q190 ${height*0.8}, 260 ${height/2} Q330 ${height*0.2}, 400 ${height/2} Q470 ${height*0.8}, 540 ${height/2} Q610 ${height*0.2}, 650 ${height/2}`} fill="none" stroke="#0F3654" strokeWidth={4 * intensity} opacity={0.5}/>
-      <path d={`M0 ${height/2-2} Q70 ${height*0.25}, 150 ${height/2-2} Q230 ${height*0.72}, 300 ${height/2-2} Q370 ${height*0.25}, 450 ${height/2-2} Q530 ${height*0.72}, 600 ${height/2-2}`} fill="none" stroke="#124568" strokeWidth={3 * intensity} opacity={0.5}/>
-      <path d={`M10 ${height/2+2} Q80 ${height*0.28}, 160 ${height/2+2} Q240 ${height*0.75}, 310 ${height/2+2} Q380 ${height*0.28}, 460 ${height/2+2} Q540 ${height*0.75}, 610 ${height/2+2}`} fill="none" stroke="#15557C" strokeWidth={2.2 * intensity} opacity={0.55}/>
-      <path d={`M0 ${height/2} Q75 ${height*0.28}, 150 ${height/2} Q225 ${height*0.72}, 300 ${height/2} Q375 ${height*0.28}, 450 ${height/2} Q525 ${height*0.72}, 600 ${height/2}`} fill="none" stroke="#1A6B96" strokeWidth={1.8 * intensity} opacity={0.65}/>
-      <path d={`M5 ${height/2-1} Q80 ${height*0.3}, 155 ${height/2-1} Q230 ${height*0.68}, 305 ${height/2-1} Q380 ${height*0.3}, 455 ${height/2-1} Q530 ${height*0.68}, 605 ${height/2-1}`} fill="none" stroke="#2080B0" strokeWidth={1.3 * intensity} opacity={0.6}/>
-      <path d={`M-5 ${height/2+1} Q70 ${height*0.32}, 145 ${height/2+1} Q220 ${height*0.7}, 295 ${height/2+1} Q370 ${height*0.32}, 445 ${height/2+1} Q520 ${height*0.7}, 595 ${height/2+1}`} fill="none" stroke="#2898C8" strokeWidth={intensity} opacity={0.5}/>
-      <path d={`M0 ${height/2} Q75 ${height*0.36}, 150 ${height/2} Q225 ${height*0.64}, 300 ${height/2} Q375 ${height*0.36}, 450 ${height/2} Q525 ${height*0.64}, 600 ${height/2}`} fill="none" stroke="#34B0E0" strokeWidth={0.7 * intensity} opacity={0.45}/>
-      <path d={`M10 ${height/2} Q85 ${height*0.38}, 160 ${height/2} Q235 ${height*0.62}, 310 ${height/2} Q385 ${height*0.38}, 460 ${height/2} Q535 ${height*0.62}, 610 ${height/2}`} fill="none" stroke="#48C8F0" strokeWidth={0.5 * intensity} opacity={0.35}/>
-      <path d={`M0 ${height/2-2} Q100 ${height*0.25}, 200 ${height/2+2} Q300 ${height*0.72}, 400 ${height/2-4} Q500 ${height*0.22}, 600 ${height/2+2}`} fill="none" stroke="#1A5570" strokeWidth={1.5 * intensity} opacity={0.3}/>
-      <circle cx="80" cy={height*0.38} r={1*intensity} fill="#34B0E0" opacity={0.4}/>
-      <circle cx="200" cy={height*0.62} r={0.8*intensity} fill="#48C8F0" opacity={0.3}/>
-      <circle cx="320" cy={height*0.32} r={1.2*intensity} fill="#C9A84C" opacity={0.3}/>
-      <circle cx="440" cy={height*0.68} r={0.8*intensity} fill="#34B0E0" opacity={0.35}/>
-      <circle cx="520" cy={height*0.4} r={intensity} fill="#C9A84C" opacity={0.2}/>
-      <circle cx="150" cy={height*0.56} r={0.6*intensity} fill="#2898C8" opacity={0.3}/>
-    </svg>
+    <div style={{ display: 'inline-flex', alignItems: 'center', height: size * 0.28 }}>
+      <svg viewBox="0 0 300 60" style={{ height: '100%', width: 'auto' }}>
+        <defs>
+          <radialGradient id="lf" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.95" />
+            <stop offset="15%" stopColor="#d4edff" stopOpacity="0.6" />
+            <stop offset="35%" stopColor="#4a9eff" stopOpacity="0.2" />
+            <stop offset="60%" stopColor="#4a9eff" stopOpacity="0.05" />
+            <stop offset="100%" stopColor="#4a9eff" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="st" x1="0%" y1="50%" x2="100%" y2="50%">
+            <stop offset="0%" stopColor="#4a9eff" stopOpacity="0" />
+            <stop offset="35%" stopColor="#4a9eff" stopOpacity="0.25" />
+            <stop offset="50%" stopColor="#b0d8ff" stopOpacity="0.5" />
+            <stop offset="65%" stopColor="#4a9eff" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#4a9eff" stopOpacity="0" />
+          </linearGradient>
+          <filter id="tg"><feGaussianBlur stdDeviation="1.8" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+          <filter id="wg"><feGaussianBlur stdDeviation="1.2" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+        </defs>
+        <rect x={xCenter - 90} y="27" width="180" height="6" fill="url(#st)" opacity="0.6"><animate attributeName="opacity" values="0.4;0.7;0.4" dur="4s" repeatCount="indefinite" /></rect>
+        <g filter="url(#wg)" opacity="0.5">
+          <path d={`M${xCenter - 40},30 Q${xCenter - 15},5 ${xCenter},30 Q${xCenter + 15},55 ${xCenter + 40},30`} fill="none" stroke="#4a9eff" strokeWidth="0.8" opacity="0.6"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" repeatCount="indefinite" /></path>
+          <path d={`M${xCenter - 48},30 Q${xCenter - 18},0 ${xCenter},30 Q${xCenter + 18},60 ${xCenter + 48},30`} fill="none" stroke="#4a9eff" strokeWidth="0.5" opacity="0.4"><animate attributeName="opacity" values="0.2;0.5;0.2" dur="3.5s" repeatCount="indefinite" /></path>
+          <path d={`M${xCenter - 30},30 Q${xCenter - 12},10 ${xCenter},30 Q${xCenter + 12},50 ${xCenter + 30},30`} fill="none" stroke="#6db8ff" strokeWidth="0.6" opacity="0.5"><animate attributeName="opacity" values="0.4;0.6;0.4" dur="2.5s" repeatCount="indefinite" /></path>
+          <path d={`M${xCenter - 40},30 Q${xCenter - 15},55 ${xCenter},30 Q${xCenter + 15},5 ${xCenter + 40},30`} fill="none" stroke="#4a9eff" strokeWidth="0.8" opacity="0.6"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="3.2s" repeatCount="indefinite" begin="0.5s" /></path>
+          <path d={`M${xCenter - 48},30 Q${xCenter - 18},60 ${xCenter},30 Q${xCenter + 18},0 ${xCenter + 48},30`} fill="none" stroke="#4a9eff" strokeWidth="0.5" opacity="0.4"><animate attributeName="opacity" values="0.2;0.5;0.2" dur="3.8s" repeatCount="indefinite" begin="0.3s" /></path>
+          <path d={`M${xCenter - 30},30 Q${xCenter - 12},50 ${xCenter},30 Q${xCenter + 12},10 ${xCenter + 30},30`} fill="none" stroke="#6db8ff" strokeWidth="0.6" opacity="0.5"><animate attributeName="opacity" values="0.4;0.6;0.4" dur="2.8s" repeatCount="indefinite" begin="0.7s" /></path>
+        </g>
+        <circle cx={xCenter} cy="30" r="20" fill="url(#lf)"><animate attributeName="r" values="18;22;18" dur="4s" repeatCount="indefinite" /></circle>
+        <circle cx={xCenter} cy="30" r="3.5" fill="white" opacity="0.9"><animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite" /></circle>
+        <circle cx={xCenter} cy="30" r="10" fill="none" stroke="rgba(180,220,255,0.15)" strokeWidth="0.5"><animate attributeName="r" values="8;12;8" dur="4s" repeatCount="indefinite" /></circle>
+        <text x="18" y="43" fontFamily="'Outfit',sans-serif" fontWeight="300" fontSize="36" fill="white" filter="url(#tg)">V</text>
+        <text x="62" y="43" fontFamily="'Outfit',sans-serif" fontWeight="300" fontSize="36" fill="white" filter="url(#tg)">O</text>
+        <text x={xCenter} y="43" fontFamily="'Outfit',sans-serif" fontWeight="300" fontSize="36" fill="white" filter="url(#tg)" textAnchor="middle" opacity="0.95">X</text>
+        <text x="168" y="43" fontFamily="'Outfit',sans-serif" fontWeight="300" fontSize="36" fill="white" filter="url(#tg)">I</text>
+        <text x="196" y="43" fontFamily="'Outfit',sans-serif" fontWeight="300" fontSize="36" fill="white" filter="url(#tg)">R</text>
+        <text x="240" y="43" fontFamily="'Outfit',sans-serif" fontWeight="300" fontSize="36" fill="white" filter="url(#tg)">A</text>
+      </svg>
+    </div>
   );
 }
 
-export default function Home() {
-  const [goal, setGoal] = useState('');
-  const [selectedFreq, setSelectedFreq] = useState('528');
-  const [voiceMode, setVoiceMode] = useState<'none' | 'record' | 'upload'>('none');
-  const [isRecording, setIsRecording] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+function ParticleField() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const c = canvasRef.current;
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    if (!ctx) return;
+    const w = c.offsetWidth;
+    const h = c.offsetHeight;
+    c.width = w;
+    c.height = h;
+    let animId: number;
+    const ps = Array.from({ length: 40 }, () => ({
+      x: Math.random() * w, y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.2, vy: (Math.random() - 0.5) * 0.2,
+      s: Math.random() * 1.5 + 0.5, a: Math.random() * 0.3 + 0.05,
+      c: Math.random() > 0.75 ? '#c9a84c' : '#3d8ecf',
+    }));
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      ps.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2);
+        ctx.fillStyle = p.c; ctx.globalAlpha = p.a; ctx.fill();
+        for (let j = i + 1; j < ps.length; j++) {
+          const dx = p.x - ps[j].x;
+          const dy = p.y - ps[j].y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < 100) {
+            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(ps[j].x, ps[j].y);
+            ctx.strokeStyle = p.c; ctx.globalAlpha = (1 - d / 100) * 0.06;
+            ctx.lineWidth = 0.5; ctx.stroke();
+          }
+        }
+      });
+      ctx.globalAlpha = 1;
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => cancelAnimationFrame(animId);
+  }, []);
+  return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none', width: '100%', height: '100%' }} />;
+}
+
+function AudioWaveform({ isPlaying }: { isPlaying: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animRef = useRef<number>(0);
+  useEffect(() => {
+    const c = canvasRef.current;
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    if (!ctx) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = c.getBoundingClientRect();
+    c.width = rect.width * dpr;
+    c.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    const w = rect.width;
+    const h = rect.height;
+    let time = 0;
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      const bars = 60;
+      const barW = w / bars;
+      for (let i = 0; i < bars; i++) {
+        const amp = isPlaying
+          ? Math.abs(Math.sin(i * 0.3 + time * 0.08) * 0.6 + Math.sin(i * 0.15 + time * 0.05) * 0.4) * h * 0.4
+          : Math.abs(Math.sin(i * 0.2) * 0.3) * h * 0.15;
+        const grad = ctx.createLinearGradient(0, h / 2 - amp, 0, h / 2 + amp);
+        grad.addColorStop(0, 'rgba(74,158,255,0.05)');
+        grad.addColorStop(0.5, isPlaying ? 'rgba(201,168,76,0.6)' : 'rgba(61,142,207,0.25)');
+        grad.addColorStop(1, 'rgba(74,158,255,0.05)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(i * barW + 1, h / 2 - amp, barW - 2, amp * 2);
+      }
+      time++;
+      animRef.current = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => cancelAnimationFrame(animRef.current);
+  }, [isPlaying]);
+  return <canvas ref={canvasRef} style={{ width: '100%', height: '80px', display: 'block', borderRadius: '12px' }} />;
+}
+
+const FREQS = [
+  { hz: 396, name: 'Liberation', color: '#ff6b6b' },
+  { hz: 417, name: 'Change', color: '#48dbfb' },
+  { hz: 432, name: 'Harmony', color: '#2ecc71' },
+  { hz: 528, name: 'Miracle', color: '#0abde3' },
+  { hz: 639, name: 'Connection', color: '#5f27cd' },
+  { hz: 741, name: 'Expression', color: '#c9a84c' },
+  { hz: 852, name: 'Intuition', color: '#f368e0' },
+  { hz: 963, name: 'Crown', color: '#dfe6e9' },
+];
+
+export default function LandingPage() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playProgress, setPlayProgress] = useState(0);
+  const [activeFreq, setActiveFreq] = useState(3);
+  const [tracksGenerated, setTracksGenerated] = useState(12847);
+  const playRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (isPlaying) {
+      playRef.current = setInterval(() => {
+        setPlayProgress(p => {
+          if (p >= 100) { setIsPlaying(false); return 0; }
+          return p + 0.5;
+        });
+      }, 100);
+    } else {
+      if (playRef.current) clearInterval(playRef.current);
+    }
+    return () => { if (playRef.current) clearInterval(playRef.current); };
+  }, [isPlaying]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTracksGenerated(p => p + Math.floor(Math.random() * 3));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const scrollToDemo = () => {
+    document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
-    <div className="min-h-screen bg-[#060D14] text-white overflow-hidden">
-      {/* Nav with logo */}
-      <nav className="px-5 md:px-10 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-0">
-          
-          <span className="text-xl text-white/90 font-light" style={{ fontFamily: "Georgia, serif", letterSpacing: "4px" }}>
-            V O X I R A
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-white/[0.1] text-xs text-white/50 hover:text-white/70 hover:border-white/20 transition-all">
-            <svg width="14" height="14" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-            Sign in
-          </button>
-          <button className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-[#124568] to-[#1A6B96] text-xs text-white font-medium shadow-[0_0_12px_rgba(26,107,150,0.2)]">
-            Start free
-          </button>
-        </div>
-      </nav>
+    <>
+      <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+      <div style={{
+        background: 'radial-gradient(ellipse at 30% 10%, #0f2035 0%, #081020 50%, #050c18 100%)',
+        minHeight: '100vh', fontFamily: "'Outfit', sans-serif", color: '#fff',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        <ParticleField />
+        <div style={{ position: 'fixed', width: '800px', height: '800px', borderRadius: '50%', top: '-300px', right: '-300px', background: 'radial-gradient(circle,rgba(61,142,207,0.06),transparent 70%)', animation: 'orbFloat 20s ease-in-out infinite', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'fixed', width: '600px', height: '600px', borderRadius: '50%', bottom: '-200px', left: '-200px', background: 'radial-gradient(circle,rgba(201,168,76,0.04),transparent 70%)', animation: 'orbFloat 24s ease-in-out infinite reverse', pointerEvents: 'none', zIndex: 0 }} />
 
-      {/* Hero */}
-      <section className="pt-6 pb-2 text-center px-5">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.5 }}>
-          <EnergyWaves height={55} />
-        </motion.div>
-        <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-sm text-[#C9A84C] tracking-[3px] font-light mb-4" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
-          elevate your mind, heal your soul
-        </motion.p>
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.8 }} className="text-3xl md:text-5xl font-light leading-tight mb-3" style={{ fontFamily: 'Georgia, serif' }}>
-          Reprogram your mind{' '}
-          <span className="italic text-[#C9A84C] font-normal">with your own voice</span>
-        </motion.h1>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="text-sm text-white/30 max-w-md mx-auto leading-relaxed font-light">
-          AI-powered audio: your cloned voice + Solfeggio frequencies + personalized affirmations
-        </motion.p>
-      </section>
+        {/* NAV */}
+        <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '20px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'linear-gradient(180deg, rgba(8,16,32,0.9) 0%, transparent 100%)', backdropFilter: 'blur(12px)' }}>
+          <VoxiraLogo size={140} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <a href="#demo" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>Demo</a>
+            <a href="#how" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>How it works</a>
+            <a href="#frequencies" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>Frequencies</a>
+            <a href="/dashboard" style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '13px', fontWeight: 700, boxShadow: '0 2px 16px rgba(201,168,76,0.2)' }}>Start Free</a>
+          </div>
+        </nav>
 
-      {/* Main Action Box */}
-      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }} className="mx-4 md:mx-auto md:max-w-2xl my-6">
-        <div className="p-6 rounded-[22px] bg-gradient-to-br from-[#1A6B96]/[0.08] to-[#124568]/[0.04] border border-[#1A6B96]/20 shadow-[0_0_40px_rgba(26,107,150,0.08),0_4px_30px_rgba(0,0,0,0.3)] relative overflow-hidden">
-          <div className="absolute top-[-40px] right-[-40px] w-[120px] h-[120px] rounded-full bg-[radial-gradient(circle,rgba(40,152,200,0.08),transparent)] pointer-events-none" />
-          <div className="absolute bottom-[-30px] left-[-30px] w-[100px] h-[100px] rounded-full bg-[radial-gradient(circle,rgba(26,107,150,0.06),transparent)] pointer-events-none" />
+        <div style={{ position: 'relative', zIndex: 1 }}>
 
-          <p className="text-sm text-[#C9A84C] tracking-[2px] font-light mb-5" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
-            try it now — free, instant result
-          </p>
-
-          {/* Step 1: Goal */}
-          <div className="mb-5">
-            <div className="flex items-center gap-2 text-sm text-white/35 mb-2">
-              <span className="w-5 h-5 rounded-full bg-[#1A6B96]/20 border border-[#2898C8]/30 flex items-center justify-center text-xs text-[#48C8F0]">1</span>
-              What do you want to manifest?
+          {/* HERO */}
+          <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '120px 24px 80px', position: 'relative' }}>
+            <p style={{ fontSize: '13px', fontWeight: 400, color: '#c9a84c', letterSpacing: '4px', textTransform: 'uppercase', marginBottom: '28px', fontStyle: 'italic', animation: 'fadeUp 0.8s ease both' }}>
+              elevate your mind, heal your soul
+            </p>
+            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 400, lineHeight: 1.15, margin: 0, maxWidth: '800px', animation: 'fadeUp 0.8s ease both 0.15s', opacity: 0 }}>
+              Reprogram your mind{' '}
+              <span style={{ fontStyle: 'italic', fontWeight: 600, background: 'linear-gradient(135deg, #c9a84c, #e8d08c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>with your own voice</span>
+            </h1>
+            <p style={{ fontSize: '17px', fontWeight: 300, color: 'rgba(255,255,255,0.45)', marginTop: '24px', maxWidth: '520px', lineHeight: 1.7, animation: 'fadeUp 0.8s ease both 0.3s', opacity: 0 }}>
+              AI clones your voice. Solfeggio frequencies sync your brain. Personalized affirmations rewire your beliefs.
+            </p>
+            <div style={{ display: 'flex', gap: '16px', marginTop: '44px', animation: 'fadeUp 0.8s ease both 0.45s', opacity: 0 }}>
+              <a href="/dashboard" style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', boxShadow: '0 4px 30px rgba(201,168,76,0.25), 0 0 60px rgba(201,168,76,0.08)' }}>Start Free</a>
+              <button onClick={scrollToDemo} style={{ background: 'transparent', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', padding: '18px 36px', fontSize: '15px', fontWeight: 400, cursor: 'pointer' }}>▶ Listen Demo</button>
             </div>
-            <div className="bg-white/[0.04] border border-white/[0.1] rounded-xl px-4 py-4">
-              <input
-                type="text"
-                value={goal}
-                onChange={(e) => setGoal(e.target.value)}
-                placeholder={'"I want unstoppable confidence in everything I do"'}
-                className="w-full bg-transparent text-base text-white/80 placeholder-white/[0.18] outline-none"
-                style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}
-              />
+            <div style={{ marginTop: '60px', display: 'flex', alignItems: 'center', gap: '32px', animation: 'fadeUp 0.8s ease both 0.6s', opacity: 0 }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: '#c9a84c' }}>{tracksGenerated.toLocaleString()}</div>
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '4px' }}>tracks generated</div>
+              </div>
+              <div style={{ width: '1px', height: '40px', background: 'rgba(255,255,255,0.06)' }} />
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: '#c9a84c' }}>2 min</div>
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '4px' }}>to generate</div>
+              </div>
+              <div style={{ width: '1px', height: '40px', background: 'rgba(255,255,255,0.06)' }} />
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: '#c9a84c' }}>Free</div>
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '4px' }}>no card required</div>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2 mt-2.5">
-              {QUICK_GOALS.map((g) => (
-                <button key={g} onClick={() => setGoal(g)} className="px-4 py-2 rounded-full bg-[#1A6B96]/[0.08] border border-[#1A6B96]/[0.18] text-sm text-white/45 hover:text-white/60 hover:border-[#1A6B96]/30 transition-all">
-                  {g}
+            <div style={{ position: 'absolute', bottom: '32px', animation: 'bounce 2s infinite' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5"><path d="M12 5v14M5 12l7 7 7-7" /></svg>
+            </div>
+          </section>
+
+          {/* AUDIO DEMO */}
+          <section id="demo" style={{ padding: '100px 24px', maxWidth: '700px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+              <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.6)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '12px' }}>hear the difference</p>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 400, margin: 0 }}>
+                Your voice, <span style={{ fontStyle: 'italic', color: '#c9a84c', fontWeight: 600 }}>transformed</span>
+              </h2>
+            </div>
+            <div style={{ background: 'linear-gradient(160deg, rgba(12,26,46,0.85), rgba(8,16,32,0.95))', border: '1px solid rgba(61,142,207,0.08)', borderRadius: '24px', padding: '32px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, left: '15%', right: '15%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.25), transparent)' }} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                <div>
+                  <div style={{ fontSize: '16px', fontWeight: 600, color: '#fff' }}>Abundance & Confidence</div>
+                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', marginTop: '4px' }}>528 Hz · Miracle · ocean waves</div>
+                </div>
+                <div style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: '8px', padding: '4px 12px', fontSize: '11px', color: '#c9a84c', letterSpacing: '1px' }}>SAMPLE</div>
+              </div>
+              <AudioWaveform isPlaying={isPlaying} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '20px' }}>
+                <button onClick={() => { setIsPlaying(!isPlaying); if (!isPlaying) setPlayProgress(0); }} style={{
+                  background: isPlaying ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #c9a84c, #dbb960)',
+                  border: 'none', borderRadius: '50%', width: '48px', height: '48px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                  boxShadow: isPlaying ? 'none' : '0 0 20px rgba(201,168,76,0.2)',
+                }}>
+                  {isPlaying ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#081020"><polygon points="5,3 19,12 5,21" /></svg>
+                  )}
+                </button>
+                <div style={{ flex: 1, height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div style={{ width: `${playProgress}%`, height: '100%', background: 'linear-gradient(90deg, #c9a84c, #4a9eff)', borderRadius: '2px', transition: 'width 0.1s linear' }} />
+                </div>
+                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', fontFamily: "'Cormorant Garamond', serif" }}>
+                  {isPlaying ? `0:${Math.floor(playProgress / 100 * 30).toString().padStart(2, '0')}` : '0:30'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '20px', flexWrap: 'wrap' }}>
+                {['AI Voice Clone', '528 Hz Binaural', 'Ocean Ambient', 'Δ3Hz Brain Sync'].map(tag => (
+                  <span key={tag} style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', background: 'rgba(61,142,207,0.06)', border: '1px solid rgba(61,142,207,0.08)', borderRadius: '6px', padding: '4px 10px', letterSpacing: '0.5px' }}>{tag}</span>
+                ))}
+              </div>
+            </div>
+            <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '13px', color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>
+              ✦ This is a sample. Your track will use YOUR cloned voice.
+            </p>
+          </section>
+
+          {/* HOW IT WORKS */}
+          <section id="how" style={{ padding: '100px 24px', maxWidth: '900px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+              <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.6)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '12px' }}>three steps</p>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 400, margin: 0 }}>
+                How <span style={{ fontStyle: 'italic', color: '#c9a84c', fontWeight: 600 }}>VOXIRA</span> works
+              </h2>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+              {[
+                { num: '01', title: 'Set intention', desc: 'Tell us what you want to manifest. We generate personalized affirmations with AI.', icon: '✦' },
+                { num: '02', title: 'Record voice', desc: '30 seconds is all we need. Our AI clones your voice with precision.', icon: '🎙' },
+                { num: '03', title: 'Listen & transform', desc: 'Your cloned voice delivers affirmations over Solfeggio frequencies with binaural beats.', icon: '🎧' },
+              ].map((step) => (
+                <div key={step.num} style={{ background: 'linear-gradient(160deg, rgba(12,26,46,0.6), rgba(8,16,32,0.8))', border: '1px solid rgba(61,142,207,0.06)', borderRadius: '20px', padding: '36px 28px', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', top: 0, left: '20%', right: '20%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent)' }} />
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', fontWeight: 300, color: 'rgba(201,168,76,0.12)', marginBottom: '20px' }}>{step.num}</div>
+                  <div style={{ fontSize: '24px', marginBottom: '16px' }}>{step.icon}</div>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', fontWeight: 600, color: '#fff', margin: 0, marginBottom: '12px' }}>{step.title}</h3>
+                  <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, margin: 0 }}>{step.desc}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* FREQUENCIES */}
+          <section id="frequencies" style={{ padding: '100px 24px', maxWidth: '800px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+              <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.6)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '12px' }}>solfeggio frequencies</p>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 400, margin: 0 }}>
+                Ancient tones for <span style={{ fontStyle: 'italic', color: '#c9a84c', fontWeight: 600 }}>modern minds</span>
+              </h2>
+              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)', marginTop: '16px', fontStyle: 'italic' }}>Each frequency paired with binaural beats — 3Hz difference between ears for deep brain entrainment</p>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+              {FREQS.map((f, i) => (
+                <button key={f.hz} onClick={() => setActiveFreq(i)} style={{
+                  background: activeFreq === i ? `linear-gradient(135deg, ${f.color}18, rgba(8,16,32,0.8))` : 'rgba(8,16,32,0.6)',
+                  border: `1px solid ${activeFreq === i ? f.color + '40' : 'rgba(61,142,207,0.06)'}`,
+                  borderRadius: '14px', padding: '16px 24px', cursor: 'pointer', textAlign: 'center', minWidth: '120px',
+                }}>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontWeight: 600, color: activeFreq === i ? f.color : 'rgba(255,255,255,0.5)' }}>{f.hz}</div>
+                  <div style={{ fontSize: '11px', color: activeFreq === i ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.25)', marginTop: '4px', letterSpacing: '0.5px' }}>{f.name}</div>
+                  {activeFreq === i && (
+                    <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', marginTop: '8px', fontFamily: "'Cormorant Garamond', serif" }}>R:{f.hz}Hz · L:{f.hz - 3}Hz</div>
+                  )}
                 </button>
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="h-px bg-[#1A6B96]/10 my-4" />
-
-          {/* Step 2: Voice */}
-          <div className="mb-5">
-            <div className="flex items-center gap-2 text-sm text-white/35 mb-2.5">
-              <span className="w-5 h-5 rounded-full bg-[#1A6B96]/20 border border-[#2898C8]/30 flex items-center justify-center text-xs text-[#48C8F0]">2</span>
-              Record or upload your voice (30 sec)
+          {/* FINAL CTA */}
+          <section style={{ padding: '120px 24px', textAlign: 'center', position: 'relative' }}>
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, margin: 0, marginBottom: '16px' }}>
+                your mind · your voice · your{' '}
+                <span style={{ fontStyle: 'italic', fontWeight: 600, background: 'linear-gradient(135deg, #c9a84c, #e8d08c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>transformation</span>
+              </h2>
+              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.35)', marginBottom: '40px' }}>3 free tracks · no card required · ready in 2 minutes</p>
+              <a href="/dashboard" style={{
+                background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none',
+                borderRadius: '14px', padding: '20px 56px', fontSize: '16px', fontWeight: 700,
+                letterSpacing: '1.5px', textTransform: 'uppercase',
+                boxShadow: '0 4px 40px rgba(201,168,76,0.3), 0 0 80px rgba(201,168,76,0.1)',
+                display: 'inline-block',
+              }}>Start Now</a>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => { setVoiceMode('record'); setIsRecording(!isRecording); }}
-                className={`flex items-center justify-center gap-3 py-5 px-3 rounded-xl border transition-all ${voiceMode === 'record' ? 'bg-red-500/[0.08] border-red-500/25' : 'bg-[#1A6B96]/[0.06] border-[#1A6B96]/[0.15] hover:border-[#1A6B96]/25'}`}
-              >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-[1.5px] ${voiceMode === 'record' && isRecording ? 'bg-red-500/20 border-red-500/40' : 'bg-red-500/10 border-red-500/25'}`}>
-                  <div className={`rounded-full bg-red-500 ${voiceMode === 'record' && isRecording ? 'w-3.5 h-3.5 animate-pulse' : 'w-3.5 h-3.5'}`} />
-                </div>
-                <div className="text-left">
-                  <div className="text-base text-white/70 font-medium">Record</div>
-                  <div className="text-xs text-white/25">Use your mic</div>
-                </div>
-              </button>
-              <button
-                onClick={() => { setVoiceMode('upload'); fileInputRef.current?.click(); }}
-                className={`flex items-center justify-center gap-3 py-5 px-3 rounded-xl border transition-all ${voiceMode === 'upload' ? 'bg-[#1A6B96]/[0.12] border-[#2898C8]/25' : 'bg-[#1A6B96]/[0.06] border-[#1A6B96]/[0.15] hover:border-[#1A6B96]/25'}`}
-              >
-                <div className="w-10 h-10 rounded-full bg-[#1A6B96]/10 border-[1.5px] border-[#2898C8]/25 flex items-center justify-center">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2898C8" strokeWidth="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                </div>
-                <div className="text-left">
-                  <div className="text-base text-white/70 font-medium">Upload</div>
-                  <div className="text-xs text-white/25">MP3, WAV, M4A</div>
-                </div>
-              </button>
-              <input ref={fileInputRef} type="file" accept="audio/*" className="hidden" />
-            </div>
-          </div>
+          </section>
 
-          <div className="h-px bg-[#1A6B96]/10 my-4" />
-
-          {/* Step 3: Frequency */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 text-sm text-white/35 mb-2.5">
-              <span className="w-5 h-5 rounded-full bg-[#1A6B96]/20 border border-[#2898C8]/30 flex items-center justify-center text-xs text-[#48C8F0]">3</span>
-              Choose your Solfeggio frequency
+          {/* FOOTER */}
+          <footer style={{ padding: '40px 24px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
+            <VoxiraLogo size={100} />
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '20px' }}>
+              <a href="#" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontSize: '12px' }}>Terms</a>
+              <a href="#" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontSize: '12px' }}>Privacy</a>
+              <a href="#" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontSize: '12px' }}>Contact</a>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {SOLFEGGIO.map((f) => (
-                <button
-                  key={f.hz}
-                  onClick={() => setSelectedFreq(f.hz)}
-                  className={`px-3.5 py-2 rounded-lg text-sm transition-all ${selectedFreq === f.hz ? 'bg-[#1A6B96]/[0.2] border border-[#2898C8]/30 text-[#48C8F0] font-medium' : 'border border-white/[0.06] text-white/25 hover:text-white/40 hover:border-white/10'}`}
-                >
-                  {selectedFreq === f.hz ? `${f.hz} Hz — ${f.name}` : f.hz}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Create */}
-          <button className="w-full flex items-center justify-center gap-3 py-5 rounded-2xl bg-gradient-to-r from-[#124568] via-[#1A6B96] to-[#2080B0] shadow-[0_0_28px_rgba(26,107,150,0.35),0_0_60px_rgba(26,107,150,0.1)] hover:shadow-[0_0_36px_rgba(26,107,150,0.5)] transition-all">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 3v18M3 12h18"/></svg>
-            <span className="text-lg text-white font-medium tracking-wide">Generate My Track</span>
-          </button>
-          <p className="text-center text-xs text-white/[0.12] mt-3">free · no account needed · ready in 2 minutes</p>
+            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.1)', marginTop: '16px', letterSpacing: '2px' }}>© 2026 VOXIRA · Powered by ElevenLabs & OpenAI</p>
+          </footer>
         </div>
-      </motion.section>
+      </div>
 
-      {/* Player */}
-      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3 }} className="mx-4 md:mx-auto md:max-w-2xl mb-8">
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-[#1A6B96]/[0.06] to-[#1A6B96]/[0.02] border border-[#1A6B96]/[0.12]">
-          <div className="flex items-center gap-3 mb-4">
-            <button className="w-12 h-12 rounded-full bg-gradient-to-br from-[#124568] to-[#1A6B96] flex items-center justify-center shadow-[0_0_16px_rgba(26,107,150,0.3)] shrink-0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-            </button>
-            <div className="flex-1 min-w-0">
-              <div className="text-base text-white truncate" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>Abundance &amp; Inner Peace</div>
-              <div className="text-xs text-white/20 mt-0.5">528 Hz · ocean waves · your voice</div>
-            </div>
-            <span className="text-xs text-white/[0.12] shrink-0">1:47 / 4:32</span>
-          </div>
-          <div className="relative h-11 mb-2.5">
-            <div className="flex items-end gap-[2px] h-full absolute inset-0">
-              {Array.from({ length: 30 }, (_, i) => {
-                const h = 25 + Math.sin(i * 0.4) * 30 + Math.sin(i * 0.7) * 20;
-                return <motion.div key={i} className="flex-1 rounded-md" style={{ background: `rgba(26,107,150,${0.25 + (h/100)*0.35})` }} initial={{ height: '10%' }} animate={{ height: `${h}%` }} transition={{ duration: 0.8, delay: i * 0.02 }} />;
-              })}
-            </div>
-          </div>
-          <div className="h-[3px] bg-white/[0.04] rounded-full">
-            <div className="w-[38%] h-full bg-gradient-to-r from-[#124568] via-[#1A6B96] to-[#2898C8] rounded-full shadow-[0_0_6px_rgba(40,152,200,0.25)]" />
-          </div>
-          <div className="flex justify-between mt-2">
-            <div className="flex gap-3">
-              <span className="text-xs text-[#2898C8]/40 tracking-wider">528 Hz</span>
-              <span className="text-xs text-white/[0.06]">·</span>
-              <span className="text-xs text-[#C9A84C]/25 tracking-wider">FIBONACCI REVERB</span>
-            </div>
-            <span className="text-xs text-white/[0.08] tracking-wider">SIDECHAIN ON</span>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Frequencies */}
-      <section className="px-4 md:px-10 mb-8 text-center">
-        <p className="text-sm text-[#C9A84C] tracking-[3px] font-light mb-5" style={{ fontFamily: 'Georgia, serif' }}>solfeggio frequencies</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-w-3xl mx-auto">
-          {SOLFEGGIO.map((f, i) => (
-            <motion.button key={f.hz} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} viewport={{ once: true }} onClick={() => setSelectedFreq(f.hz)}
-              className={`py-5 px-3 rounded-xl text-center transition-all relative overflow-hidden ${selectedFreq === f.hz ? 'bg-[#1A6B96]/[0.12] border border-[#2898C8]/25' : 'bg-[#124568]/[0.06] border border-[#1A6B96]/[0.08] hover:border-[#1A6B96]/20 hover:bg-[#1A6B96]/[0.08]'}`}
-            >
-              <div className="text-2xl font-light" style={{ fontFamily: 'Georgia, serif', color: `hsl(${195 + i * 3}, ${50 + i * 2}%, ${35 + i * 3}%)` }}>{f.hz}</div>
-              <div className="text-xs text-white/50 mt-1" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>{f.name}</div>
-              {selectedFreq === f.hz && <div className="absolute inset-0 rounded-xl bg-[radial-gradient(circle_at_center,rgba(40,152,200,0.06),transparent)] pointer-events-none" />}
-            </motion.button>
-          ))}
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="px-5 mb-8 text-center">
-        <EnergyWaves height={35} intensity={0.6} className="mb-5" />
-        <p className="text-sm text-[#C9A84C] tracking-[3px] font-light mb-6" style={{ fontFamily: 'Georgia, serif' }}>how it works</p>
-        <div className="flex justify-center gap-10 md:gap-16">
-          {[
-            { n: '01', t: 'frequency', d: 'binaural waves\nsync your brain' },
-            { n: '02', t: 'your voice', d: 'AI clones your voice\nwith precision' },
-            { n: '03', t: 'affirmations', d: 'personalized\nfor your goals' },
-          ].map((s, i) => (
-            <motion.div key={s.n} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.12 }} viewport={{ once: true }} className="text-center">
-              <div className="text-2xl font-light text-[#1A6B96] italic" style={{ fontFamily: 'Georgia, serif' }}>{s.n}</div>
-              <div className="text-base text-white mt-2">{s.t}</div>
-              <div className="text-sm text-white/25 mt-1 font-light leading-relaxed whitespace-pre-line">{s.d}</div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="px-5 pb-8 text-center">
-        <EnergyWaves height={35} intensity={0.6} className="mb-6" />
-        <h2 className="text-2xl md:text-3xl font-light leading-relaxed" style={{ fontFamily: 'Georgia, serif' }}>
-          your mind · your voice · <span className="italic text-[#C9A84C]">your transformation</span>
-        </h2>
-        <p className="text-xs text-white/15 mt-3 mb-5">3 free credits · no card required</p>
-        <button className="px-10 py-3.5 rounded-full bg-gradient-to-r from-[#124568] via-[#1A6B96] to-[#2080B0] text-white text-base tracking-wide italic shadow-[0_0_24px_rgba(26,107,150,0.35),0_0_60px_rgba(26,107,150,0.12)] hover:shadow-[0_0_32px_rgba(26,107,150,0.5)] transition-all" style={{ fontFamily: 'Georgia, serif' }}>
-          start now
-        </button>
-      </section>
-
-      {/* Footer */}
-      <footer className="px-5 md:px-10 py-3 flex justify-between">
-        <span className="text-xs text-white/[0.08]">© 2026 V O X I R A</span>
-        <div className="flex gap-4">
-          <a href="#" className="text-xs text-white/[0.08] hover:text-white/15 transition-colors">terms</a>
-          <a href="#" className="text-xs text-white/[0.08] hover:text-white/15 transition-colors">privacy</a>
-        </div>
-      </footer>
-    </div>
+      <style>{`
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes orbFloat { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,-25px) scale(1.05)} 66%{transform:translate(-25px,18px) scale(0.95)} }
+        @keyframes bounce { 0%,20%,50%,80%,100%{transform:translateY(0)} 40%{transform:translateY(8px)} 60%{transform:translateY(4px)} }
+        @keyframes spinSlow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        * { box-sizing: border-box; margin: 0; }
+        html { scroll-behavior: smooth; }
+        ::selection { background: rgba(201,168,76,0.3); }
+        button:hover { filter: brightness(1.1); }
+        a:hover { opacity: 0.85; }
+        @media (max-width: 768px) {
+          nav { padding: 16px 20px !important; }
+          nav a[href="#demo"], nav a[href="#how"], nav a[href="#frequencies"] { display: none !important; }
+          section > div[style*="grid-template-columns: repeat(3"] { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+    </>
   );
 }
