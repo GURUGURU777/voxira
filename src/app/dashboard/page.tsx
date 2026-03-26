@@ -70,6 +70,7 @@ export default function Dashboard() {
 
       mediaRecorder.ondataavailable = (e) => chunksRef.current.push(e.data)
       mediaRecorder.onstop = () => {
+        if (timerRef.current) clearInterval(timerRef.current);
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
         setAudioBlob(blob)
         setAudioUrl(URL.createObjectURL(blob))
