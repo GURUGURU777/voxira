@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 
 const frequencies = [
   { hz: 396, name: 'Liberation', desc: 'release fear & guilt' },
@@ -14,12 +14,12 @@ const frequencies = [
 ]
 
 const ambientSounds = [
-  { id: 'none', name: 'None', icon: '🔇' },
-  { id: 'rain', name: 'Rain', icon: '🌧️' },
-  { id: 'ocean', name: 'Ocean', icon: '🌊' },
-  { id: 'stream', name: 'Stream', icon: '💧' },
-  { id: 'birds', name: 'Birds', icon: '🐦' },
-  { id: 'forest', name: 'Forest', icon: '🌲' },
+  { id: 'none', name: 'silence', icon: '○' },
+  { id: 'rain', name: 'rain', icon: '◌' },
+  { id: 'ocean', name: 'ocean', icon: '◌' },
+  { id: 'stream', name: 'stream', icon: '◌' },
+  { id: 'birds', name: 'birds', icon: '◌' },
+  { id: 'forest', name: 'forest', icon: '◌' },
 ]
 
 function recommendFrequency(goal: string): number {
@@ -31,7 +31,7 @@ function recommendFrequency(goal: string): number {
   if (g.includes('relationship') || g.includes('friend') || g.includes('family') || g.includes('relacion') || g.includes('familia')) return 639
   if (g.includes('confidence') || g.includes('speak') || g.includes('confianza') || g.includes('hablar')) return 741
   if (g.includes('intuition') || g.includes('spiritual') || g.includes('intuicion') || g.includes('espiritual')) return 852
-  if (g.includes('money') || g.includes('success') || g.includes('million') || g.includes('dinero') || g.includes('exito') || g.includes('abundance')) return 963
+  if (g.includes('money') || g.includes('success') || g.includes('million') || g.includes('dinero') || g.includes('exito') || g.includes('abundance') || g.includes('millonare') || g.includes('millonario')) return 963
   return 528
 }
 
@@ -53,13 +53,14 @@ export default function Dashboard() {
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    if (goal.length > 20) {
-      const rec = recommendFrequency(goal)
+  const handleGoalChange = (val: string) => {
+    setGoal(val)
+    if (val.length > 20) {
+      const rec = recommendFrequency(val)
       setRecommendedHz(rec)
       setFrequency(rec)
     }
-  }, [goal])
+  }
 
   const startRecording = async () => {
     try {
@@ -67,16 +68,14 @@ export default function Dashboard() {
       const mediaRecorder = new MediaRecorder(stream)
       mediaRecorderRef.current = mediaRecorder
       chunksRef.current = []
-
       mediaRecorder.ondataavailable = (e) => chunksRef.current.push(e.data)
       mediaRecorder.onstop = () => {
-        if (timerRef.current) clearInterval(timerRef.current);
+        if (timerRef.current) clearInterval(timerRef.current)
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
         setAudioBlob(blob)
         setAudioUrl(URL.createObjectURL(blob))
         stream.getTracks().forEach(t => t.stop())
       }
-
       mediaRecorder.start()
       setIsRecording(true)
       setRecordingTime(0)
@@ -89,7 +88,6 @@ export default function Dashboard() {
   const stopRecording = () => {
     mediaRecorderRef.current?.stop()
     setIsRecording(false)
-    if (timerRef.current) clearInterval(timerRef.current)
   }
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,194 +95,221 @@ export default function Dashboard() {
     if (file) {
       setUploadedFile(file)
       setAudioUrl(URL.createObjectURL(file))
+      setRecordingTime(30)
     }
   }
 
   const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
-
-  const canGenerate = (audioBlob || uploadedFile) && recordingTime >= 10 || uploadedFile
-
-  const bg = '#050a18'
-  const gold = '#c9a84c'
-  const blue = '#4a9eff'
-  const border = 'rgba(74,158,255,0.2)'
+  const canGenerate = (audioBlob && recordingTime >= 10) || uploadedFile
 
   return (
-    <div style={{ minHeight: '100vh', background: bg, color: 'white', fontFamily: 'Georgia, serif', padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: '#02050f',
+      color: 'white',
+      fontFamily: "'Georgia', serif",
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      padding: '60px 24px',
+    }}>
 
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <a href="/" style={{ textDecoration: 'none' }}>
-          <h1 style={{ fontSize: '2rem', letterSpacing: '0.3em', color: gold, marginBottom: '6px' }}>V O X I R A</h1>
-        </a>
-        <p style={{ color: blue, fontSize: '0.8rem', letterSpacing: '0.2em' }}>your personal mind reprogramming</p>
-      </div>
+      {/* Logo */}
+      <a href="/" style={{ textDecoration: 'none', marginBottom: '60px' }}>
+        <p style={{ color: '#c9a84c', letterSpacing: '0.4em', fontSize: '0.85rem', textAlign: 'center' }}>V O X I R A</p>
+      </a>
 
-      {/* Steps */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '40px' }}>
-        {['goal', 'frequency', 'voice'].map((s, i) => (
-          <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div onClick={() => i + 1 <= step && setStep(i + 1)} style={{
-              width: '36px', height: '36px', borderRadius: '50%',
-              background: step > i + 1 ? blue : step === i + 1 ? 'rgba(74,158,255,0.2)' : 'transparent',
-              border: `1px solid ${step >= i + 1 ? blue : 'rgba(255,255,255,0.2)'}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '0.85rem', cursor: i + 1 <= step ? 'pointer' : 'default',
-              color: step >= i + 1 ? 'white' : '#555'
-            }}>{i + 1}</div>
-            <span style={{ fontSize: '0.75rem', color: step === i + 1 ? blue : '#555', letterSpacing: '0.1em' }}>{s}</span>
-            {i < 2 && <div style={{ width: '30px', height: '1px', background: step > i + 1 ? blue : '#333' }} />}
-          </div>
+      {/* Step indicator — minimal dots */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '60px' }}>
+        {[1, 2, 3].map(s => (
+          <div key={s} style={{
+            width: s === step ? '24px' : '6px',
+            height: '6px',
+            borderRadius: '3px',
+            background: s === step ? '#4a9eff' : s < step ? '#1a4a8a' : '#111',
+            transition: 'all 0.4s ease',
+            cursor: s <= step ? 'pointer' : 'default'
+          }} onClick={() => s <= step && setStep(s)} />
         ))}
       </div>
 
-      {/* STEP 1: Goal */}
+      {/* STEP 1 — Intent */}
       {step === 1 && (
-        <div style={{ width: '100%', maxWidth: '620px', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.6rem', color: gold, marginBottom: '8px' }}>what do you want to achieve?</h2>
-          <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '24px' }}>be specific — your subconscious responds to detail</p>
+        <div style={{ width: '100%', maxWidth: '560px', textAlign: 'center' }}>
+          <p style={{ color: '#4a9eff', fontSize: '0.7rem', letterSpacing: '0.3em', marginBottom: '16px', textTransform: 'uppercase' }}>step one</p>
+          <h2 style={{ fontSize: '1.8rem', color: 'white', marginBottom: '8px', fontWeight: 'normal', lineHeight: '1.3' }}>
+            set your intention
+          </h2>
+          <p style={{ color: '#333', fontSize: '0.9rem', marginBottom: '36px' }}>
+            the more specific, the deeper the reprogramming
+          </p>
           <textarea
             value={goal}
-            onChange={e => setGoal(e.target.value)}
-            placeholder="I want to wake up every day with unshakeable confidence, feeling worthy of abundance and success in everything I do..."
+            onChange={e => handleGoalChange(e.target.value)}
+            placeholder="I want to..."
             style={{
-              width: '100%', height: '160px', background: 'rgba(74,158,255,0.04)',
-              border: `1px solid ${border}`, borderRadius: '16px', color: 'white',
-              padding: '18px', fontSize: '1rem', resize: 'none', outline: 'none',
-              marginBottom: '16px', fontFamily: 'Georgia, serif', lineHeight: '1.6'
+              width: '100%', height: '140px',
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '4px', color: 'white',
+              padding: '20px', fontSize: '1.05rem',
+              resize: 'none', outline: 'none',
+              fontFamily: 'Georgia, serif',
+              lineHeight: '1.7', marginBottom: '16px',
+              transition: 'border 0.3s'
             }}
+            onFocus={e => e.target.style.borderColor = 'rgba(74,158,255,0.3)'}
+            onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}
           />
           {recommendedHz && (
-            <div style={{ padding: '12px 20px', background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '10px', marginBottom: '20px', fontSize: '0.85rem', color: gold }}>
-              ✨ recommended frequency: <strong>{recommendedHz}Hz</strong> — {frequencies.find(f => f.hz === recommendedHz)?.name}
-            </div>
+            <p style={{ color: '#c9a84c', fontSize: '0.78rem', letterSpacing: '0.1em', marginBottom: '24px' }}>
+              ✦ {recommendedHz}Hz recommended — {frequencies.find(f => f.hz === recommendedHz)?.name}
+            </p>
           )}
-          <button onClick={() => goal.length > 15 && setStep(2)} style={{
-            background: goal.length > 15 ? `linear-gradient(135deg, ${blue}, #1a5aff)` : '#1a1a2e',
-            border: 'none', borderRadius: '30px', padding: '14px 44px',
-            color: goal.length > 15 ? 'white' : '#444', fontSize: '1rem', cursor: goal.length > 15 ? 'pointer' : 'not-allowed',
-            letterSpacing: '0.05em', transition: 'all 0.3s'
-          }}>continue →</button>
+          <button
+            onClick={() => goal.length > 15 && setStep(2)}
+            style={{
+              background: 'none', border: 'none',
+              color: goal.length > 15 ? '#4a9eff' : '#222',
+              fontSize: '0.9rem', cursor: goal.length > 15 ? 'pointer' : 'not-allowed',
+              letterSpacing: '0.15em', padding: '8px 0',
+              borderBottom: `1px solid ${goal.length > 15 ? '#4a9eff' : '#222'}`,
+              transition: 'all 0.3s'
+            }}>
+            continue
+          </button>
         </div>
       )}
 
-      {/* STEP 2: Frequency + Ambient */}
+      {/* STEP 2 — Frequency */}
       {step === 2 && (
-        <div style={{ width: '100%', maxWidth: '720px', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.6rem', color: gold, marginBottom: '8px' }}>choose your frequency</h2>
-          <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '24px' }}>solfeggio frequencies align your brain with your intention</p>
+        <div style={{ width: '100%', maxWidth: '640px', textAlign: 'center' }}>
+          <p style={{ color: '#4a9eff', fontSize: '0.7rem', letterSpacing: '0.3em', marginBottom: '16px', textTransform: 'uppercase' }}>step two</p>
+          <h2 style={{ fontSize: '1.8rem', color: 'white', marginBottom: '8px', fontWeight: 'normal' }}>
+            choose your frequency
+          </h2>
+          <p style={{ color: '#333', fontSize: '0.9rem', marginBottom: '40px' }}>
+            binaural waves will be tuned to your selection
+          </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px', overflow: 'hidden', marginBottom: '40px' }}>
             {frequencies.map(f => (
               <div key={f.hz} onClick={() => setFrequency(f.hz)} style={{
-                padding: '18px 8px', borderRadius: '14px', cursor: 'pointer',
-                border: frequency === f.hz ? `1px solid ${blue}` : '1px solid rgba(255,255,255,0.08)',
-                background: frequency === f.hz ? 'rgba(74,158,255,0.12)' : 'rgba(255,255,255,0.02)',
+                padding: '20px 8px', cursor: 'pointer',
+                background: frequency === f.hz ? 'rgba(74,158,255,0.08)' : '#02050f',
                 transition: 'all 0.2s', position: 'relative'
               }}>
                 {recommendedHz === f.hz && (
-                  <div style={{ position: 'absolute', top: '-8px', right: '-8px', background: gold, borderRadius: '10px', padding: '2px 6px', fontSize: '0.6rem', color: '#000' }}>★ rec</div>
+                  <div style={{ position: 'absolute', top: '6px', right: '6px', width: '4px', height: '4px', borderRadius: '50%', background: '#c9a84c' }} />
                 )}
-                <div style={{ fontSize: '1.4rem', color: frequency === f.hz ? blue : '#4a7ab5', marginBottom: '4px', fontWeight: 'bold' }}>{f.hz}</div>
-                <div style={{ fontSize: '0.75rem', color: frequency === f.hz ? 'white' : '#888', marginBottom: '2px' }}>{f.name}</div>
-                <div style={{ fontSize: '0.65rem', color: '#555', fontStyle: 'italic' }}>{f.desc}</div>
+                <div style={{ fontSize: '1.3rem', color: frequency === f.hz ? '#4a9eff' : '#2a4a6a', marginBottom: '6px' }}>{f.hz}</div>
+                <div style={{ fontSize: '0.7rem', color: frequency === f.hz ? '#aaa' : '#333', letterSpacing: '0.05em' }}>{f.name}</div>
               </div>
             ))}
           </div>
 
-          {/* Ambient sounds */}
-          <div style={{ marginBottom: '28px' }}>
-            <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '14px', letterSpacing: '0.1em' }}>add ambient sound (optional)</p>
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          {/* Ambient */}
+          <div style={{ marginBottom: '40px' }}>
+            <p style={{ color: '#222', fontSize: '0.75rem', letterSpacing: '0.2em', marginBottom: '16px', textTransform: 'uppercase' }}>ambient layer</p>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
               {ambientSounds.map(a => (
-                <div key={a.id} onClick={() => setAmbient(a.id)} style={{
-                  padding: '10px 16px', borderRadius: '20px', cursor: 'pointer',
-                  border: ambient === a.id ? `1px solid ${gold}` : '1px solid rgba(255,255,255,0.1)',
-                  background: ambient === a.id ? 'rgba(201,168,76,0.1)' : 'transparent',
-                  fontSize: '0.85rem', color: ambient === a.id ? gold : '#666',
+                <button key={a.id} onClick={() => setAmbient(a.id)} style={{
+                  background: 'none',
+                  border: `1px solid ${ambient === a.id ? 'rgba(201,168,76,0.4)' : 'rgba(255,255,255,0.06)'}`,
+                  borderRadius: '2px', padding: '8px 16px',
+                  color: ambient === a.id ? '#c9a84c' : '#333',
+                  fontSize: '0.8rem', cursor: 'pointer', letterSpacing: '0.1em',
                   transition: 'all 0.2s'
-                }}>{a.icon} {a.name}</div>
+                }}>{a.name}</button>
               ))}
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-            <button onClick={() => setStep(1)} style={{ background: 'transparent', border: '1px solid #222', borderRadius: '30px', padding: '12px 28px', color: '#555', cursor: 'pointer' }}>← back</button>
-            <button onClick={() => setStep(3)} style={{ background: `linear-gradient(135deg, ${blue}, #1a5aff)`, border: 'none', borderRadius: '30px', padding: '12px 36px', color: 'white', fontSize: '1rem', cursor: 'pointer' }}>continue →</button>
+          <div style={{ display: 'flex', gap: '40px', justifyContent: 'center' }}>
+            <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: '#222', cursor: 'pointer', fontSize: '0.85rem', letterSpacing: '0.1em' }}>← back</button>
+            <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', color: '#4a9eff', cursor: 'pointer', fontSize: '0.85rem', letterSpacing: '0.15em', borderBottom: '1px solid #4a9eff', paddingBottom: '2px' }}>continue</button>
           </div>
         </div>
       )}
 
-      {/* STEP 3: Voice */}
+      {/* STEP 3 — Voice */}
       {step === 3 && (
-        <div style={{ width: '100%', maxWidth: '620px', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.6rem', color: gold, marginBottom: '8px' }}>record your voice</h2>
-          <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '24px' }}>10 seconds minimum — speak naturally and clearly</p>
+        <div style={{ width: '100%', maxWidth: '520px', textAlign: 'center' }}>
+          <p style={{ color: '#4a9eff', fontSize: '0.7rem', letterSpacing: '0.3em', marginBottom: '16px', textTransform: 'uppercase' }}>step three</p>
+          <h2 style={{ fontSize: '1.8rem', color: 'white', marginBottom: '8px', fontWeight: 'normal' }}>
+            your voice
+          </h2>
+          <p style={{ color: '#333', fontSize: '0.9rem', marginBottom: '48px' }}>
+            10 seconds minimum — speak clearly and naturally
+          </p>
 
-          <div style={{ background: 'rgba(74,158,255,0.04)', border: `1px solid ${border}`, borderRadius: '20px', padding: '36px', marginBottom: '20px' }}>
-
-            {/* Timer */}
-            <div style={{ fontSize: '2.5rem', fontFamily: 'monospace', color: isRecording ? '#ff4444' : recordingTime > 0 ? blue : '#333', marginBottom: '20px', letterSpacing: '0.1em' }}>
-              {formatTime(recordingTime)}
-            </div>
-
-            {/* Mic button */}
-            <div onClick={isRecording ? stopRecording : startRecording} style={{
-              width: '90px', height: '90px', borderRadius: '50%', margin: '0 auto 16px',
-              background: isRecording ? 'rgba(255,68,68,0.15)' : 'rgba(74,158,255,0.08)',
-              border: isRecording ? '2px solid #ff4444' : `2px solid ${blue}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '2.2rem', cursor: 'pointer', transition: 'all 0.3s',
-              boxShadow: isRecording ? '0 0 20px rgba(255,68,68,0.3)' : 'none'
-            }}>🎙️</div>
-
-            <p style={{ color: isRecording ? '#ff4444' : recordingTime >= 10 ? '#44ff88' : blue, fontSize: '0.9rem', marginBottom: '16px' }}>
-              {isRecording ? '● recording... tap to stop' : recordingTime >= 10 ? '✓ voice captured — ready to generate' : recordingTime > 0 ? `${10 - recordingTime}s more needed` : 'tap to start recording'}
-            </p>
-
-            {/* Playback */}
-            {audioUrl && !isRecording && (
-              <audio controls src={audioUrl} style={{ width: '100%', marginBottom: '12px', borderRadius: '8px' }} />
-            )}
-
-            {/* Minimum warning */}
-            {recordingTime > 0 && recordingTime < 10 && !isRecording && (
-              <p style={{ color: '#ff8844', fontSize: '0.8rem' }}>⚠️ record at least 10 seconds for best results</p>
-            )}
+          {/* Timer display */}
+          <div style={{ fontSize: '3rem', fontFamily: 'monospace', letterSpacing: '0.1em', marginBottom: '32px', color: isRecording ? '#ff4444' : recordingTime >= 10 ? '#44bb66' : '#1a2a3a' }}>
+            {formatTime(recordingTime)}
           </div>
 
-          {/* Upload option */}
-          <div style={{ marginBottom: '24px' }}>
-            <p style={{ color: '#444', fontSize: '0.8rem', marginBottom: '10px' }}>— or upload an audio file —</p>
+          {/* Mic */}
+          <div onClick={isRecording ? stopRecording : startRecording} style={{
+            width: '72px', height: '72px', borderRadius: '50%',
+            margin: '0 auto 20px',
+            border: `1px solid ${isRecording ? '#ff4444' : recordingTime >= 10 ? '#44bb66' : 'rgba(74,158,255,0.3)'}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1.6rem', cursor: 'pointer',
+            background: isRecording ? 'rgba(255,68,68,0.05)' : 'transparent',
+            transition: 'all 0.3s'
+          }}>🎙️</div>
+
+          <p style={{ fontSize: '0.8rem', letterSpacing: '0.1em', color: isRecording ? '#ff4444' : recordingTime >= 10 ? '#44bb66' : '#333', marginBottom: '32px' }}>
+            {isRecording ? '● recording' : recordingTime >= 10 ? '✓ ready' : recordingTime > 0 ? `${10 - recordingTime}s more` : 'tap to record'}
+          </p>
+
+          {audioUrl && !isRecording && (
+            <audio controls src={audioUrl} style={{ width: '100%', marginBottom: '24px', opacity: 0.7 }} />
+          )}
+
+          {/* Upload */}
+          <div style={{ marginBottom: '40px' }}>
             <input ref={fileInputRef} type="file" accept="audio/*" onChange={handleFileUpload} style={{ display: 'none' }} />
             <button onClick={() => fileInputRef.current?.click()} style={{
-              background: 'transparent', border: '1px solid #333', borderRadius: '20px',
-              padding: '10px 24px', color: '#666', cursor: 'pointer', fontSize: '0.85rem'
+              background: 'none', border: 'none', color: '#222',
+              cursor: 'pointer', fontSize: '0.78rem', letterSpacing: '0.15em',
+              borderBottom: '1px solid #1a1a1a', paddingBottom: '2px'
             }}>
-              {uploadedFile ? `✓ ${uploadedFile.name}` : '📁 upload voice file'}
+              {uploadedFile ? `✓ ${uploadedFile.name}` : 'or upload a file'}
             </button>
           </div>
 
           {/* Summary */}
-          <div style={{ padding: '14px 20px', background: 'rgba(201,168,76,0.05)', border: '1px solid rgba(201,168,76,0.15)', borderRadius: '12px', marginBottom: '24px', fontSize: '0.8rem', color: '#666', textAlign: 'left' }}>
-            <div style={{ marginBottom: '4px' }}><span style={{ color: blue }}>goal:</span> {goal.substring(0, 70)}{goal.length > 70 ? '...' : ''}</div>
-            <div style={{ marginBottom: '4px' }}><span style={{ color: blue }}>frequency:</span> {frequency}Hz — {frequencies.find(f => f.hz === frequency)?.name}</div>
-            <div><span style={{ color: blue }}>ambient:</span> {ambientSounds.find(a => a.id === ambient)?.icon} {ambientSounds.find(a => a.id === ambient)?.name}</div>
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: '20px', marginBottom: '32px', textAlign: 'left' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span style={{ color: '#222', fontSize: '0.75rem', letterSpacing: '0.1em' }}>INTENTION</span>
+              <span style={{ color: '#555', fontSize: '0.8rem', maxWidth: '280px', textAlign: 'right' }}>{goal.substring(0, 50)}{goal.length > 50 ? '...' : ''}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span style={{ color: '#222', fontSize: '0.75rem', letterSpacing: '0.1em' }}>FREQUENCY</span>
+              <span style={{ color: '#555', fontSize: '0.8rem' }}>{frequency}Hz — {frequencies.find(f => f.hz === frequency)?.name}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#222', fontSize: '0.75rem', letterSpacing: '0.1em' }}>AMBIENT</span>
+              <span style={{ color: '#555', fontSize: '0.8rem' }}>{ambient}</span>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-            <button onClick={() => setStep(2)} style={{ background: 'transparent', border: '1px solid #222', borderRadius: '30px', padding: '12px 28px', color: '#555', cursor: 'pointer' }}>← back</button>
+          <div style={{ display: 'flex', gap: '40px', justifyContent: 'center', alignItems: 'center' }}>
+            <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: '#222', cursor: 'pointer', fontSize: '0.85rem', letterSpacing: '0.1em' }}>← back</button>
             <button
-              disabled={!canGenerate && !uploadedFile}
-              onClick={() => setIsGenerating(true)}
+              disabled={!canGenerate}
+              onClick={() => canGenerate && setIsGenerating(true)}
               style={{
-                background: (canGenerate || uploadedFile) ? `linear-gradient(135deg, ${gold}, #a07830)` : '#1a1a2e',
-                border: 'none', borderRadius: '30px', padding: '14px 44px',
-                color: (canGenerate || uploadedFile) ? 'white' : '#444',
-                fontSize: '1rem', cursor: (canGenerate || uploadedFile) ? 'pointer' : 'not-allowed',
-                letterSpacing: '0.05em'
+                background: canGenerate ? 'rgba(201,168,76,0.1)' : 'none',
+                border: `1px solid ${canGenerate ? 'rgba(201,168,76,0.4)' : '#111'}`,
+                borderRadius: '2px', padding: '12px 32px',
+                color: canGenerate ? '#c9a84c' : '#1a1a1a',
+                fontSize: '0.85rem', cursor: canGenerate ? 'pointer' : 'not-allowed',
+                letterSpacing: '0.2em', transition: 'all 0.3s'
               }}>
-              {isGenerating ? '⏳ generating your audio...' : '✨ generate my audio'}
+              {isGenerating ? 'generating...' : 'generate'}
             </button>
           </div>
         </div>
