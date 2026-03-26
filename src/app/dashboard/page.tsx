@@ -105,7 +105,7 @@ function ParticleField() {
   useEffect(() => {
     const c = canvasRef.current; if (!c) return;
     const ctx = c.getContext('2d'); if (!ctx) return;
-    const w = c.width = c.offsetWidth, h = c.height = c.offsetHeight, id: number;
+    let w = c.width = c.offsetWidth, h = c.height = c.offsetHeight, id: number;
     const ps = Array.from({length:50},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,s:Math.random()*2+0.5,a:Math.random()*0.4+0.1,c:Math.random()>0.7?'#c9a84c':'#3d8ecf'}));
     const draw=()=>{ctx.clearRect(0,0,w,h);ps.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,Math.PI*2);ctx.fillStyle=p.c;ctx.globalAlpha=p.a;ctx.fill();for(let j=i+1;j<ps.length;j++){const dx=p.x-ps[j].x,dy=p.y-ps[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<120){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(ps[j].x,ps[j].y);ctx.strokeStyle=p.c;ctx.globalAlpha=(1-d/120)*0.08;ctx.lineWidth=0.5;ctx.stroke();}}});ctx.globalAlpha=1;id=requestAnimationFrame(draw);};
     draw();return()=>cancelAnimationFrame(id);
