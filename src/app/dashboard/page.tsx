@@ -89,7 +89,7 @@ function DashboardContent() {
 
   const toggleLang = useCallback(() => { const n = lang === 'en' ? 'es' : 'en'; setLang(n); router.replace(`/dashboard?lang=${n}`, { scroll: false }); }, [lang, router]);
 
-  useEffect(() => { if (!goal) { setRecommendedHz(null); return; } const l = goal.toLowerCase(); for (const [kw, hz] of Object.entries(GOAL_TO_FREQUENCY)) { if (l.includes(kw)) { setRecommendedHz(hz); return; } } setRecommendedHz(528); }, [goal]);
+  useEffect(() => { if (!goal || goal.trim().length < 5) { setRecommendedHz(null); return; } const l = goal.toLowerCase(); const fm: Record<string, number> = {fear:396,miedo:396,anxiety:396,ansiedad:396,guilt:396,culpa:396,trauma:396,change:417,cambio:417,transform:417,harmony:432,balance:432,equilibrio:432,nature:432,naturaleza:432,confidence:528,confianza:528,love:528,amor:528,peace:528,paz:528,heal:528,sanar:528,miracle:528,milagro:528,body:432,cuerpo:432,relationship:639,relaciones:639,connection:639,familia:639,family:639,partner:639,pareja:639,abundance:741,abundancia:741,creativity:741,creatividad:741,expression:741,money:741,dinero:741,wealth:741,riqueza:741,millionaire:741,millonario:741,rich:741,rico:741,prosper:741,prosperidad:741,manifest:741,manifestar:741,intuition:852,intuicion:852,purpose:963,proposito:963,universe:963,universo:963,spiritual:963,espiritual:963,awaken:852,despertar:852}; const hc: Record<number, number> = {}; for (const [kw, hz] of Object.entries(fm)) { if (l.includes(kw)) { hc[hz] = (hc[hz] || 0) + 1; } } const s = Object.entries(hc).sort((a, b) => b[1] - a[1]); setRecommendedHz(s.length > 0 ? Number(s[0][0]) : null); }, [goal]);
 
   const startRecording = useCallback(async () => {
     try {
@@ -128,7 +128,7 @@ function DashboardContent() {
       setAffirmations(genData.affirmations || []);
       setGeneratedAudio(genData.audio);
       setStatusMessage(t(lang, '✅ Your track is ready!', '✅ ¡Tu track está listo!'));
-      const audio = new Audio(`data:audio/mp3;base64,${genData.audio}`); audio.play().catch(() => {});
+      // autoplay removed
     } catch (err) {
       setStatusMessage(`❌ ${err instanceof Error ? err.message : 'Error'}`);
     } finally { setIsGenerating(false); }
