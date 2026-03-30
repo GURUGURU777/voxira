@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     // ─── Step 2: Convert affirmations to speech with ElevenLabs ───
     // Use SSML-style pauses with "..." for longer pauses between affirmations
     // This creates a meditative, slow-paced delivery
-    const fullScript = affirmations.join(' ..... ..... ..... ');
+    const fullScript = affirmations.join(' .......... .......... .......... ');
 
     const ttsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
       method: 'POST',
@@ -82,9 +82,9 @@ export async function POST(request: NextRequest) {
         text: fullScript,
         model_id: 'eleven_multilingual_v2',
         voice_settings: {
-          stability: 0.85,        // Higher = more consistent, calmer delivery
-          similarity_boost: 0.80,  // Good voice match
-          style: 0.15,            // Lower = less expressive = slower, more monotone/meditative
+          stability: 0.95,        // Higher = more consistent, calmer delivery
+          similarity_boost: 0.75,  // Good voice match
+          style: 0.05,            // Lower = less expressive = slower, more monotone/meditative
           use_speaker_boost: true,
         },
       }),
