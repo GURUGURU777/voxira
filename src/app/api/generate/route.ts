@@ -1,81 +1,84 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export const maxDuration = 300; // 5 min timeout for full pipeline
+export const maxDuration = 120;
 
 export async function POST(request: NextRequest) {
   try {
     const elevenLabsKey = process.env.ELEVENLABS_API_KEY;
     const openaiKey = process.env.OPENAI_API_KEY;
-    const ffmpegServiceUrl = process.env.FFMPEG_SERVICE_URL;
 
     if (!elevenLabsKey || !openaiKey) {
       return NextResponse.json({ error: 'API keys not configured' }, { status: 500 });
     }
 
     const body = await request.json();
-    const { voice_id, intention, frequency, ambient, duration, lang, affirmations: providedAffirmations } = body;
+    const { voice_id, intention, frequency, lang } = body;
 
     if (!voice_id || !intention) {
       return NextResponse.json({ error: 'Missing voice_id or intention' }, { status: 400 });
     }
 
     const isSpanish = lang === 'es';
-    const durationMin = duration || 5;
 
-    // ─── Step 1: Generate affirmations (if not provided) ───
-    let affirmations = providedAffirmations;
+    // ─── Step 1: Generate personalized affirmations with OpenAI ───
+    const affirmationPrompt = isSpanish
+      ? `Genera 8 afirmaciones positivas en primera persona para alguien que quiere: "${intention}". 
+         Las afirmaciones deben ser poderosas, en presente, y personales.
+         Formato: una afirmación por línea, sin números ni guiones.
+         Ejemplo: "Yo soy abundancia infinita" 
+         Solo las afirmaciones, nada más.`
+      : `Generate 8 positive first-person affirmations for someone who wants to: "${intention}".
+         Affirmations should be powerful, in present tense, and personal.
+         Format: one affirmation per line, no numbers or dashes.
+         Example: "I am infinite abundance"
+         Only the affirmations, nothing else.`;
 
-    if (!affirmations || affirmations.length === 0) {
-      const affirmationPrompt = isSpanish
-        ? `Genera 15 afirmaciones positivas en primera persona para alguien que quiere: "${intention}". 
-           Las afirmaciones deben ser poderosas, en presente, personales, y variadas en longitud.
-           Incluye algunas cortas (5-8 palabras) y otras más detalladas (15-20 palabras).
-           Formato: una afirmación por línea, sin números ni guiones.
-           Solo las afirmaciones, nada más.`
-        : `Generate 15 positive first-person affirmations for someone who wants to: "${intention}".
-           Affirmations should be powerful, present tense, personal, and varied in length.
-           Include some short (5-8 words) and some more detailed (15-20 words).
-           Format: one affirmation per line, no numbers or dashes.
-           Only the affirmations, nothing else.`;
+    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openaiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: isSpanish
+            ? 'Eres un experto en programación neurolingüística y afirmaciones positivas.'
+            : 'You are an expert in neuro-linguistic programming and positive affirmations.' },
+          { role: 'user', content: affirmationPrompt },
+        ],
+        temperature: 0.8,
+        max_tokens: 500,
+      }),
+    });
 
-      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${openaiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: isSpanish
-              ? 'Eres un experto en programación neurolingüística y afirmaciones positivas de alto impacto.'
-              : 'You are an expert in neuro-linguistic programming and high-impact positive affirmations.' },
-            { role: 'user', content: affirmationPrompt },
-          ],
-          temperature: 0.8,
-          max_tokens: 800,
-        }),
-      });
-
-      if (!openaiResponse.ok) {
-        return NextResponse.json({ error: 'Failed to generate affirmations' }, { status: 500 });
-      }
-
-      const openaiData = await openaiResponse.json();
-      const text = openaiData.choices?.[0]?.message?.content || '';
-      affirmations = text
-        .split('\n')
-        .map((line: string) => line.replace(/^[""\d.\-•*]+\s*/g, '').trim())
-        .filter((line: string) => line.length > 5);
+    if (!openaiResponse.ok) {
+      const err = await openaiResponse.json().catch(() => ({}));
+      console.error('OpenAI error:', err);
+      return NextResponse.json({ error: 'Failed to generate affirmations' }, { status: 500 });
     }
+
+    const openaiData = await openaiResponse.json();
+    const affirmationsText = openaiData.choices?.[0]?.message?.content || '';
+    const affirmations = affirmationsText
+      .split('\n')
+      .map((line: string) => line.replace(/^[""]|[""]$/g, '').trim())
+      .filter((line: string) => line.length > 0);
 
     if (affirmations.length === 0) {
       return NextResponse.json({ error: 'No affirmations generated' }, { status: 500 });
     }
 
-    // ─── Step 2: Convert affirmations to speech with ElevenLabs ───
-    const fullScript = affirmations.join(' ... ... ');
+    // ─── Step 2: Convert affirmations to speech with ElevenLabs (cloned voice) ───
+    // Combine all affirmations with pauses
+    const fullScript = affirmations.join('. . . . ');
 
     const ttsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
       method: 'POST',
-      headers: { 'xi-api-key': elevenLabsKey, 'Content-Type': 'application/json' },
+      headers: {
+        'xi-api-key': elevenLabsKey,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         text: fullScript,
         model_id: 'eleven_multilingual_v2',
@@ -90,65 +93,13 @@ export async function POST(request: NextRequest) {
 
     if (!ttsResponse.ok) {
       const err = await ttsResponse.json().catch(() => ({}));
-      return NextResponse.json({ error: err?.detail?.message || 'Failed to generate speech' }, { status: 500 });
+      console.error('ElevenLabs TTS error:', err);
+      return NextResponse.json({ error: 'Failed to generate speech' }, { status: 500 });
     }
 
-    const voiceAudioBuffer = Buffer.from(await ttsResponse.arrayBuffer());
-
-    // ─── Step 3: Send to FFmpeg service for processing ───
-    // FIX BUG 2: Use JSON with base64 instead of FormData (which breaks in Vercel serverless)
-    if (ffmpegServiceUrl) {
-      try {
-        console.log('[generate] Sending to FFmpeg service:', ffmpegServiceUrl);
-        console.log('[generate] Audio buffer size:', voiceAudioBuffer.length, 'bytes');
-        console.log('[generate] Params: frequency=' + (frequency || 528) + ', ambient=' + (ambient || 'none') + ', duration=' + durationMin);
-
-        const ffmpegResponse = await fetch(`${ffmpegServiceUrl}/process`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            audio_base64: voiceAudioBuffer.toString('base64'),
-            frequency: frequency || 528,
-            ambient: ambient || 'none',
-            duration: durationMin,
-          }),
-        });
-
-        console.log('[generate] FFmpeg response status:', ffmpegResponse.status);
-
-        if (ffmpegResponse.ok) {
-          const processedBuffer = Buffer.from(await ffmpegResponse.arrayBuffer());
-          console.log('[generate] Processed audio size:', processedBuffer.length, 'bytes');
-          const processedBase64 = processedBuffer.toString('base64');
-
-          return NextResponse.json({
-            success: true,
-            affirmations,
-            audio: processedBase64,
-            audio_format: 'mp3',
-            frequency: frequency || 528,
-            duration_minutes: durationMin,
-            processed: true,
-            message: isSpanish ? 'Audio procesado con frecuencias binaurales' : 'Audio processed with binaural frequencies',
-          });
-        }
-
-        // Log the actual error from Railway
-        const errorBody = await ffmpegResponse.text().catch(() => 'unknown');
-        console.error('[generate] FFmpeg service error:', ffmpegResponse.status, errorBody);
-        // Fall through to return unprocessed audio
-      } catch (ffmpegErr) {
-        console.error('[generate] FFmpeg service unavailable:', ffmpegErr instanceof Error ? ffmpegErr.message : ffmpegErr);
-        // Fall through to return unprocessed audio
-      }
-    } else {
-      console.warn('[generate] FFMPEG_SERVICE_URL not set! Returning unprocessed audio.');
-    }
-
-    // ─── Fallback: Return voice-only audio (no FFmpeg processing) ───
-    const audioBase64 = voiceAudioBuffer.toString('base64');
+    // Get audio as buffer
+    const audioBuffer = await ttsResponse.arrayBuffer();
+    const audioBase64 = Buffer.from(audioBuffer).toString('base64');
 
     return NextResponse.json({
       success: true,
@@ -156,9 +107,7 @@ export async function POST(request: NextRequest) {
       audio: audioBase64,
       audio_format: 'mp3',
       frequency: frequency || 528,
-      duration_minutes: durationMin,
-      processed: false,
-      message: isSpanish ? 'Audio generado (sin procesamiento de frecuencias — servicio FFmpeg no disponible)' : 'Audio generated (without frequency processing — FFmpeg service unavailable)',
+      message: isSpanish ? 'Audio generado exitosamente' : 'Audio generated successfully',
     });
 
   } catch (error) {
