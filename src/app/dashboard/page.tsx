@@ -83,6 +83,18 @@ function DashboardContent() {
   const audioChunksRef = useRef<Blob[]>([]);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [savedVoiceId, setSavedVoiceId] = useState<string | null>(null);
+  const [userName, setUserName] = useState('');
+  const [userAvatar, setUserAvatar] = useState('');
+
+  // Load user profile on mount
+  useEffect(() => {
+    fetch('/api/profile').then(r => r.json()).then(data => {
+      if (data.profile?.voice_id) setSavedVoiceId(data.profile.voice_id);
+      if (data.user?.name) setUserName(data.user.name);
+      if (data.user?.avatar) setUserAvatar(data.user.avatar);
+    }).catch(() => {});
+  }, []);
   const [generatedAudio, setGeneratedAudio] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [affirmations, setAffirmations] = useState<string[]>([]);
@@ -116,12 +128,19 @@ function DashboardContent() {
       setIsGenerating(true);
       setStatusMessage(t(lang, '🎙 Cloning your voice...', '🎙 Clonando tu voz...'));
       const form = new FormData(); form.append('audio', audioBlob, 'recording.webm'); form.append('name', `VOXIRA-${Date.now()}`);
-      const cloneRes = await fetch('/api/clone-voice', { method: 'POST', body: form });
+      let voiceId = savedVoiceId;
+      if (!voiceId) {
+        const cloneRes = await fetch('/api/clone-voice', { method: 'POST', body: form });
       const cloneData = await cloneRes.json();
       if (!cloneRes.ok || !cloneData.voice_id) throw new Error(cloneData.error || 'Clone failed');
+        voiceId = cloneData.voice_id;
+        // Save voice_id to profile for reuse
+        fetch('/api/profile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: voiceId }) }).catch(() => {});
+        setSavedVoiceId(voiceId);
+      }
 
       setStatusMessage(t(lang, '✨ Generating affirmations with your voice...', '✨ Generando afirmaciones con tu voz...'));
-      const genRes = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: cloneData.voice_id, intention: goal, frequency: selectedFrequency.hz, lang }) });
+      const genRes = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: voiceId, intention: goal, frequency: selectedFrequency.hz, lang }) });
       const genData = await genRes.json();
       if (!genRes.ok || !genData.audio) throw new Error(genData.error || 'Generation failed');
 
