@@ -201,7 +201,7 @@ export default function LandingPage() {
             <a href="#demo" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>Demo</a>
             <a href="#how" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>How it works</a>
             <a href="#frequencies" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>Frequencies</a>
-            <a href="/dashboard" style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '13px', fontWeight: 700, boxShadow: '0 2px 16px rgba(201,168,76,0.2)' }}>Start Free</a>
+            <a href="/login" style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '13px', fontWeight: 700, boxShadow: '0 2px 16px rgba(201,168,76,0.2)' }}>Start Free</a>
           </div>
         </nav>
 
@@ -220,7 +220,7 @@ export default function LandingPage() {
               AI clones your voice. Solfeggio frequencies sync your brain. Personalized affirmations rewire your beliefs.
             </p>
             <div style={{ display: 'flex', gap: '16px', marginTop: '44px', animation: 'fadeUp 0.8s ease both 0.45s', opacity: 0 }}>
-              <a href="/dashboard" style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', boxShadow: '0 4px 30px rgba(201,168,76,0.25), 0 0 60px rgba(201,168,76,0.08)' }}>Start Free</a>
+              <a href="/login" style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', boxShadow: '0 4px 30px rgba(201,168,76,0.25), 0 0 60px rgba(201,168,76,0.08)' }}>Start Free</a>
               <button onClick={scrollToDemo} style={{ background: 'transparent', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', padding: '18px 36px', fontSize: '15px', fontWeight: 400, cursor: 'pointer' }}>▶ Listen Demo</button>
             </div>
             <div style={{ marginTop: '60px', display: 'flex', alignItems: 'center', gap: '32px', animation: 'fadeUp 0.8s ease both 0.6s', opacity: 0 }}>
@@ -353,7 +353,7 @@ export default function LandingPage() {
                 <span style={{ fontStyle: 'italic', fontWeight: 600, background: 'linear-gradient(135deg, #c9a84c, #e8d08c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>transformation</span>
               </h2>
               <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.35)', marginBottom: '40px' }}>3 free tracks · no card required · ready in 2 minutes</p>
-              <a href="/dashboard" style={{
+              <a href="/login" style={{
                 background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none',
                 borderRadius: '14px', padding: '20px 56px', fontSize: '16px', fontWeight: 700,
                 letterSpacing: '1.5px', textTransform: 'uppercase',
