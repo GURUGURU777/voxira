@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
   if (dbError) return NextResponse.json({ error: 'DB error: ' + dbError.message }, { status: 500 });
 
   // Update tracks count in profile
-  try { await supabase.from("profiles").update({ tracks_count: (tracks?.length || 0) + 1 }).eq("id", user.id); } catch {}
+  // tracks count updated on client side
 
   return NextResponse.json({ success: true, track });
 }
