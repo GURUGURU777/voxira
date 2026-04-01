@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
   if (dbError) return NextResponse.json({ error: 'DB error: ' + dbError.message }, { status: 500 });
 
   // Update tracks count in profile
-  await supabase.rpc('increment_tracks_count', { user_id_input: user.id }).catch(() => {});
+  try { await supabase.from("profiles").update({ tracks_count: (tracks?.length || 0) + 1 }).eq("id", user.id); } catch {}
 
   return NextResponse.json({ success: true, track });
 }
