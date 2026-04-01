@@ -92,6 +92,11 @@ export async function POST(request: NextRequest) {
 
     if (!ttsResponse.ok) {
       const err = await ttsResponse.json().catch(() => ({}));
+    const errorMsg = err?.detail?.message || err?.detail?.status || '';
+    // If voice was deleted/not found, tell frontend to re-clone
+    if (errorMsg.includes('not found') || errorMsg.includes('not_found') || ttsResponse.status === 404) {
+      return NextResponse.json({ error: errorMsg || 'Voice not found - please record again', voice_not_found: true }, { status: 404 });
+    }
       // Delete the cloned voice even on TTS failure
       await deleteVoice(voice_id, elevenLabsKey);
       return NextResponse.json({ error: err?.detail?.message || 'Failed to generate speech' }, { status: 500 });
