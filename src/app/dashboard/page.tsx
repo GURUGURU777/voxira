@@ -147,6 +147,8 @@ function DashboardContent() {
       setAffirmations(genData.affirmations || []);
       setGeneratedAudio(genData.audio);
       setStatusMessage(t(lang, '✅ Your track is ready!', '✅ ¡Tu track está listo!'));
+      // Save track to Supabase
+      fetch('/api/tracks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ audio_base64: genData.audio, intention: goal, frequency: selectedFrequency.hz, ambient: 'none', duration_minutes: 5, processed: genData.processed || false }) }).catch(() => {});
       // autoplay removed
     } catch (err) {
       setStatusMessage(`❌ ${err instanceof Error ? err.message : 'Error'}`);
