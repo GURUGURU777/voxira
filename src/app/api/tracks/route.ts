@@ -40,12 +40,15 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const { supabase, withCookies } = createSupabaseAndCookies(request);
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return withCookies(NextResponse.json({ error: 'Not authenticated' }, { status: 401 }));
+  if (!user) { console.error('[tracks POST] Not authenticated'); return withCookies(NextResponse.json({ error: 'Not authenticated' }, { status: 401 })); }
 
+  console.log('[tracks POST] User:', user.id);
   const body = await request.json();
   const { audio_base64, intention, frequency, ambient, duration_minutes, processed } = body;
 
-  if (!audio_base64) return withCookies(NextResponse.json({ error: 'No audio data' }, { status: 400 }));
+  if (!audio_base64) { console.error('[tracks POST] No audio data in request'); return withCookies(NextResponse.json({ error: 'No audio data' }, { status: 400 })); }
+
+  console.log('[tracks POST] Audio base64 length:', audio_base64.length, '| frequency:', frequency, '| intention:', intention?.slice(0, 30));
 
   // Convert base64 to buffer and upload to Supabase Storage
   const buffer = Buffer.from(audio_base64, 'base64');
@@ -55,7 +58,9 @@ export async function POST(request: NextRequest) {
     .from('tracks')
     .upload(fileName, buffer, { contentType: 'audio/mpeg', upsert: false });
 
-  if (uploadError) return withCookies(NextResponse.json({ error: 'Upload failed: ' + uploadError.message }, { status: 500 }));
+  if (uploadError) { console.error('[tracks POST] Storage upload failed:', uploadError); return withCookies(NextResponse.json({ error: 'Upload failed: ' + uploadError.message }, { status: 500 })); }
+
+  console.log('[tracks POST] Uploaded to storage:', fileName);
 
   // Get public URL
   const { data: urlData } = supabase.storage.from('tracks').getPublicUrl(fileName);
@@ -76,8 +81,9 @@ export async function POST(request: NextRequest) {
     .select()
     .single();
 
-  if (dbError) return withCookies(NextResponse.json({ error: 'DB error: ' + dbError.message }, { status: 500 }));
+  if (dbError) { console.error('[tracks POST] DB insert failed:', dbError); return withCookies(NextResponse.json({ error: 'DB error: ' + dbError.message }, { status: 500 })); }
 
+  console.log('[tracks POST] Track saved:', track.id);
   return withCookies(NextResponse.json({ success: true, track }));
 }
 

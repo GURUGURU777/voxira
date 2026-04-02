@@ -156,7 +156,9 @@ function DashboardContent() {
       setGeneratedAudio(genData.audio);
       setStatusMessage(t(lang, '✅ Your track is ready!', '✅ ¡Tu track está listo!'));
       // Save track to Supabase
-      fetch('/api/tracks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ audio_base64: genData.audio, intention: goal, frequency: selectedFrequency.hz, ambient: 'none', duration_minutes: 5, processed: genData.processed || false }) }).catch(() => {});
+      fetch('/api/tracks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ audio_base64: genData.audio, intention: goal, frequency: selectedFrequency.hz, ambient: 'none', duration_minutes: 5, processed: genData.processed || false }) })
+        .then(async r => { const d = await r.json(); if (!r.ok) console.error('[auto-save] Track save failed:', r.status, d); else console.log('[auto-save] Track saved:', d.track?.id); })
+        .catch(err => console.error('[auto-save] Track save error:', err));
     } catch (err) {
       setStatusMessage(`❌ ${err instanceof Error ? err.message : 'Error'}`);
     } finally { setIsGenerating(false); }
