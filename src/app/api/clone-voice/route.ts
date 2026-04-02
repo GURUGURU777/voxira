@@ -3,17 +3,23 @@ import { createServerClient } from '@supabase/ssr';
 
 export const maxDuration = 60;
 
-function getSupabase(request: NextRequest, response: NextResponse) {
-  return createServerClient(
+function createSupabaseAndCookies(request: NextRequest) {
+  const cookieResponse = NextResponse.next();
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() { return request.cookies.getAll(); },
-        setAll(cookiesToSet) { cookiesToSet.forEach(({ name, value, options }) => { response.cookies.set(name, value, options); }); },
+        setAll(cookiesToSet) { cookiesToSet.forEach(({ name, value, options }) => { cookieResponse.cookies.set(name, value, options); }); },
       },
     }
   );
+  const withCookies = (json: NextResponse) => {
+    cookieResponse.cookies.getAll().forEach(cookie => json.cookies.set(cookie));
+    return json;
+  };
+  return { supabase, withCookies };
 }
 
 export async function POST(request: NextRequest) {
@@ -23,12 +29,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'ElevenLabs API key not configured' }, { status: 500 });
     }
 
-    const res = NextResponse.next();
-    const supabase = getSupabase(request, res);
+    const { supabase, withCookies } = createSupabaseAndCookies(request);
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+      return withCookies(NextResponse.json({ error: 'Not authenticated' }, { status: 401 }));
     }
 
     const formData = await request.formData();
@@ -36,12 +41,12 @@ export async function POST(request: NextRequest) {
     const voiceName = (formData.get('name') as string) || 'VOXIRA User Voice';
 
     if (!audioFile) {
-      return NextResponse.json({ error: 'No audio file provided' }, { status: 400 });
+      return withCookies(NextResponse.json({ error: 'No audio file provided' }, { status: 400 }));
     }
 
     // Validate file size (max 10MB)
     if (audioFile.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Audio file too large. Max 10MB.' }, { status: 400 });
+      return withCookies(NextResponse.json({ error: 'Audio file too large. Max 10MB.' }, { status: 400 }));
     }
 
     // Upload voice sample to Supabase Storage
@@ -57,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     if (uploadError) {
       console.error('Storage upload error:', uploadError);
-      return NextResponse.json({ error: 'Failed to save voice sample' }, { status: 500 });
+      return withCookies(NextResponse.json({ error: 'Failed to save voice sample' }, { status: 500 }));
     }
 
     // Get public URL and save to profile
@@ -95,20 +100,20 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error('ElevenLabs error:', response.status, errorData);
-      return NextResponse.json(
+      return withCookies(NextResponse.json(
         { error: errorData?.detail?.message || 'Failed to clone voice' },
         { status: response.status }
-      );
+      ));
     }
 
     const data = await response.json();
 
-    return NextResponse.json({
+    return withCookies(NextResponse.json({
       success: true,
       voice_id: data.voice_id,
       voice_audio_url: publicUrl,
       message: 'Voice cloned successfully',
-    });
+    }));
 
   } catch (error) {
     console.error('Clone voice error:', error);

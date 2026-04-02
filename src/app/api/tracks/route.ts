@@ -1,20 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-function getSupabase(request: NextRequest) {
-  const response = NextResponse.next();
-  return { supabase: createServerClient(
+function createSupabaseAndCookies(request: NextRequest) {
+  const cookieResponse = NextResponse.next();
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll() { return request.cookies.getAll(); }, setAll(c) { c.forEach(({ name, value, options }) => { response.cookies.set(name, value, options); }); } } }
-  ), response };
+    {
+      cookies: {
+        getAll() { return request.cookies.getAll(); },
+        setAll(cookiesToSet) { cookiesToSet.forEach(({ name, value, options }) => { cookieResponse.cookies.set(name, value, options); }); },
+      },
+    }
+  );
+  const withCookies = (json: NextResponse) => {
+    cookieResponse.cookies.getAll().forEach(cookie => json.cookies.set(cookie));
+    return json;
+  };
+  return { supabase, withCookies };
 }
 
 // GET: list user tracks
 export async function GET(request: NextRequest) {
-  const { supabase } = getSupabase(request);
+  const { supabase, withCookies } = createSupabaseAndCookies(request);
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+  if (!user) return withCookies(NextResponse.json({ error: 'Not authenticated' }, { status: 401 }));
 
   const { data: tracks, error } = await supabase
     .from('tracks')
@@ -22,20 +32,20 @@ export async function GET(request: NextRequest) {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ tracks: tracks || [] });
+  if (error) return withCookies(NextResponse.json({ error: error.message }, { status: 500 }));
+  return withCookies(NextResponse.json({ tracks: tracks || [] }));
 }
 
 // POST: save a new track
 export async function POST(request: NextRequest) {
-  const { supabase } = getSupabase(request);
+  const { supabase, withCookies } = createSupabaseAndCookies(request);
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+  if (!user) return withCookies(NextResponse.json({ error: 'Not authenticated' }, { status: 401 }));
 
   const body = await request.json();
   const { audio_base64, intention, frequency, ambient, duration_minutes, processed } = body;
 
-  if (!audio_base64) return NextResponse.json({ error: 'No audio data' }, { status: 400 });
+  if (!audio_base64) return withCookies(NextResponse.json({ error: 'No audio data' }, { status: 400 }));
 
   // Convert base64 to buffer and upload to Supabase Storage
   const buffer = Buffer.from(audio_base64, 'base64');
@@ -45,7 +55,7 @@ export async function POST(request: NextRequest) {
     .from('tracks')
     .upload(fileName, buffer, { contentType: 'audio/mpeg', upsert: false });
 
-  if (uploadError) return NextResponse.json({ error: 'Upload failed: ' + uploadError.message }, { status: 500 });
+  if (uploadError) return withCookies(NextResponse.json({ error: 'Upload failed: ' + uploadError.message }, { status: 500 }));
 
   // Get public URL
   const { data: urlData } = supabase.storage.from('tracks').getPublicUrl(fileName);
@@ -66,32 +76,29 @@ export async function POST(request: NextRequest) {
     .select()
     .single();
 
-  if (dbError) return NextResponse.json({ error: 'DB error: ' + dbError.message }, { status: 500 });
+  if (dbError) return withCookies(NextResponse.json({ error: 'DB error: ' + dbError.message }, { status: 500 }));
 
-  // Update tracks count in profile
-  // tracks count updated on client side
-
-  return NextResponse.json({ success: true, track });
+  return withCookies(NextResponse.json({ success: true, track }));
 }
 
 // DELETE: remove a track
 export async function DELETE(request: NextRequest) {
-  const { supabase } = getSupabase(request);
+  const { supabase, withCookies } = createSupabaseAndCookies(request);
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+  if (!user) return withCookies(NextResponse.json({ error: 'Not authenticated' }, { status: 401 }));
 
   const { searchParams } = new URL(request.url);
   const trackId = searchParams.get('id');
-  if (!trackId) return NextResponse.json({ error: 'No track id' }, { status: 400 });
+  if (!trackId) return withCookies(NextResponse.json({ error: 'No track id' }, { status: 400 }));
 
   // Get track to find file path
   const { data: track } = await supabase.from('tracks').select('file_url').eq('id', trackId).eq('user_id', user.id).single();
-  
+
   if (track?.file_url) {
     const path = track.file_url.split('/tracks/')[1];
     if (path) await supabase.storage.from('tracks').remove([path]);
   }
 
   await supabase.from('tracks').delete().eq('id', trackId).eq('user_id', user.id);
-  return NextResponse.json({ success: true });
+  return withCookies(NextResponse.json({ success: true }));
 }
