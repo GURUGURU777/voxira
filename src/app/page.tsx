@@ -156,6 +156,13 @@ export default function LandingPage() {
   const [activeFreq, setActiveFreq] = useState(3);
   const [tracksGenerated, setTracksGenerated] = useState(12847);
   const playRef = useRef<NodeJS.Timeout | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/profile').then(r => { if (r.ok) return r.json(); throw 0; })
+      .then(d => { if (d.user?.id) setIsLoggedIn(true); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (isPlaying) {
@@ -201,7 +208,7 @@ export default function LandingPage() {
             <a href="#demo" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>Demo</a>
             <a href="#how" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>How it works</a>
             <a href="#frequencies" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>Frequencies</a>
-            <a href="/login" style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '13px', fontWeight: 700, boxShadow: '0 2px 16px rgba(201,168,76,0.2)' }}>Start Free</a>
+            <a href={isLoggedIn ? '/dashboard' : '/login'} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '13px', fontWeight: 700, boxShadow: '0 2px 16px rgba(201,168,76,0.2)' }}>{isLoggedIn ? 'Dashboard' : 'Start Free'}</a>
           </div>
         </nav>
 
@@ -220,7 +227,7 @@ export default function LandingPage() {
               AI clones your voice. Solfeggio frequencies sync your brain. Personalized affirmations rewire your beliefs.
             </p>
             <div style={{ display: 'flex', gap: '16px', marginTop: '44px', animation: 'fadeUp 0.8s ease both 0.45s', opacity: 0 }}>
-              <a href="/login" style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', boxShadow: '0 4px 30px rgba(201,168,76,0.25), 0 0 60px rgba(201,168,76,0.08)' }}>Start Free</a>
+              <a href={isLoggedIn ? '/dashboard' : '/login'} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', boxShadow: '0 4px 30px rgba(201,168,76,0.25), 0 0 60px rgba(201,168,76,0.08)' }}>{isLoggedIn ? 'Go to Dashboard' : 'Start Free'}</a>
               <button onClick={scrollToDemo} style={{ background: 'transparent', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', padding: '18px 36px', fontSize: '15px', fontWeight: 400, cursor: 'pointer' }}>▶ Listen Demo</button>
             </div>
             <div style={{ marginTop: '60px', display: 'flex', alignItems: 'center', gap: '32px', animation: 'fadeUp 0.8s ease both 0.6s', opacity: 0 }}>
@@ -353,13 +360,13 @@ export default function LandingPage() {
                 <span style={{ fontStyle: 'italic', fontWeight: 600, background: 'linear-gradient(135deg, #c9a84c, #e8d08c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>transformation</span>
               </h2>
               <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.35)', marginBottom: '40px' }}>3 free tracks · no card required · ready in 2 minutes</p>
-              <a href="/login" style={{
+              <a href={isLoggedIn ? '/dashboard' : '/login'} style={{
                 background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none',
                 borderRadius: '14px', padding: '20px 56px', fontSize: '16px', fontWeight: 700,
                 letterSpacing: '1.5px', textTransform: 'uppercase',
                 boxShadow: '0 4px 40px rgba(201,168,76,0.3), 0 0 80px rgba(201,168,76,0.1)',
                 display: 'inline-block',
-              }}>Start Now</a>
+              }}>{isLoggedIn ? 'Go to Dashboard' : 'Start Now'}</a>
             </div>
           </section>
 

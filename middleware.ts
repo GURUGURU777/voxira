@@ -22,13 +22,17 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
+  const pathname = request.nextUrl.pathname;
+
+  // Protected routes: redirect to login if not authenticated
+  if (!user && (pathname.startsWith('/dashboard') || pathname.startsWith('/library'))) {
     const redirectResponse = NextResponse.redirect(new URL('/login', request.url));
     response.cookies.getAll().forEach(cookie => redirectResponse.cookies.set(cookie));
     return redirectResponse;
   }
 
-  if (user && request.nextUrl.pathname === '/login') {
+  // Authenticated users: redirect landing and login to dashboard
+  if (user && (pathname === '/' || pathname === '/login')) {
     const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url));
     response.cookies.getAll().forEach(cookie => redirectResponse.cookies.set(cookie));
     return redirectResponse;
@@ -38,5 +42,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login'],
+  matcher: ['/', '/dashboard/:path*', '/library/:path*', '/login'],
 };
