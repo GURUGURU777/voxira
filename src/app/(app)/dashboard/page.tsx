@@ -155,8 +155,16 @@ function DashboardContent() {
       setAffirmations(genData.affirmations || []);
       setGeneratedAudio(genData.audio);
       setStatusMessage(t(lang, '✅ Your track is ready!', '✅ ¡Tu track está listo!'));
-      // Save track to Supabase
-      fetch('/api/tracks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ audio_base64: genData.audio, intention: goal, frequency: selectedFrequency.hz, ambient: 'none', duration_minutes: 5, processed: genData.processed || false }) })
+      // Save track to Supabase (FormData to avoid 4.5MB body limit)
+      const trackBlob = new Blob([Uint8Array.from(atob(genData.audio), c => c.charCodeAt(0))], { type: 'audio/mpeg' });
+      const trackForm = new FormData();
+      trackForm.append('audio', trackBlob, 'track.mp3');
+      trackForm.append('intention', goal);
+      trackForm.append('frequency', String(selectedFrequency.hz));
+      trackForm.append('ambient', 'none');
+      trackForm.append('duration_minutes', '5');
+      trackForm.append('processed', String(genData.processed || false));
+      fetch('/api/tracks', { method: 'POST', body: trackForm })
         .then(async r => { const d = await r.json(); if (!r.ok) console.error('[auto-save] Track save failed:', r.status, d); else console.log('[auto-save] Track saved:', d.track?.id); })
         .catch(err => console.error('[auto-save] Track save error:', err));
     } catch (err) {

@@ -43,15 +43,20 @@ export async function POST(request: NextRequest) {
   if (!user) { console.error('[tracks POST] Not authenticated'); return withCookies(NextResponse.json({ error: 'Not authenticated' }, { status: 401 })); }
 
   console.log('[tracks POST] User:', user.id);
-  const body = await request.json();
-  const { audio_base64, intention, frequency, ambient, duration_minutes, processed } = body;
+  const formData = await request.formData();
+  const audioFile = formData.get('audio') as File | null;
+  const intention = (formData.get('intention') as string) || '';
+  const frequency = Number(formData.get('frequency')) || 528;
+  const ambient = (formData.get('ambient') as string) || 'none';
+  const duration_minutes = Number(formData.get('duration_minutes')) || 5;
+  const processed = formData.get('processed') === 'true';
 
-  if (!audio_base64) { console.error('[tracks POST] No audio data in request'); return withCookies(NextResponse.json({ error: 'No audio data' }, { status: 400 })); }
+  if (!audioFile) { console.error('[tracks POST] No audio file in FormData'); return withCookies(NextResponse.json({ error: 'No audio file' }, { status: 400 })); }
 
-  console.log('[tracks POST] Audio base64 length:', audio_base64.length, '| frequency:', frequency, '| intention:', intention?.slice(0, 30));
+  console.log('[tracks POST] File size:', audioFile.size, '| frequency:', frequency, '| intention:', intention.slice(0, 30));
 
-  // Convert base64 to buffer and upload to Supabase Storage
-  const buffer = Buffer.from(audio_base64, 'base64');
+  // Upload to Supabase Storage
+  const buffer = Buffer.from(await audioFile.arrayBuffer());
   const fileName = `${user.id}/${Date.now()}-${frequency}hz-${duration_minutes}min.mp3`;
 
   const { error: uploadError } = await supabase.storage
@@ -70,13 +75,13 @@ export async function POST(request: NextRequest) {
     .from('tracks')
     .insert({
       user_id: user.id,
-      intention: intention || '',
-      frequency: frequency || 528,
-      ambient: ambient || 'none',
-      duration_minutes: duration_minutes || 5,
+      intention,
+      frequency,
+      ambient,
+      duration_minutes,
       file_url: urlData.publicUrl,
       file_size: buffer.length,
-      processed: processed || false,
+      processed,
     })
     .select()
     .single();
