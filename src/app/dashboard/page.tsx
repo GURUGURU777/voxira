@@ -83,14 +83,16 @@ function DashboardContent() {
   const audioChunksRef = useRef<Blob[]>([]);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [savedVoiceId, setSavedVoiceId] = useState<string | null>(null);
+  const [savedVoiceUrl, setSavedVoiceUrl] = useState<string | null>(null);
   const [userName, setUserName] = useState('');
   const [userAvatar, setUserAvatar] = useState('');
+  const savedVoiceAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlayingSaved, setIsPlayingSaved] = useState(false);
 
   // Load user profile on mount
   useEffect(() => {
     fetch('/api/profile').then(r => r.json()).then(data => {
-      if (data.profile?.voice_id) setSavedVoiceId(data.profile.voice_id);
+      if (data.profile?.voice_audio_url) setSavedVoiceUrl(data.profile.voice_audio_url);
       if (data.user?.name) setUserName(data.user.name);
       if (data.user?.avatar) setUserAvatar(data.user.avatar);
     }).catch(() => {});
@@ -123,24 +125,30 @@ function DashboardContent() {
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => { const f = e.target.files?.[0]; if (f) { setAudioBlob(f); setHasRecording(true); } }, []);
 
   const handleGenerate = useCallback(async () => {
-    if (!audioBlob || !selectedFrequency) return;
+    if ((!audioBlob && !savedVoiceUrl) || !selectedFrequency) return;
     try {
       setIsGenerating(true);
       setStatusMessage(t(lang, '🎙 Cloning your voice...', '🎙 Clonando tu voz...'));
-      const form = new FormData(); form.append('audio', audioBlob, 'recording.webm'); form.append('name', `VOXIRA-${Date.now()}`);
-      let voiceId = savedVoiceId;
-      if (!voiceId) {
-        const cloneRes = await fetch('/api/clone-voice', { method: 'POST', body: form });
+
+      let voiceAudio = audioBlob;
+      // If no new recording, fetch saved voice from Supabase
+      if (!voiceAudio && savedVoiceUrl) {
+        const savedRes = await fetch(savedVoiceUrl);
+        if (!savedRes.ok) throw new Error('Failed to fetch saved voice');
+        voiceAudio = await savedRes.blob();
+      }
+      if (!voiceAudio) throw new Error('No voice audio available');
+
+      const form = new FormData(); form.append('audio', voiceAudio, 'recording.webm'); form.append('name', `VOXIRA-${Date.now()}`);
+      const cloneRes = await fetch('/api/clone-voice', { method: 'POST', body: form });
       const cloneData = await cloneRes.json();
       if (!cloneRes.ok || !cloneData.voice_id) throw new Error(cloneData.error || 'Clone failed');
-        voiceId = cloneData.voice_id;
-        // Save voice_id to profile for reuse
-        fetch('/api/profile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: voiceId }) }).catch(() => {});
-        setSavedVoiceId(voiceId);
-      }
+
+      // Update savedVoiceUrl if a new one was returned
+      if (cloneData.voice_audio_url) setSavedVoiceUrl(cloneData.voice_audio_url);
 
       setStatusMessage(t(lang, '✨ Generating affirmations with your voice...', '✨ Generando afirmaciones con tu voz...'));
-      const genRes = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: voiceId, intention: goal, frequency: selectedFrequency.hz, lang }) });
+      const genRes = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: cloneData.voice_id, intention: goal, frequency: selectedFrequency.hz, lang }) });
       const genData = await genRes.json();
       if (!genRes.ok || !genData.audio) throw new Error(genData.error || 'Generation failed');
 
@@ -149,11 +157,10 @@ function DashboardContent() {
       setStatusMessage(t(lang, '✅ Your track is ready!', '✅ ¡Tu track está listo!'));
       // Save track to Supabase
       fetch('/api/tracks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ audio_base64: genData.audio, intention: goal, frequency: selectedFrequency.hz, ambient: 'none', duration_minutes: 5, processed: genData.processed || false }) }).catch(() => {});
-      // autoplay removed
     } catch (err) {
       setStatusMessage(`❌ ${err instanceof Error ? err.message : 'Error'}`);
     } finally { setIsGenerating(false); }
-  }, [audioBlob, selectedFrequency, goal, lang]);
+  }, [audioBlob, savedVoiceUrl, selectedFrequency, goal, lang]);
 
   const formatTime = (s: number) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
   const toggleAmbient = (id: string) => setSelectedAmbient(p => p.includes(id) ? p.filter(s => s !== id) : [...p, id]);
@@ -207,6 +214,20 @@ function DashboardContent() {
             <div><div style={{fontSize:'9px',color:'rgba(255,255,255,0.25)',textTransform:'uppercase',letterSpacing:'1.5px',marginBottom:'6px'}}>Binaural</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'14px',color:'rgba(255,255,255,0.5)'}}>R:{selectedFrequency?.hz} · L:{(selectedFrequency?.hz||0)-3} · Δ3Hz</div></div>
           </div>
 
+          {/* Saved voice card */}
+          {savedVoiceUrl&&!hasRecording&&!isRecording&&(<div style={{background:'rgba(34,197,94,0.04)',border:'1px solid rgba(34,197,94,0.15)',borderRadius:'16px',padding:'22px 26px',marginBottom:'28px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:'14px'}}>
+            <div style={{display:'flex',alignItems:'center',gap:'14px'}}>
+              <div style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(34,197,94,0.1)',border:'1px solid rgba(34,197,94,0.25)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'20px'}}>🎙</div>
+              <div><div style={{fontSize:'15px',fontWeight:600,color:'#22c55e'}}>{t(lang,'Your voice saved','Tu voz guardada')}</div><div style={{fontSize:'12px',color:'rgba(255,255,255,0.35)',marginTop:'2px'}}>{t(lang,'Ready to generate','Lista para generar')}</div></div>
+            </div>
+            <div style={{display:'flex',gap:'10px',alignItems:'center'}}>
+              <button onClick={()=>{if(isPlayingSaved&&savedVoiceAudioRef.current){savedVoiceAudioRef.current.pause();savedVoiceAudioRef.current.currentTime=0;setIsPlayingSaved(false);}else{const a=new Audio(savedVoiceUrl);savedVoiceAudioRef.current=a;a.onended=()=>setIsPlayingSaved(false);a.play();setIsPlayingSaved(true);}}} style={{background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'10px',padding:'8px 16px',color:'rgba(255,255,255,0.6)',fontSize:'12px',cursor:'pointer',display:'flex',alignItems:'center',gap:'6px'}}>{isPlayingSaved?'⏹':'▶'} {t(lang,'Preview','Escuchar')}</button>
+              <button onClick={()=>{setSavedVoiceUrl(null);setHasRecording(false);setRecordingTime(0);setAudioBlob(null);}} style={{background:'none',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'10px',padding:'8px 16px',color:'rgba(255,255,255,0.35)',fontSize:'12px',cursor:'pointer'}}>{t(lang,'Change voice','Cambiar voz')}</button>
+            </div>
+          </div>)}
+
+          {/* Recording UI — only when no saved voice or user chose to re-record */}
+          {!savedVoiceUrl&&(<>
           <div style={{background:'rgba(4,10,22,0.3)',borderRadius:'16px',padding:'20px',marginBottom:'28px',border:`1px solid ${isRecording?'rgba(201,168,76,0.15)':'rgba(61,142,207,0.05)'}`,overflow:'hidden'}}><Waveform isRecording={isRecording} frequency={selectedFrequency}/></div>
 
           <div style={{textAlign:'center',marginBottom:'28px'}}><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'56px',fontWeight:300,color:isRecording?'#c9a84c':'rgba(255,255,255,0.15)',letterSpacing:'6px'}}>{formatTime(recordingTime)}</div>{isRecording&&<div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'8px',marginTop:'8px'}}><div style={{width:'6px',height:'6px',borderRadius:'50%',background:'#ef4444',animation:'pulse 1.5s infinite'}}/><span style={{fontSize:'11px',color:'rgba(239,68,68,0.8)',textTransform:'uppercase',letterSpacing:'2px'}}>{t(lang,'Recording','Grabando')}</span></div>}</div>
@@ -218,6 +239,7 @@ function DashboardContent() {
           </div>
 
           {!hasRecording&&!isRecording&&<div style={{textAlign:'center',marginBottom:'32px',padding:'14px 24px',background:'rgba(201,168,76,0.03)',border:'1px solid rgba(201,168,76,0.08)',borderRadius:'12px'}}><p style={{fontSize:'13px',color:'rgba(255,255,255,0.4)',margin:0,lineHeight:1.6}}>{t(lang,'✦ Speak clearly for at least 30 seconds.','✦ Habla con claridad al menos 30 segundos.')}</p></div>}
+          </>)}
 
           {statusMessage&&<div style={{textAlign:'center',marginBottom:'20px',padding:'12px 24px',background:statusMessage.includes('❌')?'rgba(239,68,68,0.06)':'rgba(201,168,76,0.06)',border:`1px solid ${statusMessage.includes('❌')?'rgba(239,68,68,0.15)':'rgba(201,168,76,0.15)'}`,borderRadius:'12px'}}><p style={{fontSize:'14px',color:statusMessage.includes('❌')?'#ef4444':'#c9a84c',margin:0}}>{statusMessage}</p></div>}
 
@@ -227,7 +249,7 @@ function DashboardContent() {
 
           <div style={{display:'flex',justifyContent:'space-between'}}>
             <button onClick={()=>setStep(2)} style={btnS}>← {t(lang,'Back','Atrás')}</button>
-            <button onClick={handleGenerate} disabled={!hasRecording||isGenerating} style={{...btnG,opacity:hasRecording&&!isGenerating?1:0.3,cursor:hasRecording&&!isGenerating?'pointer':'not-allowed',fontSize:'15px',padding:'16px 44px',boxShadow:hasRecording&&!isGenerating?'0 4px 30px rgba(201,168,76,0.3)':'none'}}>
+            <button onClick={handleGenerate} disabled={(!hasRecording&&!savedVoiceUrl)||isGenerating} style={{...btnG,opacity:(hasRecording||savedVoiceUrl)&&!isGenerating?1:0.3,cursor:(hasRecording||savedVoiceUrl)&&!isGenerating?'pointer':'not-allowed',fontSize:'15px',padding:'16px 44px',boxShadow:(hasRecording||savedVoiceUrl)&&!isGenerating?'0 4px 30px rgba(201,168,76,0.3)':'none'}}>
               {isGenerating?t(lang,'⏳ Generating...','⏳ Generando...'):`✦ ${t(lang,'Generate Track','Generar Audio')}`}
             </button>
           </div>

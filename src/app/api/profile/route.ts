@@ -14,7 +14,7 @@ function getSupabase(request: NextRequest, response: NextResponse) {
   );
 }
 
-// GET: fetch user profile including voice_id
+// GET: fetch user profile
 export async function GET(request: NextRequest) {
   const response = NextResponse.next();
   const supabase = getSupabase(request, response);
@@ -24,32 +24,32 @@ export async function GET(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('voice_id, voice_cloned_at, plan, credits, tracks_count')
+    .select('voice_audio_url, voice_cloned_at, plan, credits, tracks_count')
     .eq('id', user.id)
     .single();
 
   return NextResponse.json({ user: { id: user.id, email: user.email, name: user.user_metadata?.full_name, avatar: user.user_metadata?.avatar_url }, profile: profile || {} });
 }
 
-// POST: update voice_id after cloning
+// POST: update profile fields
 export async function POST(request: NextRequest) {
   const response = NextResponse.next();
   const supabase = getSupabase(request, response);
   const { data: { user } } = await supabase.auth.getUser();
-  
+
   if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
   const body = await request.json();
-  
-  if (body.voice_id) {
+
+  if (body.voice_audio_url) {
     const { error } = await supabase
       .from('profiles')
-      .update({ voice_id: body.voice_id, voice_cloned_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .update({ voice_audio_url: body.voice_audio_url, voice_cloned_at: new Date().toISOString(), updated_at: new Date().toISOString() })
       .eq('id', user.id);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ success: true, voice_id: body.voice_id });
+    return NextResponse.json({ success: true });
   }
 
-  return NextResponse.json({ error: 'No voice_id provided' }, { status: 400 });
+  return NextResponse.json({ error: 'No updates provided' }, { status: 400 });
 }
