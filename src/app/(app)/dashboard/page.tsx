@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase';
 
 type Lang = 'en' | 'es';
 const t = (lang: Lang, en: string, es: string) => lang === 'es' ? es : en;
@@ -155,18 +156,23 @@ function DashboardContent() {
       setAffirmations(genData.affirmations || []);
       setGeneratedAudio(genData.audio);
       setStatusMessage(t(lang, '✅ Your track is ready!', '✅ ¡Tu track está listo!'));
-      // Save track to Supabase (FormData to avoid 4.5MB body limit)
-      const trackBlob = new Blob([Uint8Array.from(atob(genData.audio), c => c.charCodeAt(0))], { type: 'audio/mpeg' });
-      const trackForm = new FormData();
-      trackForm.append('audio', trackBlob, 'track.mp3');
-      trackForm.append('intention', goal);
-      trackForm.append('frequency', String(selectedFrequency.hz));
-      trackForm.append('ambient', 'none');
-      trackForm.append('duration_minutes', '5');
-      trackForm.append('processed', String(genData.processed || false));
-      fetch('/api/tracks', { method: 'POST', body: trackForm })
-        .then(async r => { const d = await r.json(); if (!r.ok) console.error('[auto-save] Track save failed:', r.status, d); else console.log('[auto-save] Track saved:', d.track?.id); })
-        .catch(err => console.error('[auto-save] Track save error:', err));
+      // Save track: upload MP3 to Supabase Storage client-side, then save metadata via API
+      (async () => {
+        try {
+          const sb = createClient();
+          const { data: { user: u } } = await sb.auth.getUser();
+          if (!u) { console.error('[auto-save] Not authenticated'); return; }
+          const trackBlob = new Blob([Uint8Array.from(atob(genData.audio), c => c.charCodeAt(0))], { type: 'audio/mpeg' });
+          const fileName = `${u.id}/${Date.now()}-${selectedFrequency.hz}hz-5min.mp3`;
+          const { error: upErr } = await sb.storage.from('tracks').upload(fileName, trackBlob, { contentType: 'audio/mpeg', upsert: false });
+          if (upErr) { console.error('[auto-save] Storage upload failed:', upErr); return; }
+          const { data: { publicUrl } } = sb.storage.from('tracks').getPublicUrl(fileName);
+          const res = await fetch('/api/tracks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file_url: publicUrl, file_size: trackBlob.size, intention: goal, frequency: selectedFrequency.hz, ambient: 'none', duration_minutes: 5, processed: genData.processed || false }) });
+          const d = await res.json();
+          if (!res.ok) console.error('[auto-save] Metadata save failed:', res.status, d);
+          else console.log('[auto-save] Track saved:', d.track?.id);
+        } catch (err) { console.error('[auto-save] Track save error:', err); }
+      })();
     } catch (err) {
       setStatusMessage(`❌ ${err instanceof Error ? err.message : 'Error'}`);
     } finally { setIsGenerating(false); }

@@ -43,45 +43,25 @@ export async function POST(request: NextRequest) {
   if (!user) { console.error('[tracks POST] Not authenticated'); return withCookies(NextResponse.json({ error: 'Not authenticated' }, { status: 401 })); }
 
   console.log('[tracks POST] User:', user.id);
-  const formData = await request.formData();
-  const audioFile = formData.get('audio') as File | null;
-  const intention = (formData.get('intention') as string) || '';
-  const frequency = Number(formData.get('frequency')) || 528;
-  const ambient = (formData.get('ambient') as string) || 'none';
-  const duration_minutes = Number(formData.get('duration_minutes')) || 5;
-  const processed = formData.get('processed') === 'true';
+  const body = await request.json();
+  const { file_url, file_size, intention, frequency, ambient, duration_minutes, processed } = body;
 
-  if (!audioFile) { console.error('[tracks POST] No audio file in FormData'); return withCookies(NextResponse.json({ error: 'No audio file' }, { status: 400 })); }
+  if (!file_url) { console.error('[tracks POST] No file_url provided'); return withCookies(NextResponse.json({ error: 'No file_url' }, { status: 400 })); }
 
-  console.log('[tracks POST] File size:', audioFile.size, '| frequency:', frequency, '| intention:', intention.slice(0, 30));
+  console.log('[tracks POST] file_url:', file_url, '| frequency:', frequency, '| intention:', intention?.slice(0, 30));
 
-  // Upload to Supabase Storage
-  const buffer = Buffer.from(await audioFile.arrayBuffer());
-  const fileName = `${user.id}/${Date.now()}-${frequency}hz-${duration_minutes}min.mp3`;
-
-  const { error: uploadError } = await supabase.storage
-    .from('tracks')
-    .upload(fileName, buffer, { contentType: 'audio/mpeg', upsert: false });
-
-  if (uploadError) { console.error('[tracks POST] Storage upload failed:', uploadError); return withCookies(NextResponse.json({ error: 'Upload failed: ' + uploadError.message }, { status: 500 })); }
-
-  console.log('[tracks POST] Uploaded to storage:', fileName);
-
-  // Get public URL
-  const { data: urlData } = supabase.storage.from('tracks').getPublicUrl(fileName);
-
-  // Save metadata to tracks table
+  // Save metadata to tracks table (file already uploaded client-side)
   const { data: track, error: dbError } = await supabase
     .from('tracks')
     .insert({
       user_id: user.id,
-      intention,
-      frequency,
-      ambient,
-      duration_minutes,
-      file_url: urlData.publicUrl,
-      file_size: buffer.length,
-      processed,
+      intention: intention || '',
+      frequency: frequency || 528,
+      ambient: ambient || 'none',
+      duration_minutes: duration_minutes || 5,
+      file_url,
+      file_size: file_size || 0,
+      processed: processed || false,
     })
     .select()
     .single();
