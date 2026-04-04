@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
+export const dynamic = 'force-dynamic';
+
 function createSupabaseAndCookies(request: NextRequest) {
   const cookieResponse = NextResponse.next();
   const supabase = createServerClient(
