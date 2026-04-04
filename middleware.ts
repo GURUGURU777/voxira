@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Protected routes: redirect to login if not authenticated
-  if (!user && (pathname.startsWith('/dashboard') || pathname.startsWith('/library'))) {
+  if (!user && (pathname.startsWith('/dashboard') || pathname.startsWith('/library') || pathname.startsWith('/cycles') || pathname.startsWith('/stats'))) {
     const redirectResponse = NextResponse.redirect(new URL('/login', request.url));
     response.cookies.getAll().forEach(cookie => redirectResponse.cookies.set(cookie));
     return redirectResponse;
@@ -42,5 +42,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/dashboard/:path*', '/library/:path*', '/login'],
+  matcher: ['/', '/dashboard/:path*', '/library/:path*', '/cycles/:path*', '/stats/:path*', '/login'],
 };

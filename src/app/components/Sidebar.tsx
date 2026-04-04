@@ -16,8 +16,8 @@ const NAV_ITEMS = [
   { label: 'Inicio', icon: '\u2302', href: '/dashboard' },
   { label: 'Crear', icon: '\u2726', href: '/dashboard' },
   { label: 'Biblioteca', icon: '\u266B', href: '/library', hasBadge: true },
-  { label: 'Ciclos 21 d\u00edas', icon: '\u25CE', href: '#', disabled: true },
-  { label: 'Estad\u00edsticas', icon: '\u25C8', href: '#', disabled: true },
+  { label: 'Ciclos 21 d\u00edas', icon: '\u25CE', href: '/cycles' },
+  { label: 'Estad\u00edsticas', icon: '\u25C8', href: '/stats' },
 ];
 
 const BOTTOM_ITEMS = [
@@ -91,7 +91,7 @@ export default function Sidebar() {
             return (
               <a
                 key={item.label}
-                href={item.disabled ? undefined : item.href}
+                href={item.href}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -100,7 +100,7 @@ export default function Sidebar() {
                   borderRadius: 10,
                   marginBottom: 2,
                   textDecoration: 'none',
-                  cursor: item.disabled ? 'default' : 'pointer',
+                  cursor: 'pointer',
                   background: isActive ? 'rgba(201,168,76,0.07)' : 'transparent',
                   transition: 'background 0.2s',
                 }}
@@ -110,14 +110,13 @@ export default function Sidebar() {
                   width: 22,
                   textAlign: 'center',
                   color: isActive ? '#c9a84c' : 'rgba(255,255,255,0.2)',
-                  opacity: item.disabled ? 0.3 : 1,
                 }}>
                   {item.icon}
                 </span>
                 <span style={{
                   fontSize: 13,
                   fontWeight: isActive ? 600 : 400,
-                  color: isActive ? '#c9a84c' : item.disabled ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.35)',
+                  color: isActive ? '#c9a84c' : 'rgba(255,255,255,0.35)',
                   letterSpacing: 0.3,
                 }}>
                   {item.label}
@@ -133,17 +132,6 @@ export default function Sidebar() {
                     borderRadius: 8,
                   }}>
                     {tracksUsed}
-                  </span>
-                )}
-                {item.disabled && (
-                  <span style={{
-                    marginLeft: 'auto',
-                    fontSize: 9,
-                    color: 'rgba(255,255,255,0.12)',
-                    fontWeight: 500,
-                    letterSpacing: 0.5,
-                  }}>
-                    PRONTO
                   </span>
                 )}
               </a>
