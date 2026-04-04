@@ -27,8 +27,8 @@ export default function LibraryPage() {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [activeTab] = useState('mine');
   const [filter, setFilter] = useState('recent');
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -102,13 +102,19 @@ export default function LibraryPage() {
     return () => window.removeEventListener('click', close);
   }, [openMenu]);
 
+  const toggleFavorite = useCallback((id: string) => {
+    setFavorites(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
+  }, []);
+
   const sorted = [...tracks].sort((a, b) => {
     if (filter === 'frequency') return a.frequency - b.frequency;
-    if (filter === 'duration') return b.duration_minutes - a.duration_minutes;
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    if (filter === 'duration') return a.duration_minutes - b.duration_minutes;
+    if (filter === 'recent') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    return 0; // 'all' — original order
   });
 
   const playingTrack = currentTrack && playing ? currentTrack : null;
+  const listTracks = playingTrack ? sorted.filter(t => t.id !== playingTrack.id) : sorted;
   const progressPct = duration > 0 ? (progress / duration) * 100 : 0;
 
   return (
@@ -133,23 +139,6 @@ export default function LibraryPage() {
               borderRadius: '10px', padding: '10px 22px', fontSize: '12px', fontWeight: 700,
               letterSpacing: '1px', textTransform: 'uppercase', whiteSpace: 'nowrap',
             }}>+ New Track</a>
-          </div>
-
-          {/* TABS */}
-          <div style={{ display: 'flex', gap: '0', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-            {[
-              { id: 'mine', label: 'Mis sesiones' },
-              { id: 'favorites', label: 'Favoritas' },
-              { id: 'downloaded', label: 'Descargadas' },
-            ].map(tab => (
-              <button key={tab.id} style={{
-                background: 'none', border: 'none', borderBottom: activeTab === tab.id ? '2px solid #c9a84c' : '2px solid transparent',
-                padding: '10px 20px', fontSize: '13px', cursor: 'pointer',
-                color: activeTab === tab.id ? '#c9a84c' : 'rgba(255,255,255,0.25)',
-                fontWeight: activeTab === tab.id ? 600 : 400, fontFamily: "'Outfit', sans-serif",
-                transition: 'all 0.2s',
-              }}>{tab.label}</button>
-            ))}
           </div>
 
           {/* FILTERS */}
@@ -242,9 +231,9 @@ export default function LibraryPage() {
           )}
 
           {/* TRACK LIST */}
-          {!loading && sorted.length > 0 && (
+          {!loading && listTracks.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {sorted.map(track => {
+              {listTracks.map(track => {
                 const color = freqColor(track.frequency);
                 const isP = playing === track.id;
                 return (
@@ -283,6 +272,15 @@ export default function LibraryPage() {
                         {track.processed && <span style={{ fontSize: '9px', color: 'rgba(34,197,94,0.5)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>binaural</span>}
                       </div>
                     </div>
+
+                    {/* Favorite */}
+                    <button onClick={() => toggleFavorite(track.id)} style={{
+                      background: 'none', border: 'none', cursor: 'pointer', padding: '4px', flexShrink: 0,
+                      color: favorites.has(track.id) ? '#c9a84c' : 'rgba(255,255,255,0.12)',
+                      transition: 'color 0.2s',
+                    }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill={favorites.has(track.id) ? '#c9a84c' : 'none'} stroke="currentColor" strokeWidth="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>
+                    </button>
 
                     {/* Frequency badge */}
                     <span style={{
