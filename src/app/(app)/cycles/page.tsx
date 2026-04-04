@@ -9,6 +9,30 @@ const FN: Record<number, string> = { 396: 'Liberation', 417: 'Change', 432: 'Har
 const FREQUENCIES = [396, 417, 432, 528, 639, 741, 852, 963];
 
 function fmtDate(iso: string) { return new Date(iso).toLocaleDateString('es', { month: 'short', day: 'numeric' }); }
+const WEEKDAYS = ['L', 'M', 'Mi', 'J', 'V', 'S', 'D'];
+
+function getDayDate(startedAt: string, dayNumber: number): Date {
+  const d = new Date(startedAt);
+  d.setDate(d.getDate() + dayNumber - 1);
+  return d;
+}
+
+function isToday(date: Date): boolean {
+  const now = new Date();
+  return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate();
+}
+
+function isPast(date: Date): boolean {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d < now;
+}
+
+function fmtShort(date: Date): string {
+  return date.toLocaleDateString('es', { month: 'short', day: 'numeric' });
+}
 
 export default function CyclesPage() {
   const [cycles, setCycles] = useState<Cycle[]>([]);
@@ -32,23 +56,6 @@ export default function CyclesPage() {
       if (d.cycle) { setCycles(p => [d.cycle, ...p]); setShowCreate(false); setNewIntention(''); }
     } catch {} finally { setCreating(false); }
   }, [newIntention, newFreq]);
-
-  const handleCompleteDay = useCallback(async (cycleId: string, dayNumber: number) => {
-    const res = await fetch('/api/cycles', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cycle_id: cycleId, day_number: dayNumber }) });
-    const d = await res.json();
-    if (d.success) {
-      setCycles(prev => prev.map(c => {
-        if (c.id !== cycleId) return c;
-        return {
-          ...c,
-          current_day: Math.min(dayNumber + 1, 21),
-          completed: d.completed,
-          completed_at: d.completed ? new Date().toISOString() : null,
-          cycle_days: c.cycle_days.map(day => day.day_number === dayNumber ? { ...day, completed: true, completed_at: new Date().toISOString() } : day),
-        };
-      }));
-    }
-  }, []);
 
   const handleDelete = useCallback(async (id: string) => {
     if (!confirm('Eliminar este ciclo?')) return;
@@ -173,44 +180,78 @@ export default function CyclesPage() {
                         <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: '1px', transition: 'width 0.3s' }} />
                       </div>
 
-                      {/* Expanded: 21 day grid */}
-                      {expanded && (
+                      {/* Expanded: calendar */}
+                      {expanded && (() => {
+                        const startDate = getDayDate(cycle.started_at, 1);
+                        const endDate = getDayDate(cycle.started_at, 21);
+                        const sortedDays = [...cycle.cycle_days].sort((a, b) => a.day_number - b.day_number);
+                        // Find today's day number (or null if outside cycle range)
+                        const todayDayNum = sortedDays.find(d => isToday(getDayDate(cycle.started_at, d.day_number)))?.day_number || null;
+                        // Build calendar rows: pad start to align with weekday
+                        const startDow = (startDate.getDay() + 6) % 7; // 0=Mon
+                        const cells: (CycleDay | null)[] = Array(startDow).fill(null).concat(sortedDays);
+                        const rows: (CycleDay | null)[][] = [];
+                        for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
+                        // Pad last row
+                        const lastRow = rows[rows.length - 1];
+                        while (lastRow.length < 7) lastRow.push(null);
+
+                        return (
                         <div style={{ padding: '18px 22px' }}>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px', marginBottom: '14px' }}>
-                            {cycle.cycle_days.sort((a, b) => a.day_number - b.day_number).map(day => {
-                              const isCurrent = day.day_number === cycle.current_day && !day.completed;
-                              return (
-                                <button
-                                  key={day.id}
-                                  onClick={() => isCurrent && handleCompleteDay(cycle.id, day.day_number)}
-                                  disabled={!isCurrent}
-                                  style={{
-                                    width: '100%', aspectRatio: '1', borderRadius: '8px', border: 'none', cursor: isCurrent ? 'pointer' : 'default',
-                                    background: day.completed ? color : isCurrent ? `${color}20` : 'rgba(255,255,255,0.02)',
-                                    color: day.completed ? '#081020' : isCurrent ? color : 'rgba(255,255,255,0.15)',
-                                    fontSize: '12px', fontWeight: day.completed || isCurrent ? 700 : 400,
-                                    fontFamily: "'Outfit', sans-serif",
-                                    outline: isCurrent ? `2px solid ${color}` : 'none', outlineOffset: '1px',
-                                    transition: 'all 0.2s',
-                                  }}
-                                >
-                                  {day.day_number}
-                                </button>
-                              );
-                            })}
+                          {/* Date range */}
+                          <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', marginBottom: '14px' }}>
+                            {fmtShort(startDate)} — {fmtShort(endDate)} {endDate.getFullYear()}
+                          </p>
+                          {/* Weekday header */}
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', marginBottom: '6px' }}>
+                            {WEEKDAYS.map(wd => (
+                              <div key={wd} style={{ textAlign: 'center', fontSize: '10px', color: 'rgba(255,255,255,0.2)', fontWeight: 500 }}>{wd}</div>
+                            ))}
                           </div>
-                          <div style={{ display: 'flex', gap: '10px' }}>
-                            <a href={`/dashboard?intention=${encodeURIComponent(cycle.intention)}&frequency=${cycle.frequency}`} style={{
-                              fontSize: '12px', color: '#c9a84c', textDecoration: 'none',
-                              border: '1px solid rgba(201,168,76,0.15)', borderRadius: '8px', padding: '6px 14px',
-                            }}>Generar sesion del dia</a>
+                          {/* Calendar grid */}
+                          {rows.map((row, ri) => (
+                            <div key={ri} style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', marginBottom: '4px' }}>
+                              {row.map((day, ci) => {
+                                if (!day) return <div key={`e${ci}`} />;
+                                const date = getDayDate(cycle.started_at, day.day_number);
+                                const today = isToday(date);
+                                const past = isPast(date);
+                                const missed = past && !day.completed && !today;
+                                const future = !past && !today;
+                                return (
+                                  <div key={day.id} style={{
+                                    borderRadius: '8px', padding: '6px 2px', textAlign: 'center',
+                                    background: day.completed ? 'rgba(34,197,94,0.15)' : missed ? 'rgba(239,68,68,0.1)' : today ? 'rgba(201,168,76,0.08)' : 'rgba(255,255,255,0.015)',
+                                    border: today ? '1px solid #c9a84c' : '1px solid transparent',
+                                    animation: today ? 'pulse 2s infinite' : 'none',
+                                  }}>
+                                    <div style={{ fontSize: '13px', fontWeight: 600, color: day.completed ? '#22c55e' : missed ? '#ef4444' : today ? '#c9a84c' : 'rgba(255,255,255,0.15)' }}>
+                                      {day.completed ? '✓' : missed ? '✗' : day.day_number}
+                                    </div>
+                                    <div style={{ fontSize: '9px', color: today ? 'rgba(201,168,76,0.6)' : 'rgba(255,255,255,0.15)', marginTop: '1px' }}>
+                                      {date.getDate()} {date.toLocaleDateString('es', { month: 'short' })}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ))}
+                          {/* Actions */}
+                          <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
+                            {todayDayNum && !sortedDays.find(d => d.day_number === todayDayNum)?.completed && (
+                              <a href={`/dashboard?intention=${encodeURIComponent(cycle.intention)}&frequency=${cycle.frequency}&cycle_id=${cycle.id}&day_number=${todayDayNum}`} style={{
+                                fontSize: '12px', color: '#c9a84c', textDecoration: 'none',
+                                background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.15)', borderRadius: '8px', padding: '8px 16px', fontWeight: 500,
+                              }}>Generar sesion del dia {todayDayNum}</a>
+                            )}
                             <button onClick={() => handleDelete(cycle.id)} style={{
                               fontSize: '12px', color: 'rgba(239,68,68,0.5)', background: 'none', border: '1px solid rgba(239,68,68,0.1)',
-                              borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
+                              borderRadius: '8px', padding: '8px 16px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
                             }}>Eliminar</button>
                           </div>
                         </div>
-                      )}
+                        );
+                      })()}
                     </div>
                   );
                 })}
