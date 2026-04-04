@@ -266,12 +266,20 @@ function DashboardContent() {
 
           {generatedAudio&&<div style={{marginBottom:'24px',textAlign:'center'}}><audio controls src={`data:audio/mp3;base64,${generatedAudio}`} style={{width:'100%',maxWidth:'400px'}}/></div>}
 
+          {generatedAudio ? (
+          <div style={{display:'flex',justifyContent:'center',gap:'12px',flexWrap:'wrap'}}>
+            <a href="/library" style={{background:'linear-gradient(135deg,#c9a84c,#dbb960)',color:'#0a0e1a',textDecoration:'none',borderRadius:'12px',padding:'16px 32px',fontSize:'14px',fontWeight:500,fontFamily:"'Outfit',sans-serif"}}>{t(lang,'Go to Library','Ir a Biblioteca')}</a>
+            <button onClick={()=>{const a=document.createElement('a');a.href=`data:audio/mp3;base64,${generatedAudio}`;a.download=`voxira-${selectedFrequency?.hz||528}hz-${selectedDuration}min.mp3`;a.click();}} style={{background:'transparent',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'12px',padding:'16px 32px',fontSize:'14px',fontWeight:500,color:'rgba(255,255,255,0.5)',cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>{t(lang,'Download','Descargar')}</button>
+            <button onClick={()=>{setGeneratedAudio(null);setStatusMessage('');setAffirmations([]);setStep(1);setGoal('');setSelectedFrequency(null);setHasRecording(false);setAudioBlob(null);setRecordingTime(0);}} style={{background:'transparent',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'12px',padding:'16px 32px',fontSize:'14px',fontWeight:500,color:'rgba(255,255,255,0.5)',cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>{t(lang,'Generate Another','Generar otro')}</button>
+          </div>
+          ) : (
           <div style={{display:'flex',justifyContent:'space-between'}}>
             <button onClick={()=>setStep(2)} style={btnS}>← {t(lang,'Back','Atrás')}</button>
             <button onClick={handleGenerate} disabled={(!hasRecording&&!savedVoiceUrl)||isGenerating} style={{...btnG,opacity:(hasRecording||savedVoiceUrl)&&!isGenerating?1:0.3,cursor:(hasRecording||savedVoiceUrl)&&!isGenerating?'pointer':'not-allowed',fontSize:'15px',padding:'16px 44px',boxShadow:(hasRecording||savedVoiceUrl)&&!isGenerating?'0 4px 30px rgba(201,168,76,0.3)':'none'}}>
               {isGenerating?t(lang,'⏳ Generating...','⏳ Generando...'):`✦ ${t(lang,'Generate Track','Generar Audio')}`}
             </button>
           </div>
+          )}
           </div></div></div>)}
 
           <footer style={{textAlign:'center',marginTop:'56px',paddingBottom:'32px'}}><p style={{fontSize:'11px',color:'rgba(255,255,255,0.12)',letterSpacing:'2px'}}>© 2026 V O X I R A</p></footer>
