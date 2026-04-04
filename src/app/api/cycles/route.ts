@@ -30,11 +30,20 @@ export async function GET(request: NextRequest) {
 
   const { data: cycles, error } = await supabase
     .from('cycles')
-    .select('*, cycle_days(*)')
+    .select('*, cycle_days(*, tracks(file_url))')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
   if (error) return withCookies(NextResponse.json({ error: error.message }, { status: 500 }));
+
+  // Also support ?id= for single cycle fetch
+  const { searchParams } = new URL(request.url);
+  const singleId = searchParams.get('id');
+  if (singleId) {
+    const cycle = (cycles || []).find(c => c.id === singleId);
+    return withCookies(NextResponse.json({ cycle: cycle || null }));
+  }
+
   return withCookies(NextResponse.json({ cycles: cycles || [] }));
 }
 
@@ -71,7 +80,7 @@ export async function POST(request: NextRequest) {
   // Re-fetch with days
   const { data: fullCycle } = await supabase
     .from('cycles')
-    .select('*, cycle_days(*)')
+    .select('*, cycle_days(*, tracks(file_url))')
     .eq('id', cycle.id)
     .single();
 
