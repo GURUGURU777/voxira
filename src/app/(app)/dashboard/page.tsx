@@ -75,6 +75,7 @@ function DashboardContent() {
   const [selectedFrequency, setSelectedFrequency] = useState<Frequency | null>(null);
   const [recommendedHz, setRecommendedHz] = useState<number | null>(null);
   const [selectedAmbient, setSelectedAmbient] = useState<string[]>([]);
+  const [selectedDuration, setSelectedDuration] = useState(5);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [hasRecording, setHasRecording] = useState(false);
@@ -149,7 +150,7 @@ function DashboardContent() {
       if (cloneData.voice_audio_url) setSavedVoiceUrl(cloneData.voice_audio_url);
 
       setStatusMessage(t(lang, '✨ Generating affirmations with your voice...', '✨ Generando afirmaciones con tu voz...'));
-      const genRes = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: cloneData.voice_id, intention: goal, frequency: selectedFrequency.hz, lang }) });
+      const genRes = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: cloneData.voice_id, intention: goal, frequency: selectedFrequency.hz, duration: selectedDuration, lang }) });
       const genData = await genRes.json();
       if (!genRes.ok || !genData.audio) throw new Error(genData.error || 'Generation failed');
 
@@ -163,11 +164,11 @@ function DashboardContent() {
           const { data: { user: u } } = await sb.auth.getUser();
           if (!u) { console.error('[auto-save] Not authenticated'); return; }
           const trackBlob = new Blob([Uint8Array.from(atob(genData.audio), c => c.charCodeAt(0))], { type: 'audio/mpeg' });
-          const fileName = `${u.id}/${Date.now()}-${selectedFrequency.hz}hz-5min.mp3`;
+          const fileName = `${u.id}/${Date.now()}-${selectedFrequency.hz}hz-${selectedDuration}min.mp3`;
           const { error: upErr } = await sb.storage.from('tracks').upload(fileName, trackBlob, { contentType: 'audio/mpeg', upsert: false });
           if (upErr) { console.error('[auto-save] Storage upload failed:', upErr); return; }
           const { data: { publicUrl } } = sb.storage.from('tracks').getPublicUrl(fileName);
-          const res = await fetch('/api/tracks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file_url: publicUrl, file_size: trackBlob.size, intention: goal, frequency: selectedFrequency.hz, ambient: 'none', duration_minutes: 5, processed: genData.processed || false }) });
+          const res = await fetch('/api/tracks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file_url: publicUrl, file_size: trackBlob.size, intention: goal, frequency: selectedFrequency.hz, ambient: 'none', duration_minutes: selectedDuration, processed: genData.processed || false }) });
           const d = await res.json();
           if (!res.ok) console.error('[auto-save] Metadata save failed:', res.status, d);
           else console.log('[auto-save] Track saved:', d.track?.id);
@@ -176,7 +177,7 @@ function DashboardContent() {
     } catch (err) {
       setStatusMessage(`❌ ${err instanceof Error ? err.message : 'Error'}`);
     } finally { setIsGenerating(false); }
-  }, [audioBlob, savedVoiceUrl, selectedFrequency, goal, lang]);
+  }, [audioBlob, savedVoiceUrl, selectedFrequency, selectedDuration, goal, lang]);
 
   const formatTime = (s: number) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
   const toggleAmbient = (id: string) => setSelectedAmbient(p => p.includes(id) ? p.filter(s => s !== id) : [...p, id]);
@@ -217,6 +218,7 @@ function DashboardContent() {
           {step===2&&(<div style={{animation:'fadeUp 0.7s ease'}}><div style={card}><div style={accent}/><div style={{position:'relative',zIndex:1}}><div style={{textAlign:'center',marginBottom:'36px'}}><p style={{fontSize:'11px',fontWeight:500,color:'rgba(201,168,76,0.6)',letterSpacing:'3px',textTransform:'uppercase',marginBottom:'12px'}}>{t(lang,'step two','paso dos')}</p><h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'32px',fontWeight:400,color:'#fff',margin:0}}>{t(lang,'choose your ','elige tu ')}<span style={{background:'linear-gradient(135deg,#c9a84c,#e8d08c)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',fontWeight:600}}>{t(lang,'solfeggio frequency','frecuencia solfeggio')}</span></h2></div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:'12px',marginBottom:'36px'}}>{FREQUENCIES.map(f=><FreqCard key={f.hz} freq={f} isSelected={selectedFrequency?.hz===f.hz} isRecommended={recommendedHz===f.hz} onClick={()=>setSelectedFrequency(f)} lang={lang}/>)}</div>
           <div style={{marginBottom:'36px'}}><p style={{fontSize:'10px',color:'rgba(255,255,255,0.25)',textTransform:'uppercase',letterSpacing:'2px',marginBottom:'14px'}}>{t(lang,'Ambient layers','Capas ambientales')} <span style={{color:'rgba(255,255,255,0.15)',fontStyle:'italic',textTransform:'none'}}>{t(lang,'optional','opcional')}</span></p><div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>{AMBIENT_SOUNDS.map(s=>{const a=selectedAmbient.includes(s.id);return <button key={s.id} onClick={()=>toggleAmbient(s.id)} style={{background:a?'rgba(61,142,207,0.1)':'rgba(12,26,46,0.5)',border:`1px solid ${a?'rgba(61,142,207,0.25)':'rgba(61,142,207,0.08)'}`,borderRadius:'12px',padding:'10px 20px',color:a?'#4a9eff':'rgba(255,255,255,0.4)',fontSize:'14px',cursor:'pointer',display:'flex',alignItems:'center',gap:'8px'}}><span style={{fontSize:'16px'}}>{s.icon}</span>{t(lang,s.nameEn,s.nameEs)}</button>;})}</div></div>
+          <div style={{marginBottom:'36px'}}><p style={{fontSize:'10px',color:'rgba(255,255,255,0.25)',textTransform:'uppercase',letterSpacing:'2px',marginBottom:'14px'}}>{t(lang,'Session duration','Duración de sesión')}</p><div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>{[5,10,15,30].map(d=>{const sel=selectedDuration===d;return <button key={d} onClick={()=>setSelectedDuration(d)} style={{background:sel?'rgba(201,168,76,0.08)':'rgba(255,255,255,0.03)',border:`1px solid ${sel?'rgba(201,168,76,0.15)':'rgba(255,255,255,0.06)'}`,borderRadius:'10px',padding:'10px 22px',color:sel?'#c9a84c':'rgba(255,255,255,0.4)',fontSize:'14px',cursor:'pointer',fontFamily:"'Outfit',sans-serif",fontWeight:sel?600:400,transition:'all 0.2s'}}>{d} min</button>;})}</div></div>
           <div style={{display:'flex',justifyContent:'space-between'}}><button onClick={()=>setStep(1)} style={btnS}>← {t(lang,'Back','Atrás')}</button><button onClick={()=>selectedFrequency&&setStep(3)} disabled={!selectedFrequency} style={{...btnG,opacity:selectedFrequency?1:0.3,cursor:selectedFrequency?'pointer':'not-allowed'}}>{t(lang,'Continue','Continuar')} →</button></div></div></div></div>)}
 
           {/* STEP 3 */}
@@ -228,6 +230,7 @@ function DashboardContent() {
             <div><div style={{fontSize:'9px',color:'rgba(255,255,255,0.25)',textTransform:'uppercase',letterSpacing:'1.5px',marginBottom:'6px'}}>{t(lang,'Intention','Intención')}</div><div style={{fontSize:'14px',color:'rgba(255,255,255,0.8)'}}>{goal}</div></div>
             <div><div style={{fontSize:'9px',color:'rgba(255,255,255,0.25)',textTransform:'uppercase',letterSpacing:'1.5px',marginBottom:'6px'}}>{t(lang,'Frequency','Frecuencia')}</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'20px',color:selectedFrequency?.color,fontWeight:600}}>{selectedFrequency?.hz}Hz <span style={{fontSize:'12px',color:'rgba(255,255,255,0.4)',fontWeight:400}}>{t(lang,selectedFrequency?.nameEn||'',selectedFrequency?.nameEs||'')}</span></div></div>
             <div><div style={{fontSize:'9px',color:'rgba(255,255,255,0.25)',textTransform:'uppercase',letterSpacing:'1.5px',marginBottom:'6px'}}>Binaural</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'14px',color:'rgba(255,255,255,0.5)'}}>R:{selectedFrequency?.hz} · L:{(selectedFrequency?.hz||0)-3} · Δ3Hz</div></div>
+            <div><div style={{fontSize:'9px',color:'rgba(255,255,255,0.25)',textTransform:'uppercase',letterSpacing:'1.5px',marginBottom:'6px'}}>{t(lang,'Duration','Duración')}</div><div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'20px',color:'#c9a84c',fontWeight:600}}>{selectedDuration}<span style={{fontSize:'12px',color:'rgba(255,255,255,0.4)',fontWeight:400}}> min</span></div></div>
           </div>
 
           {/* Saved voice card */}
