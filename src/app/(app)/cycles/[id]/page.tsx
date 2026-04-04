@@ -346,7 +346,7 @@ export default function CycleDetailPage() {
             <div style={{ background: 'linear-gradient(160deg, rgba(34,197,94,0.06), rgba(201,168,76,0.04))', border: '1px solid rgba(34,197,94,0.15)', borderRadius: '16px', padding: '28px', marginBottom: '24px', textAlign: 'center' }}>
               <div style={{ fontSize: '40px', marginBottom: '12px' }}>🎉</div>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '26px', fontWeight: 400, color: '#fff', margin: '0 0 8px 0' }}>Ciclo completado!</h2>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginBottom: '20px', fontStyle: 'italic' }}>"{cycle.intention}"</p>
+              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginBottom: '20px', fontStyle: 'italic' }}>&ldquo;{cycle.intention}&rdquo;</p>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginBottom: '20px', flexWrap: 'wrap' }}>
                 <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>Dias</div><div style={{ fontSize: '22px', fontWeight: 600, color: '#22c55e' }}>21/21</div></div>
                 <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>Mejor racha</div><div style={{ fontSize: '22px', fontWeight: 600, color: '#c9a84c' }}>🔥 {streak}</div></div>
@@ -356,7 +356,7 @@ export default function CycleDetailPage() {
               <div id="share-card" style={{ background: 'linear-gradient(160deg, #0b1121, #0d1526)', border: '1px solid rgba(201,168,76,0.15)', borderRadius: '14px', padding: '24px', margin: '0 auto', maxWidth: '340px', textAlign: 'center' }}>
                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '14px', color: 'rgba(255,255,255,0.3)', letterSpacing: '6px', marginBottom: '12px' }}>VOXIRA</div>
                 <div style={{ fontSize: '13px', color: '#22c55e', fontWeight: 600, marginBottom: '8px' }}>✓ 21 dias completados</div>
-                <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', fontStyle: 'italic', margin: '0 0 10px 0', lineHeight: 1.5 }}>"{cycle.intention}"</p>
+                <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', fontStyle: 'italic', margin: '0 0 10px 0', lineHeight: 1.5 }}>&ldquo;{cycle.intention}&rdquo;</p>
                 <span style={{ fontSize: '11px', color, fontWeight: 600 }}>{cycle.frequency}Hz — {FN[cycle.frequency] || ''}</span>
               </div>
             </div>
