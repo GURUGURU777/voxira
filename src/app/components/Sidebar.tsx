@@ -27,6 +27,7 @@ const BOTTOM_ITEMS = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [cycleStreak, setCycleStreak] = useState(0);
 
   useEffect(() => {
     fetch('/api/profile')
@@ -40,6 +41,26 @@ export default function Sidebar() {
           credits: data.profile?.credits ?? 0,
           tracks_count: data.profile?.tracks_count ?? 0,
         });
+      })
+      .catch(() => {});
+    // Fetch streak from active cycles
+    fetch('/api/cycles')
+      .then(r => r.json())
+      .then(data => {
+        const active = (data.cycles || []).filter((c: { completed: boolean }) => !c.completed);
+        let maxStreak = 0;
+        for (const c of active) {
+          let s = 0;
+          const days = [...(c.cycle_days || [])].sort((a: { day_number: number }, b: { day_number: number }) => b.day_number - a.day_number);
+          const start = new Date(c.started_at);
+          for (const d of days) {
+            const date = new Date(start); date.setDate(date.getDate() + d.day_number - 1);
+            const now = new Date(); now.setHours(0,0,0,0); date.setHours(0,0,0,0);
+            if (date <= now) { if (d.completed) s++; else break; }
+          }
+          if (s > maxStreak) maxStreak = s;
+        }
+        setCycleStreak(maxStreak);
       })
       .catch(() => {});
   }, []);
@@ -121,6 +142,16 @@ export default function Sidebar() {
                 }}>
                   {item.label}
                 </span>
+                {item.href === '/cycles' && cycleStreak > 1 && (
+                  <span style={{
+                    marginLeft: 'auto',
+                    color: '#c9a84c',
+                    fontSize: 11,
+                    fontWeight: 600,
+                  }}>
+                    🔥 {cycleStreak}
+                  </span>
+                )}
                 {item.hasBadge && tracksUsed > 0 && (
                   <span style={{
                     marginLeft: 'auto',

@@ -54,14 +54,14 @@ export async function POST(request: NextRequest) {
   if (!user) return withCookies(NextResponse.json({ error: 'Not authenticated' }, { status: 401 }));
 
   const body = await request.json();
-  const { intention, frequency } = body;
+  const { intention, frequency, preferred_time } = body;
 
   if (!intention || !frequency) return withCookies(NextResponse.json({ error: 'Missing intention or frequency' }, { status: 400 }));
 
   // Create cycle
   const { data: cycle, error: cycleError } = await supabase
     .from('cycles')
-    .insert({ user_id: user.id, intention, frequency })
+    .insert({ user_id: user.id, intention, frequency, ...(preferred_time ? { preferred_time } : {}) })
     .select()
     .single();
 
@@ -94,14 +94,36 @@ export async function PATCH(request: NextRequest) {
   if (!user) return withCookies(NextResponse.json({ error: 'Not authenticated' }, { status: 401 }));
 
   const body = await request.json();
-  const { cycle_id, day_number, track_id } = body;
+  const { cycle_id, day_number, track_id, emotional_score } = body;
 
   if (!cycle_id || !day_number) return withCookies(NextResponse.json({ error: 'Missing cycle_id or day_number' }, { status: 400 }));
+
+  // Fetch cycle to validate date
+  const { data: cycleData } = await supabase.from('cycles').select('started_at').eq('id', cycle_id).eq('user_id', user.id).single();
+  if (!cycleData) return withCookies(NextResponse.json({ error: 'Cycle not found' }, { status: 404 }));
+
+  // Validate that day_number corresponds to today's date
+  const dayDate = new Date(cycleData.started_at);
+  dayDate.setDate(dayDate.getDate() + day_number - 1);
+  const now = new Date();
+  const isSameDay = dayDate.getFullYear() === now.getFullYear() && dayDate.getMonth() === now.getMonth() && dayDate.getDate() === now.getDate();
+  if (!isSameDay) return withCookies(NextResponse.json({ error: 'Este dia no corresponde a la fecha de hoy' }, { status: 400 }));
+
+  // If only saving emotional score (no completion)
+  if (emotional_score && !track_id) {
+    const { error } = await supabase.from('cycle_days').update({ emotional_score }).eq('cycle_id', cycle_id).eq('user_id', user.id).eq('day_number', day_number);
+    if (error) return withCookies(NextResponse.json({ error: error.message }, { status: 500 }));
+    return withCookies(NextResponse.json({ success: true, saved: 'emotional_score' }));
+  }
+
+  // Check if already completed
+  const { data: existingDay } = await supabase.from('cycle_days').select('completed').eq('cycle_id', cycle_id).eq('user_id', user.id).eq('day_number', day_number).single();
+  if (existingDay?.completed) return withCookies(NextResponse.json({ error: 'Este dia ya fue completado' }, { status: 400 }));
 
   // Mark day as completed
   const { error: dayError } = await supabase
     .from('cycle_days')
-    .update({ completed: true, completed_at: new Date().toISOString(), track_id: track_id || null })
+    .update({ completed: true, completed_at: new Date().toISOString(), track_id: track_id || null, ...(emotional_score ? { emotional_score } : {}) })
     .eq('cycle_id', cycle_id)
     .eq('user_id', user.id)
     .eq('day_number', day_number);
