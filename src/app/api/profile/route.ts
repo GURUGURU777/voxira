@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('voice_audio_url, voice_cloned_at, plan, credits, tracks_count')
+    .select('voice_audio_url, voice_cloned_at, plan, credits, tracks_count, onboarding_completed, goal, meditation_experience, daily_minutes, total_listening_minutes, current_streak')
     .eq('id', user.id)
     .single();
 
@@ -45,15 +45,18 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
-  if (body.voice_audio_url) {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ voice_audio_url: body.voice_audio_url, voice_cloned_at: new Date().toISOString(), updated_at: new Date().toISOString() })
-      .eq('id', user.id);
-
-    if (error) return withCookies(NextResponse.json({ error: error.message }, { status: 500 }));
-    return withCookies(NextResponse.json({ success: true }));
+  // Build update object from allowed fields
+  const allowed = ['voice_audio_url', 'goal', 'meditation_experience', 'daily_minutes', 'onboarding_completed'] as const;
+  const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  let hasUpdate = false;
+  for (const key of allowed) {
+    if (body[key] !== undefined) { updates[key] = body[key]; hasUpdate = true; }
   }
+  if (body.voice_audio_url) { updates.voice_cloned_at = new Date().toISOString(); }
 
-  return withCookies(NextResponse.json({ error: 'No updates provided' }, { status: 400 }));
+  if (!hasUpdate) return withCookies(NextResponse.json({ error: 'No updates provided' }, { status: 400 }));
+
+  const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
+  if (error) return withCookies(NextResponse.json({ error: error.message }, { status: 500 }));
+  return withCookies(NextResponse.json({ success: true }));
 }

@@ -13,7 +13,7 @@ interface UserProfile {
 }
 
 const NAV_ITEMS = [
-  { label: 'Inicio', icon: '\u2302', href: '/dashboard' },
+  { label: 'Inicio', icon: '\u2302', href: '/home' },
   { label: 'Crear', icon: '\u2726', href: '/dashboard' },
   { label: 'Biblioteca', icon: '\u266B', href: '/library', hasBadge: true },
   { label: 'Ciclos 21 d\u00edas', icon: '\u25CE', href: '/cycles' },
