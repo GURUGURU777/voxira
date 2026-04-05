@@ -223,7 +223,7 @@ export default function LandingPage() {
             <a href="#how" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>{L('How it works', 'Como funciona')}</a>
             <a href="#frequencies" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>{L('Frequencies', 'Frecuencias')}</a>
             <button onClick={toggleLang} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', letterSpacing: '1px' }}>{lang === 'en' ? 'ES' : 'EN'}</button>
-            <a href={isLoggedIn ? '/dashboard' : '/login'} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '13px', fontWeight: 700, boxShadow: '0 2px 16px rgba(201,168,76,0.2)' }}>{isLoggedIn ? 'Dashboard' : L('Start Free', 'Comenzar Gratis')}</a>
+            <a href={isLoggedIn ? '/dashboard' : '/login'} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '13px', fontWeight: 700, boxShadow: '0 2px 16px rgba(201,168,76,0.2)' }}>{isLoggedIn ? L('Start', 'Comenzar') : L('Start Free', 'Comenzar Gratis')}</a>
           </div>
         </nav>
 
@@ -242,7 +242,7 @@ export default function LandingPage() {
               {L('AI clones your voice. Solfeggio frequencies sync your brain. Personalized affirmations rewire your beliefs.', 'La IA clona tu voz. Las frecuencias Solfeggio sincronizan tu cerebro. Afirmaciones personalizadas reprograman tus creencias.')}
             </p>
             <div style={{ display: 'flex', gap: '16px', marginTop: '44px', animation: 'fadeUp 0.8s ease both 0.45s', opacity: 0 }}>
-              <a href={isLoggedIn ? '/dashboard' : '/login'} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', boxShadow: '0 4px 30px rgba(201,168,76,0.25), 0 0 60px rgba(201,168,76,0.08)' }}>{isLoggedIn ? 'Dashboard' : L('Start Free', 'Comenzar Gratis')}</a>
+              <a href={isLoggedIn ? '/dashboard' : '/login'} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', boxShadow: '0 4px 30px rgba(201,168,76,0.25), 0 0 60px rgba(201,168,76,0.08)' }}>{isLoggedIn ? L('Start', 'Comenzar') : L('Start Free', 'Comenzar Gratis')}</a>
               <button onClick={scrollToDemo} style={{ background: 'transparent', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', padding: '18px 36px', fontSize: '15px', fontWeight: 400, cursor: 'pointer' }}>{L('▶ Listen Demo', '▶ Escuchar Demo')}</button>
             </div>
             <div style={{ marginTop: '60px', display: 'flex', alignItems: 'center', gap: '32px', animation: 'fadeUp 0.8s ease both 0.6s', opacity: 0 }}>
@@ -381,7 +381,7 @@ export default function LandingPage() {
                 letterSpacing: '1.5px', textTransform: 'uppercase',
                 boxShadow: '0 4px 40px rgba(201,168,76,0.3), 0 0 80px rgba(201,168,76,0.1)',
                 display: 'inline-block',
-              }}>{isLoggedIn ? 'Dashboard' : L('Start Now', 'Comenzar Ahora')}</a>
+              }}>{isLoggedIn ? L('Start', 'Comenzar') : L('Start Now', 'Comenzar Ahora')}</a>
             </div>
           </section>
 
