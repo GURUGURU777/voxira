@@ -178,7 +178,7 @@ function DashboardContent() {
       if (cloneData.voice_audio_url) setSavedVoiceUrl(cloneData.voice_audio_url);
 
       setStatusMessage(t(lang, '✨ Generating affirmations with your voice...', '✨ Generando afirmaciones con tu voz...'));
-      const genRes = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: cloneData.voice_id, intention: goal, frequency: selectedFrequency.hz, duration: selectedDuration, lang }) });
+      const genRes = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: cloneData.voice_id, intention: goal, frequency: selectedFrequency.hz, duration: selectedDuration, lang, ambient: selectedAmbient }) });
       const genData = await genRes.json();
       if (!genRes.ok || !genData.audio) throw new Error(genData.error || 'Generation failed');
 
@@ -196,7 +196,7 @@ function DashboardContent() {
           const { error: upErr } = await sb.storage.from('tracks').upload(fileName, trackBlob, { contentType: 'audio/mpeg', upsert: false });
           if (upErr) { console.error('[auto-save] Storage upload failed:', upErr); return; }
           const { data: { publicUrl } } = sb.storage.from('tracks').getPublicUrl(fileName);
-          const res = await fetch('/api/tracks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file_url: publicUrl, file_size: trackBlob.size, intention: goal, frequency: selectedFrequency.hz, ambient: 'none', duration_minutes: selectedDuration, processed: genData.processed || false }) });
+          const res = await fetch('/api/tracks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file_url: publicUrl, file_size: trackBlob.size, intention: goal, frequency: selectedFrequency.hz, ambient: selectedAmbient, duration_minutes: selectedDuration, processed: genData.processed || false }) });
           const d = await res.json();
           if (!res.ok) console.error('[auto-save] Metadata save failed:', res.status, d);
           else {
