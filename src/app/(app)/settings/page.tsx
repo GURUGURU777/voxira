@@ -217,8 +217,8 @@ export default function SettingsPage() {
           <div style={card}>
             <p style={label}>Legal</p>
             <div style={{ display: 'flex', gap: '16px' }}>
-              <a href="#" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>Terminos de Servicio</a>
-              <a href="#" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>Politica de Privacidad</a>
+              <a href="/terms" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>Terminos de Servicio</a>
+              <a href="/privacy" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>Politica de Privacidad</a>
               <a href="mailto:contacto@voxira.app" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>Contacto</a>
             </div>
           </div>
