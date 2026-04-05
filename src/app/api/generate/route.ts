@@ -4,11 +4,11 @@ export const maxDuration = 300; // 5 min timeout for full pipeline
 
 export async function POST(request: NextRequest) {
   try {
-    const elevenLabsKey = process.env.ELEVENLABS_API_KEY;
+    const fishApiKey = process.env.FISH_AUDIO_API_KEY;
     const openaiKey = process.env.OPENAI_API_KEY;
     const ffmpegServiceUrl = process.env.FFMPEG_SERVICE_URL;
 
-    if (!elevenLabsKey || !openaiKey) {
+    if (!fishApiKey || !openaiKey) {
       return NextResponse.json({ error: 'API keys not configured' }, { status: 500 });
     }
 
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     if (!affirmations || affirmations.length === 0) {
       const affirmationPrompt = isSpanish
-        ? `Genera 15 afirmaciones positivas en primera persona para alguien que quiere: "${intention}". 
+        ? `Genera 15 afirmaciones positivas en primera persona para alguien que quiere: "${intention}".
            Las afirmaciones deben ser poderosas, en presente, personales, y variadas en longitud.
            Incluye algunas cortas (5-8 palabras) y otras más detalladas (15-20 palabras).
            Formato: una afirmación por línea, sin números ni guiones.
@@ -70,43 +70,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No affirmations generated' }, { status: 500 });
     }
 
-    // ─── Step 2: Convert affirmations to speech with ElevenLabs ───
-    // Use SSML-style pauses with "..." for longer pauses between affirmations
-    // This creates a meditative, slow-paced delivery
+    // ─── Step 2: Convert affirmations to speech with Fish Audio ───
     const fullScript = affirmations.join(' .......... .......... .......... ');
 
-    const ttsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
+    const ttsResponse = await fetch('https://api.fish.audio/v1/tts', {
       method: 'POST',
-      headers: { 'xi-api-key': elevenLabsKey, 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${fishApiKey}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         text: fullScript,
-        model_id: 'eleven_multilingual_v2',
-        voice_settings: {
-          stability: 0.95,        // Higher = more consistent, calmer delivery
-          similarity_boost: 0.75,  // Good voice match
-          style: 0.05,            // Lower = less expressive = slower, more monotone/meditative
-          use_speaker_boost: true,
-        },
+        reference_id: voice_id,
+        format: 'mp3',
       }),
     });
 
     if (!ttsResponse.ok) {
       const err = await ttsResponse.json().catch(() => ({}));
-    const errorMsg = err?.detail?.message || err?.detail?.status || '';
-    // If voice was deleted/not found, tell frontend to re-clone
-    if (errorMsg.includes('not found') || errorMsg.includes('not_found') || ttsResponse.status === 404) {
-      return NextResponse.json({ error: errorMsg || 'Voice not found - please record again', voice_not_found: true }, { status: 404 });
-    }
-      // Delete the cloned voice even on TTS failure
-      await deleteVoice(voice_id, elevenLabsKey);
-      return NextResponse.json({ error: err?.detail?.message || 'Failed to generate speech' }, { status: 500 });
+      const errorMsg = err?.message || err?.detail || '';
+      if (ttsResponse.status === 404) {
+        return NextResponse.json({ error: errorMsg || 'Voice not found - please record again', voice_not_found: true }, { status: 404 });
+      }
+      return NextResponse.json({ error: errorMsg || 'Failed to generate speech' }, { status: 500 });
     }
 
     const voiceAudioBuffer = Buffer.from(await ttsResponse.arrayBuffer());
-
-    // ─── Step 2.5: Delete the cloned voice from ElevenLabs (free up slot) ───
-    await deleteVoice(voice_id, elevenLabsKey);
-    console.log('[generate] Deleted cloned voice:', voice_id);
 
     // ─── Step 3: Send to FFmpeg service for processing ───
     if (ffmpegServiceUrl) {
@@ -172,18 +161,5 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Generate error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
-}
-
-// ─── Helper: Delete a cloned voice from ElevenLabs ───
-async function deleteVoice(voiceId: string, apiKey: string) {
-  try {
-    const res = await fetch(`https://api.elevenlabs.io/v1/voices/${voiceId}`, {
-      method: 'DELETE',
-      headers: { 'xi-api-key': apiKey },
-    });
-    console.log('[generate] Delete voice response:', res.status);
-  } catch (err) {
-    console.error('[generate] Failed to delete voice:', err);
   }
 }

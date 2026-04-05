@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 function createSupabaseAndCookies(request: NextRequest) {
   const cookieResponse = NextResponse.next();
@@ -24,9 +24,9 @@ function createSupabaseAndCookies(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.ELEVENLABS_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: 'ElevenLabs API key not configured' }, { status: 500 });
+    const fishApiKey = process.env.FISH_AUDIO_API_KEY;
+    if (!fishApiKey) {
+      return NextResponse.json({ error: 'Fish Audio API key not configured' }, { status: 500 });
     }
 
     const { supabase, withCookies } = createSupabaseAndCookies(request);
@@ -38,7 +38,6 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
     const audioFile = formData.get('audio') as File | null;
-    const voiceName = (formData.get('name') as string) || 'VOXIRA User Voice';
 
     if (!audioFile) {
       return withCookies(NextResponse.json({ error: 'No audio file provided' }, { status: 400 }));
@@ -49,7 +48,7 @@ export async function POST(request: NextRequest) {
       return withCookies(NextResponse.json({ error: 'Audio file too large. Max 10MB.' }, { status: 400 }));
     }
 
-    // Upload voice sample to Supabase Storage
+    // Upload voice sample to Supabase Storage (backup)
     const audioBuffer = Buffer.from(await audioFile.arrayBuffer());
     const storagePath = `${user.id}/voice-sample.webm`;
 
@@ -65,15 +64,44 @@ export async function POST(request: NextRequest) {
       return withCookies(NextResponse.json({ error: 'Failed to save voice sample' }, { status: 500 }));
     }
 
-    // Get public URL and save to profile
     const { data: { publicUrl } } = supabase.storage
       .from('voice-samples')
       .getPublicUrl(storagePath);
 
+    // Clone voice in Fish Audio
+    const fishForm = new FormData();
+    fishForm.append('voices', audioFile, audioFile.name || 'recording.webm');
+    fishForm.append('title', `VOXIRA-${user.id}`);
+    fishForm.append('visibility', 'private');
+    fishForm.append('type', 'tts');
+    fishForm.append('train_mode', 'fast');
+
+    const response = await fetch('https://api.fish.audio/model', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${fishApiKey}`,
+      },
+      body: fishForm,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Fish Audio error:', response.status, errorData);
+      return withCookies(NextResponse.json(
+        { error: errorData?.message || 'Failed to clone voice' },
+        { status: response.status }
+      ));
+    }
+
+    const data = await response.json();
+    const fishVoiceId = data.model_id || data._id;
+
+    // Save fish_voice_id to profile
     const { error: profileError } = await supabase
       .from('profiles')
       .update({
         voice_audio_url: publicUrl,
+        fish_voice_id: fishVoiceId,
         voice_cloned_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
@@ -83,34 +111,9 @@ export async function POST(request: NextRequest) {
       console.error('Profile update error:', profileError);
     }
 
-    // Clone voice in ElevenLabs
-    const elevenLabsForm = new FormData();
-    elevenLabsForm.append('name', voiceName);
-    elevenLabsForm.append('description', 'Voice cloned via VOXIRA for personalized affirmations');
-    elevenLabsForm.append('files', audioFile, audioFile.name || 'recording.webm');
-
-    const response = await fetch('https://api.elevenlabs.io/v1/voices/add', {
-      method: 'POST',
-      headers: {
-        'xi-api-key': apiKey,
-      },
-      body: elevenLabsForm,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('ElevenLabs error:', response.status, errorData);
-      return withCookies(NextResponse.json(
-        { error: errorData?.detail?.message || 'Failed to clone voice' },
-        { status: response.status }
-      ));
-    }
-
-    const data = await response.json();
-
     return withCookies(NextResponse.json({
       success: true,
-      voice_id: data.voice_id,
+      voice_id: fishVoiceId,
       voice_audio_url: publicUrl,
       message: 'Voice cloned successfully',
     }));
