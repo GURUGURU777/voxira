@@ -157,6 +157,20 @@ export default function LandingPage() {
   const [tracksGenerated, setTracksGenerated] = useState(12847);
   const playRef = useRef<NodeJS.Timeout | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [lang, setLang] = useState<'en' | 'es'>('en');
+
+  const L = (en: string, es: string) => lang === 'es' ? es : en;
+
+  useEffect(() => {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('voxira-lang') : null;
+    if (saved === 'es' || saved === 'en') setLang(saved);
+  }, []);
+
+  const toggleLang = () => {
+    const next = lang === 'en' ? 'es' : 'en';
+    setLang(next);
+    localStorage.setItem('voxira-lang', next);
+  };
 
   useEffect(() => {
     fetch('/api/profile').then(r => { if (r.ok) return r.json(); throw 0; })
@@ -206,9 +220,10 @@ export default function LandingPage() {
           <VoxiraLogo size={140} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
             <a href="#demo" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>Demo</a>
-            <a href="#how" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>How it works</a>
-            <a href="#frequencies" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>Frequencies</a>
-            <a href={isLoggedIn ? '/dashboard' : '/login'} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '13px', fontWeight: 700, boxShadow: '0 2px 16px rgba(201,168,76,0.2)' }}>{isLoggedIn ? 'Dashboard' : 'Start Free'}</a>
+            <a href="#how" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>{L('How it works', 'Como funciona')}</a>
+            <a href="#frequencies" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>{L('Frequencies', 'Frecuencias')}</a>
+            <button onClick={toggleLang} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', letterSpacing: '1px' }}>{lang === 'en' ? 'ES' : 'EN'}</button>
+            <a href={isLoggedIn ? '/dashboard' : '/login'} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '13px', fontWeight: 700, boxShadow: '0 2px 16px rgba(201,168,76,0.2)' }}>{isLoggedIn ? 'Dashboard' : L('Start Free', 'Comenzar Gratis')}</a>
           </div>
         </nav>
 
@@ -217,33 +232,33 @@ export default function LandingPage() {
           {/* HERO */}
           <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '120px 24px 80px', position: 'relative' }}>
             <p style={{ fontSize: '13px', fontWeight: 400, color: '#c9a84c', letterSpacing: '4px', textTransform: 'uppercase', marginBottom: '28px', fontStyle: 'italic', animation: 'fadeUp 0.8s ease both' }}>
-              elevate your mind, heal your soul
+              {L('elevate your mind, heal your soul', 'eleva tu mente, sana tu alma')}
             </p>
             <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 400, lineHeight: 1.15, margin: 0, maxWidth: '800px', animation: 'fadeUp 0.8s ease both 0.15s', opacity: 0 }}>
-              Reprogram your mind{' '}
-              <span style={{ fontStyle: 'italic', fontWeight: 600, background: 'linear-gradient(135deg, #c9a84c, #e8d08c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>with your own voice</span>
+              {L('Reprogram your mind ', 'Reprograma tu mente ')}
+              <span style={{ fontStyle: 'italic', fontWeight: 600, background: 'linear-gradient(135deg, #c9a84c, #e8d08c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{L('with your own voice', 'con tu propia voz')}</span>
             </h1>
             <p style={{ fontSize: '17px', fontWeight: 300, color: 'rgba(255,255,255,0.45)', marginTop: '24px', maxWidth: '520px', lineHeight: 1.7, animation: 'fadeUp 0.8s ease both 0.3s', opacity: 0 }}>
-              AI clones your voice. Solfeggio frequencies sync your brain. Personalized affirmations rewire your beliefs.
+              {L('AI clones your voice. Solfeggio frequencies sync your brain. Personalized affirmations rewire your beliefs.', 'La IA clona tu voz. Las frecuencias Solfeggio sincronizan tu cerebro. Afirmaciones personalizadas reprograman tus creencias.')}
             </p>
             <div style={{ display: 'flex', gap: '16px', marginTop: '44px', animation: 'fadeUp 0.8s ease both 0.45s', opacity: 0 }}>
-              <a href={isLoggedIn ? '/dashboard' : '/login'} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', boxShadow: '0 4px 30px rgba(201,168,76,0.25), 0 0 60px rgba(201,168,76,0.08)' }}>{isLoggedIn ? 'Go to Dashboard' : 'Start Free'}</a>
-              <button onClick={scrollToDemo} style={{ background: 'transparent', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', padding: '18px 36px', fontSize: '15px', fontWeight: 400, cursor: 'pointer' }}>▶ Listen Demo</button>
+              <a href={isLoggedIn ? '/dashboard' : '/login'} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', boxShadow: '0 4px 30px rgba(201,168,76,0.25), 0 0 60px rgba(201,168,76,0.08)' }}>{isLoggedIn ? 'Dashboard' : L('Start Free', 'Comenzar Gratis')}</a>
+              <button onClick={scrollToDemo} style={{ background: 'transparent', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', padding: '18px 36px', fontSize: '15px', fontWeight: 400, cursor: 'pointer' }}>{L('▶ Listen Demo', '▶ Escuchar Demo')}</button>
             </div>
             <div style={{ marginTop: '60px', display: 'flex', alignItems: 'center', gap: '32px', animation: 'fadeUp 0.8s ease both 0.6s', opacity: 0 }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: '#c9a84c' }}>{tracksGenerated.toLocaleString()}</div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '4px' }}>tracks generated</div>
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '4px' }}>{L('tracks generated', 'tracks generados')}</div>
               </div>
               <div style={{ width: '1px', height: '40px', background: 'rgba(255,255,255,0.06)' }} />
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: '#c9a84c' }}>2 min</div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '4px' }}>to generate</div>
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '4px' }}>{L('to generate', 'para generar')}</div>
               </div>
               <div style={{ width: '1px', height: '40px', background: 'rgba(255,255,255,0.06)' }} />
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: '#c9a84c' }}>Free</div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '4px' }}>no card required</div>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: '#c9a84c' }}>{L('Free', 'Gratis')}</div>
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '4px' }}>{L('no card required', 'sin tarjeta')}</div>
               </div>
             </div>
             <div style={{ position: 'absolute', bottom: '32px', animation: 'bounce 2s infinite' }}>
@@ -254,9 +269,9 @@ export default function LandingPage() {
           {/* AUDIO DEMO */}
           <section id="demo" style={{ padding: '100px 24px', maxWidth: '700px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-              <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.6)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '12px' }}>hear the difference</p>
+              <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.6)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '12px' }}>{L('hear the difference', 'escucha la diferencia')}</p>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 400, margin: 0 }}>
-                Your voice, <span style={{ fontStyle: 'italic', color: '#c9a84c', fontWeight: 600 }}>transformed</span>
+                {L('Your voice, ', 'Tu voz, ')}<span style={{ fontStyle: 'italic', color: '#c9a84c', fontWeight: 600 }}>{L('transformed', 'transformada')}</span>
               </h2>
             </div>
             <div style={{ background: 'linear-gradient(160deg, rgba(12,26,46,0.85), rgba(8,16,32,0.95))', border: '1px solid rgba(61,142,207,0.08)', borderRadius: '24px', padding: '32px', position: 'relative', overflow: 'hidden' }}>
@@ -296,23 +311,23 @@ export default function LandingPage() {
               </div>
             </div>
             <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '13px', color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>
-              ✦ This is a sample. Your track will use YOUR cloned voice.
+              {L('✦ This is a sample. Your track will use YOUR cloned voice.', '✦ Esto es una muestra. Tu track usara TU voz clonada.')}
             </p>
           </section>
 
           {/* HOW IT WORKS */}
           <section id="how" style={{ padding: '100px 24px', maxWidth: '900px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-              <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.6)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '12px' }}>three steps</p>
+              <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.6)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '12px' }}>{L('three steps', 'tres pasos')}</p>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 400, margin: 0 }}>
-                How <span style={{ fontStyle: 'italic', color: '#c9a84c', fontWeight: 600 }}>VOXIRA</span> works
+                {L('How ', 'Como funciona ')}<span style={{ fontStyle: 'italic', color: '#c9a84c', fontWeight: 600 }}>VOXIRA</span>{lang === 'en' ? ' works' : ''}
               </h2>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
               {[
-                { num: '01', title: 'Set intention', desc: 'Tell us what you want to manifest. We generate personalized affirmations with AI.', iconSvg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74L12 2z"/><path d="M5 3l1 3M19 3l-1 3M3 12l3 1M21 12l-3 1"/></svg>' },
-                { num: '02', title: 'Record voice', desc: '15 seconds is all we need. Our AI clones your voice with precision.', iconSvg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>' },
-                { num: '03', title: 'Listen & transform', desc: 'Your cloned voice delivers affirmations over Solfeggio frequencies with binaural beats.', iconSvg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/><path d="M8 12a2 2 0 104 0M12 12a2 2 0 104 0" opacity="0.4"/></svg>' },
+                { num: '01', title: L('Set intention', 'Define tu intencion'), desc: L('Tell us what you want to manifest. We generate personalized affirmations with AI.', 'Dinos que quieres manifestar. Generamos afirmaciones personalizadas con IA.'), iconSvg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74L12 2z"/><path d="M5 3l1 3M19 3l-1 3M3 12l3 1M21 12l-3 1"/></svg>' },
+                { num: '02', title: L('Record voice', 'Graba tu voz'), desc: L('15 seconds is all we need. Our AI clones your voice with precision.', '15 segundos es todo lo que necesitamos. Nuestra IA clona tu voz con precision.'), iconSvg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>' },
+                { num: '03', title: L('Listen & transform', 'Escucha y transforma'), desc: L('Your cloned voice delivers affirmations over Solfeggio frequencies with binaural beats.', 'Tu voz clonada entrega afirmaciones sobre frecuencias Solfeggio con beats binaurales.'), iconSvg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/><path d="M8 12a2 2 0 104 0M12 12a2 2 0 104 0" opacity="0.4"/></svg>' },
               ].map((step) => (
                 <div key={step.num} style={{ background: 'linear-gradient(160deg, rgba(12,26,46,0.6), rgba(8,16,32,0.8))', border: '1px solid rgba(61,142,207,0.06)', borderRadius: '20px', padding: '36px 28px', position: 'relative', overflow: 'hidden' }}>
                   <div style={{ position: 'absolute', top: 0, left: '20%', right: '20%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent)' }} />
@@ -328,11 +343,11 @@ export default function LandingPage() {
           {/* FREQUENCIES */}
           <section id="frequencies" style={{ padding: '100px 24px', maxWidth: '800px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-              <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.6)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '12px' }}>solfeggio frequencies</p>
+              <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.6)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '12px' }}>{L('solfeggio frequencies', 'frecuencias solfeggio')}</p>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 400, margin: 0 }}>
-                Ancient tones for <span style={{ fontStyle: 'italic', color: '#c9a84c', fontWeight: 600 }}>modern minds</span>
+                {L('Ancient tones for ', 'Tonos ancestrales para ')}<span style={{ fontStyle: 'italic', color: '#c9a84c', fontWeight: 600 }}>{L('modern minds', 'mentes modernas')}</span>
               </h2>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)', marginTop: '16px', fontStyle: 'italic' }}>Each frequency paired with binaural beats — 3Hz difference between ears for deep brain entrainment</p>
+              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.35)', marginTop: '16px', fontStyle: 'italic' }}>{L('Each frequency paired with binaural beats — 3Hz difference between ears for deep brain entrainment', 'Cada frecuencia combinada con beats binaurales — 3Hz de diferencia entre oidos para sincronizacion cerebral profunda')}</p>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
               {FREQS.map((f, i) => (
@@ -356,17 +371,17 @@ export default function LandingPage() {
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
             <div style={{ position: 'relative', zIndex: 1 }}>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 400, margin: 0, marginBottom: '16px' }}>
-                your mind · your voice · your{' '}
-                <span style={{ fontStyle: 'italic', fontWeight: 600, background: 'linear-gradient(135deg, #c9a84c, #e8d08c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>transformation</span>
+                {L('your mind · your voice · your ', 'tu mente · tu voz · tu ')}
+                <span style={{ fontStyle: 'italic', fontWeight: 600, background: 'linear-gradient(135deg, #c9a84c, #e8d08c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{L('transformation', 'transformacion')}</span>
               </h2>
-              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.35)', marginBottom: '40px' }}>3 free tracks · no card required · ready in 2 minutes</p>
+              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.35)', marginBottom: '40px' }}>{L('3 free tracks · no card required · ready in 2 minutes', '3 tracks gratis · sin tarjeta · listo en 2 minutos')}</p>
               <a href={isLoggedIn ? '/dashboard' : '/login'} style={{
                 background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none',
                 borderRadius: '14px', padding: '20px 56px', fontSize: '16px', fontWeight: 700,
                 letterSpacing: '1.5px', textTransform: 'uppercase',
                 boxShadow: '0 4px 40px rgba(201,168,76,0.3), 0 0 80px rgba(201,168,76,0.1)',
                 display: 'inline-block',
-              }}>{isLoggedIn ? 'Go to Dashboard' : 'Start Now'}</a>
+              }}>{isLoggedIn ? 'Dashboard' : L('Start Now', 'Comenzar Ahora')}</a>
             </div>
           </section>
 
@@ -374,9 +389,9 @@ export default function LandingPage() {
           <footer style={{ padding: '40px 24px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
             <VoxiraLogo size={100} />
             <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '20px' }}>
-              <a href="#" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontSize: '12px' }}>Terms</a>
-              <a href="#" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontSize: '12px' }}>Privacy</a>
-              <a href="#" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontSize: '12px' }}>Contact</a>
+              <a href="#" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontSize: '12px' }}>{L('Terms', 'Terminos')}</a>
+              <a href="#" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontSize: '12px' }}>{L('Privacy', 'Privacidad')}</a>
+              <a href="#" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontSize: '12px' }}>{L('Contact', 'Contacto')}</a>
             </div>
             <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.1)', marginTop: '16px', letterSpacing: '2px' }}>© 2026 VOXIRA · Powered by ElevenLabs & OpenAI</p>
           </footer>
