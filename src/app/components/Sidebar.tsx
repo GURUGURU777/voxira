@@ -21,7 +21,7 @@ const NAV_ITEMS = [
 ];
 
 const BOTTOM_ITEMS = [
-  { label: 'Configuraci\u00f3n', icon: '\u2699', href: '#', disabled: true },
+  { label: 'Configuraci\u00f3n', icon: '\u2699', href: '/settings' },
 ];
 
 export default function Sidebar() {
@@ -182,10 +182,12 @@ export default function Sidebar() {
 
         {/* Bottom nav */}
         <div style={{ padding: '0 12px' }}>
-          {BOTTOM_ITEMS.map(item => (
+          {BOTTOM_ITEMS.map(item => {
+            const isActive = pathname.startsWith(item.href);
+            return (
             <a
               key={item.label}
-              href={item.disabled ? undefined : item.href}
+              href={item.href}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -193,22 +195,19 @@ export default function Sidebar() {
                 padding: '11px 14px',
                 borderRadius: 10,
                 textDecoration: 'none',
-                cursor: item.disabled ? 'default' : 'pointer',
+                cursor: 'pointer',
+                background: isActive ? 'rgba(201,168,76,0.07)' : 'transparent',
               }}
             >
-              <span style={{ fontSize: 16, width: 22, textAlign: 'center', color: 'rgba(255,255,255,0.2)', opacity: item.disabled ? 0.3 : 1 }}>
+              <span style={{ fontSize: 16, width: 22, textAlign: 'center', color: isActive ? '#c9a84c' : 'rgba(255,255,255,0.2)' }}>
                 {item.icon}
               </span>
-              <span style={{ fontSize: 13, color: item.disabled ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.35)', letterSpacing: 0.3 }}>
+              <span style={{ fontSize: 13, color: isActive ? '#c9a84c' : 'rgba(255,255,255,0.35)', fontWeight: isActive ? 600 : 400, letterSpacing: 0.3 }}>
                 {item.label}
               </span>
-              {item.disabled && (
-                <span style={{ marginLeft: 'auto', fontSize: 9, color: 'rgba(255,255,255,0.12)', fontWeight: 500, letterSpacing: 0.5 }}>
-                  PRONTO
-                </span>
-              )}
             </a>
-          ))}
+            );
+          })}
         </div>
 
         {/* Plan card */}
