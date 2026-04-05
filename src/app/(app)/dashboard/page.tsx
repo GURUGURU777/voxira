@@ -102,6 +102,18 @@ function DashboardContent() {
   const [generatedAudio, setGeneratedAudio] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [affirmations, setAffirmations] = useState<string[]>([]);
+  const genAudioRef = useRef<HTMLAudioElement>(null);
+  const [genPlaying, setGenPlaying] = useState(false);
+  const [genProgress, setGenProgress] = useState(0);
+  const [genDuration, setGenDuration] = useState(0);
+  const [genVolume, setGenVolume] = useState(0.8);
+
+  useEffect(() => {
+    const a = genAudioRef.current; if (!a) return;
+    const t = () => setGenProgress(a.currentTime); const d = () => setGenDuration(a.duration); const e = () => { setGenPlaying(false); setGenProgress(0); };
+    a.addEventListener('timeupdate', t); a.addEventListener('loadedmetadata', d); a.addEventListener('ended', e);
+    return () => { a.removeEventListener('timeupdate', t); a.removeEventListener('loadedmetadata', d); a.removeEventListener('ended', e); };
+  }, []);
 
   // Read cycle query params
   const paramCycleId = searchParams.get('cycle_id');
@@ -281,14 +293,28 @@ function DashboardContent() {
             {hasRecording&&!isRecording&&<div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'14px'}}><div style={{background:'rgba(34,197,94,0.06)',border:'1px solid rgba(34,197,94,0.2)',borderRadius:'14px',padding:'14px 28px',display:'flex',alignItems:'center',gap:'10px'}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg><span style={{fontSize:'14px',color:'#22c55e'}}>{t(lang,'Voice captured','Audio capturado')} · {formatTime(recordingTime)}</span></div><button onClick={()=>{setHasRecording(false);setRecordingTime(0);setAudioBlob(null);setGeneratedAudio(null);setStatusMessage('');setAffirmations([]);}} style={{background:'none',border:'none',color:'rgba(255,255,255,0.3)',fontSize:'12px',cursor:'pointer'}}>{t(lang,'Record again','Grabar de nuevo')}</button></div>}
           </div>
 
-          {!hasRecording&&!isRecording&&<div style={{textAlign:'center',marginBottom:'32px',padding:'14px 24px',background:'rgba(201,168,76,0.03)',border:'1px solid rgba(201,168,76,0.08)',borderRadius:'12px'}}><p style={{fontSize:'13px',color:'rgba(255,255,255,0.4)',margin:0,lineHeight:1.6}}>{t(lang,'✦ Speak clearly for at least 30 seconds.','✦ Habla con claridad al menos 30 segundos.')}</p></div>}
+          {!hasRecording&&!isRecording&&<div style={{textAlign:'center',marginBottom:'32px',padding:'14px 24px',background:'rgba(201,168,76,0.03)',border:'1px solid rgba(201,168,76,0.08)',borderRadius:'12px'}}><p style={{fontSize:'13px',color:'rgba(255,255,255,0.4)',margin:0,lineHeight:1.6}}>{t(lang,'✦ Speak clearly for at least 15 seconds.','✦ Habla con claridad al menos 15 segundos.')}</p></div>}
           </>)}
 
           {statusMessage&&<div style={{textAlign:'center',marginBottom:'20px',padding:'12px 24px',background:statusMessage.includes('❌')?'rgba(239,68,68,0.06)':'rgba(201,168,76,0.06)',border:`1px solid ${statusMessage.includes('❌')?'rgba(239,68,68,0.15)':'rgba(201,168,76,0.15)'}`,borderRadius:'12px'}}><p style={{fontSize:'14px',color:statusMessage.includes('❌')?'#ef4444':'#c9a84c',margin:0}}>{statusMessage}</p></div>}
 
           {affirmations.length>0&&<div style={{marginBottom:'24px',padding:'20px 24px',background:'rgba(34,197,94,0.04)',border:'1px solid rgba(34,197,94,0.1)',borderRadius:'14px'}}><p style={{fontSize:'10px',color:'rgba(34,197,94,0.6)',textTransform:'uppercase',letterSpacing:'1.5px',marginBottom:'12px'}}>{t(lang,'Your personalized affirmations','Tus afirmaciones personalizadas')}</p>{affirmations.map((a,i)=><p key={i} style={{fontSize:'14px',color:'rgba(255,255,255,0.7)',margin:'6px 0',fontStyle:'italic'}}>✦ {a}</p>)}</div>}
 
-          {generatedAudio&&<div style={{marginBottom:'24px',textAlign:'center'}}><audio controls src={`data:audio/mp3;base64,${generatedAudio}`} style={{width:'100%',maxWidth:'400px'}}/></div>}
+          {generatedAudio&&(<div style={{marginBottom:'24px'}}>
+            <audio ref={genAudioRef} src={`data:audio/mp3;base64,${generatedAudio}`} preload="metadata"/>
+            <div style={{background:'rgba(201,168,76,0.04)',border:'1px solid rgba(201,168,76,0.08)',borderRadius:'16px',padding:'16px 20px',display:'flex',alignItems:'center',gap:'14px'}}>
+              <button onClick={()=>{if(!genAudioRef.current)return;if(genPlaying){genAudioRef.current.pause();}else{genAudioRef.current.volume=genVolume;genAudioRef.current.play().catch(()=>{});}setGenPlaying(!genPlaying);}} style={{width:'44px',height:'44px',borderRadius:'50%',flexShrink:0,cursor:'pointer',background:'rgba(201,168,76,0.1)',border:'1px solid rgba(201,168,76,0.2)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                {genPlaying?<div style={{display:'flex',gap:'3px'}}><div style={{width:'3px',height:'14px',background:'#c9a84c',borderRadius:'2px'}}/><div style={{width:'3px',height:'14px',background:'#c9a84c',borderRadius:'2px'}}/></div>
+                :<div style={{width:0,height:0,borderTop:'7px solid transparent',borderBottom:'7px solid transparent',borderLeft:'12px solid #c9a84c',marginLeft:'3px'}}/>}
+              </button>
+              <div style={{flex:1}}><div onClick={(e)=>{if(!genAudioRef.current||!genDuration)return;const r=e.currentTarget.getBoundingClientRect();genAudioRef.current.currentTime=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*genDuration;}} style={{height:'4px',background:'rgba(255,255,255,0.06)',borderRadius:'2px',cursor:'pointer'}}><div style={{height:'100%',width:`${genDuration>0?(genProgress/genDuration)*100:0}%`,background:'#c9a84c',borderRadius:'2px',transition:'width 0.1s linear'}}/></div></div>
+              <span style={{fontSize:'12px',color:'rgba(255,255,255,0.3)',flexShrink:0,minWidth:'70px',textAlign:'center'}}>{Math.floor(genProgress/60)}:{Math.floor(genProgress%60).toString().padStart(2,'0')} / {Math.floor(genDuration/60)}:{Math.floor(genDuration%60).toString().padStart(2,'0')}</span>
+              <div style={{display:'flex',alignItems:'center',gap:'6px',flexShrink:0}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>
+                <div onClick={(e)=>{const r=e.currentTarget.getBoundingClientRect();const v=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));setGenVolume(v);if(genAudioRef.current)genAudioRef.current.volume=v;}} style={{width:'50px',height:'4px',background:'rgba(255,255,255,0.06)',borderRadius:'2px',cursor:'pointer'}}><div style={{height:'100%',width:`${genVolume*100}%`,background:'rgba(255,255,255,0.3)',borderRadius:'2px'}}/></div>
+              </div>
+            </div>
+          </div>)}
 
           {generatedAudio ? (
           <div style={{display:'flex',justifyContent:'center',gap:'12px',flexWrap:'wrap'}}>

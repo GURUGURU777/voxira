@@ -310,14 +310,14 @@ export default function LandingPage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
               {[
-                { num: '01', title: 'Set intention', desc: 'Tell us what you want to manifest. We generate personalized affirmations with AI.', icon: '✦' },
-                { num: '02', title: 'Record voice', desc: '30 seconds is all we need. Our AI clones your voice with precision.', icon: '🎙' },
-                { num: '03', title: 'Listen & transform', desc: 'Your cloned voice delivers affirmations over Solfeggio frequencies with binaural beats.', icon: '🎧' },
+                { num: '01', title: 'Set intention', desc: 'Tell us what you want to manifest. We generate personalized affirmations with AI.', iconSvg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74L12 2z"/><path d="M5 3l1 3M19 3l-1 3M3 12l3 1M21 12l-3 1"/></svg>' },
+                { num: '02', title: 'Record voice', desc: '15 seconds is all we need. Our AI clones your voice with precision.', iconSvg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>' },
+                { num: '03', title: 'Listen & transform', desc: 'Your cloned voice delivers affirmations over Solfeggio frequencies with binaural beats.', iconSvg: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/><path d="M8 12a2 2 0 104 0M12 12a2 2 0 104 0" opacity="0.4"/></svg>' },
               ].map((step) => (
                 <div key={step.num} style={{ background: 'linear-gradient(160deg, rgba(12,26,46,0.6), rgba(8,16,32,0.8))', border: '1px solid rgba(61,142,207,0.06)', borderRadius: '20px', padding: '36px 28px', position: 'relative', overflow: 'hidden' }}>
                   <div style={{ position: 'absolute', top: 0, left: '20%', right: '20%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent)' }} />
                   <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', fontWeight: 300, color: 'rgba(201,168,76,0.12)', marginBottom: '20px' }}>{step.num}</div>
-                  <div style={{ fontSize: '24px', marginBottom: '16px' }}>{step.icon}</div>
+                  <div style={{ marginBottom: '16px' }} dangerouslySetInnerHTML={{ __html: step.iconSvg }} />
                   <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', fontWeight: 600, color: '#fff', margin: 0, marginBottom: '12px' }}>{step.title}</h3>
                   <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, margin: 0 }}>{step.desc}</p>
                 </div>
