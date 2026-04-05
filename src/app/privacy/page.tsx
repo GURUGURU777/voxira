@@ -1,11 +1,14 @@
 export default function PrivacyPage() {
-  const h2s = { fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', fontWeight: 500, color: '#c9a84c', margin: '40px 0 12px' } as const;
-  const h3s = { fontSize: '16px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', margin: '24px 0 8px' } as const;
-  const ps = { fontSize: '14px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, margin: '0 0 16px' } as const;
+  const h2 = { fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', fontWeight: 500, color: '#c9a84c', margin: '44px 0 12px' } as const;
+  const h3 = { fontSize: '16px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', margin: '24px 0 8px' } as const;
+  const p = { fontSize: '14px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, margin: '0 0 14px' } as const;
+  const b = { color: 'rgba(255,255,255,0.7)' } as const;
+  const li = { fontSize: '14px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, marginBottom: '6px' } as const;
+  const link = { color: '#c9a84c', textDecoration: 'none' } as const;
   return (
     <>
       <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-      <div style={{ background: 'radial-gradient(ellipse at 30% 20%, #0f2035, #081020 50%, #050c18)', minHeight: '100vh', padding: '32px 24px', fontFamily: "'Outfit', sans-serif" }}>
+      <div style={{ background: '#0b1121', minHeight: '100vh', padding: '32px 24px', fontFamily: "'Outfit', sans-serif" }}>
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '48px' }}>
             <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '18px', fontWeight: 300, color: '#fff', letterSpacing: '8px' }}>VOXIRA</div>
@@ -17,87 +20,226 @@ export default function PrivacyPage() {
           </h1>
           <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.25)', marginBottom: '40px' }}>Ultima actualizacion: 1 de abril de 2026</p>
 
-          <h2 style={h2s}>1. Informacion que Recopilamos</h2>
-          <p style={ps}><strong style={{ color: 'rgba(255,255,255,0.7)' }}>Informacion de cuenta:</strong> Nombre, correo electronico y foto de perfil proporcionados por Google OAuth al registrarse.</p>
-          <p style={ps}><strong style={{ color: 'rgba(255,255,255,0.7)' }}>Datos de voz:</strong> Muestras de audio grabadas por usted para el proceso de clonacion de voz. Estas se almacenan de forma segura en Supabase Storage.</p>
-          <p style={ps}><strong style={{ color: 'rgba(255,255,255,0.7)' }}>Datos de uso:</strong> Intenciones, frecuencias seleccionadas, duracion de sesiones, progreso en ciclos, puntuaciones emocionales y estadisticas de escucha.</p>
-          <p style={ps}><strong style={{ color: 'rgba(255,255,255,0.7)' }}>Datos tecnicos:</strong> Direccion IP, tipo de navegador, dispositivo y datos de cookies necesarias para el funcionamiento del servicio.</p>
+          {/* ═══════════════════════════════════════════ */}
+          {/* PARTE 1 — AVISO DE PRIVACIDAD              */}
+          {/* ═══════════════════════════════════════════ */}
 
-          <h2 style={h2s}>2. Como Usamos su Informacion</h2>
-          <p style={ps}>Utilizamos su informacion para: proporcionar y personalizar el servicio de VOXIRA; generar audio con su voz clonada; rastrear su progreso y estadisticas; mejorar nuestros algoritmos y experiencia de usuario; comunicarnos con usted sobre su cuenta; y cumplir con obligaciones legales.</p>
+          <div style={{ fontSize: '10px', color: 'rgba(201,168,76,0.5)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '8px' }}>Parte 1</div>
+          <h2 style={{ ...h2, margin: '0 0 24px', fontSize: '26px' }}>Aviso de Privacidad</h2>
 
-          <h2 style={h2s}>3. Almacenamiento de Datos de Voz</h2>
-          <p style={ps}>Su muestra de voz original se almacena de forma segura en Supabase Storage (infraestructura AWS). Los clones de voz temporales creados en ElevenLabs para la generacion de audio se eliminan automaticamente inmediatamente despues de cada sesion de generacion. VOXIRA nunca retiene clones de voz activos en servicios de terceros.</p>
+          {/* 1 */}
+          <h2 style={h2}>1. Informacion que Recopilamos</h2>
+          <p style={p}><strong style={b}>Datos de contacto y cuenta:</strong> Nombre completo, correo electronico y fotografia de perfil proporcionados por Google OAuth al registrarse.</p>
+          <p style={p}><strong style={b}>Datos biometricos de voz:</strong> Muestras de audio grabadas por usted para el proceso de clonacion de voz. Estas constituyen datos biometricos sensibles y se tratan con medidas de seguridad reforzadas.</p>
+          <p style={p}><strong style={b}>Datos de uso:</strong> Intenciones ingresadas, frecuencias seleccionadas, duracion de sesiones, progreso en ciclos de 21 dias, puntuaciones emocionales diarias, estadisticas de escucha y preferencias de onboarding (objetivo, experiencia, minutos diarios).</p>
+          <p style={p}><strong style={b}>Datos de dispositivo:</strong> Direccion IP, tipo de navegador, sistema operativo, tipo de dispositivo y datos de cookies esenciales para el funcionamiento del servicio.</p>
 
-          <h2 style={h2s}>4. Servicios de Terceros</h2>
-          <p style={ps}>VOXIRA utiliza los siguientes servicios de terceros que pueden procesar datos:</p>
-          <p style={ps}><strong style={{ color: 'rgba(255,255,255,0.7)' }}>Supabase:</strong> Base de datos, autenticacion y almacenamiento de archivos (PostgreSQL + Storage).</p>
-          <p style={ps}><strong style={{ color: 'rgba(255,255,255,0.7)' }}>ElevenLabs:</strong> Clonacion de voz y sintesis de texto a voz (procesamiento temporal, datos eliminados tras uso).</p>
-          <p style={ps}><strong style={{ color: 'rgba(255,255,255,0.7)' }}>OpenAI:</strong> Generacion de afirmaciones personalizadas con GPT-4o-mini.</p>
-          <p style={ps}><strong style={{ color: 'rgba(255,255,255,0.7)' }}>Vercel:</strong> Hospedaje de la aplicacion web y funciones serverless.</p>
-          <p style={ps}><strong style={{ color: 'rgba(255,255,255,0.7)' }}>Google:</strong> Autenticacion OAuth para inicio de sesion.</p>
+          {/* 2 */}
+          <h2 style={h2}>2. Como Usamos su Informacion</h2>
+          <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
+            <li style={li}><strong style={b}>Proporcionar el Servicio:</strong> Crear su cuenta, clonar su voz, generar afirmaciones personalizadas, procesar audio con frecuencias, gestionar ciclos de 21 dias y mostrar estadisticas.</li>
+            <li style={li}><strong style={b}>Comunicarnos:</strong> Enviar notificaciones sobre su cuenta, cambios en el servicio y recordatorios de sesiones.</li>
+            <li style={li}><strong style={b}>Marketing:</strong> Con su consentimiento, enviar informacion sobre nuevas funciones y promociones. Puede optar por no recibirlo en cualquier momento.</li>
+            <li style={li}><strong style={b}>Seguridad:</strong> Detectar, prevenir y responder a fraude, abuso o amenazas de seguridad.</li>
+            <li style={li}><strong style={b}>Cumplimiento legal:</strong> Cumplir con obligaciones legales y regulatorias aplicables.</li>
+            <li style={li}><strong style={b}>Mejorar el Servicio:</strong> Analizar datos anonimizados para mejorar algoritmos, experiencia de usuario y rendimiento.</li>
+          </ul>
 
-          <h2 style={h2s}>5. Compartir Informacion</h2>
-          <p style={ps}>No vendemos, alquilamos ni compartimos su informacion personal con terceros para fines de marketing. Solo compartimos datos con los proveedores de servicios mencionados arriba, estrictamente necesarios para el funcionamiento del servicio, o cuando sea requerido por ley.</p>
-
-          <h2 style={h2s}>6. Seguridad</h2>
-          <p style={ps}>Implementamos medidas de seguridad tecnicas y organizativas para proteger su informacion, incluyendo: cifrado en transito (HTTPS/TLS), Row Level Security (RLS) en base de datos, autenticacion segura con tokens JWT, y eliminacion automatica de clones de voz temporales.</p>
-
-          <h2 style={h2s}>7. Retencion de Datos</h2>
-          <p style={ps}>Retenemos su informacion mientras su cuenta este activa. Al eliminar su cuenta, eliminaremos sus datos personales, muestras de voz, tracks generados y datos de progreso dentro de 30 dias. Algunos datos anonimizados pueden retenerse para fines estadisticos.</p>
-
-          <h2 style={h2s}>8. Sus Derechos</h2>
-          <p style={ps}>Usted tiene derecho a: acceder a sus datos personales; rectificar datos inexactos; eliminar su cuenta y datos; exportar sus datos; retirar su consentimiento en cualquier momento; y presentar una queja ante la autoridad de proteccion de datos correspondiente.</p>
-
-          <h2 style={h2s}>9. Cookies</h2>
-          <p style={ps}>VOXIRA utiliza cookies esenciales para la autenticacion y funcionamiento del servicio. Tambien utilizamos localStorage para preferencias de idioma. No utilizamos cookies de rastreo de terceros ni cookies publicitarias.</p>
-
-          <h2 style={h2s}>10. Menores de Edad</h2>
-          <p style={ps}>VOXIRA no esta dirigido a menores de 13 anos. No recopilamos conscientemente informacion de menores de 13 anos. Si descubrimos que hemos recopilado datos de un menor, los eliminaremos inmediatamente.</p>
-
-          <h2 style={h2s}>11. Cambios a esta Politica</h2>
-          <p style={ps}>Podemos actualizar esta politica periodicamente. Le notificaremos sobre cambios significativos por correo electronico o mediante un aviso en la aplicacion. El uso continuado del servicio despues de los cambios constituye su aceptacion.</p>
-
-          {/* LFPDPPP Section */}
-          <div style={{ marginTop: '56px', padding: '28px', background: 'rgba(201,168,76,0.03)', border: '1px solid rgba(201,168,76,0.08)', borderRadius: '16px' }}>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontWeight: 400, color: '#c9a84c', margin: '0 0 20px' }}>Aviso de Privacidad Integral (LFPDPPP)</h2>
-            <p style={ps}>En cumplimiento con la Ley Federal de Proteccion de Datos Personales en Posesion de los Particulares (LFPDPPP) de Mexico, le informamos lo siguiente:</p>
-
-            <h3 style={h3s}>Identidad del Responsable</h3>
-            <p style={ps}>VOXIRA, con domicilio en Ciudad de Mexico, Mexico, es responsable del tratamiento de sus datos personales. Correo de contacto: <a href="mailto:contacto@voxira.app" style={{ color: '#c9a84c', textDecoration: 'none' }}>contacto@voxira.app</a></p>
-
-            <h3 style={h3s}>Datos Personales Recabados</h3>
-            <p style={ps}>Recabamos los siguientes datos personales: nombre completo, correo electronico, fotografia de perfil (via Google), muestras de voz, datos de uso del servicio (intenciones, frecuencias, progreso) y datos de navegacion.</p>
-
-            <h3 style={h3s}>Datos Personales Sensibles</h3>
-            <p style={ps}>Las muestras de voz y los datos de bienestar emocional (puntuaciones emocionales en ciclos) se consideran datos sensibles. Estos datos son tratados con medidas de seguridad reforzadas y solo se utilizan para la prestacion directa del servicio.</p>
-
-            <h3 style={h3s}>Finalidades del Tratamiento</h3>
-            <p style={ps}><strong style={{ color: 'rgba(255,255,255,0.7)' }}>Finalidades primarias:</strong> Crear y gestionar su cuenta; clonar su voz para generar audio personalizado; generar afirmaciones con IA; procesar audio con frecuencias Solfeggio; rastrear su progreso en ciclos de 21 dias.</p>
-            <p style={ps}><strong style={{ color: 'rgba(255,255,255,0.7)' }}>Finalidades secundarias:</strong> Mejorar el servicio mediante analisis anonimizados; enviar comunicaciones sobre actualizaciones del servicio; generar estadisticas agregadas.</p>
-
-            <h3 style={h3s}>Transferencias de Datos</h3>
-            <p style={ps}>Sus datos pueden ser transferidos a: Supabase (almacenamiento, EE.UU.), ElevenLabs (procesamiento de voz temporal, EE.UU.), OpenAI (generacion de texto, EE.UU.), Vercel (hospedaje, EE.UU.), Google (autenticacion, EE.UU.). Todas las transferencias se realizan con medidas de seguridad adecuadas.</p>
-
-            <h3 style={h3s}>Derechos ARCO</h3>
-            <p style={ps}>Usted tiene derecho al Acceso, Rectificacion, Cancelacion y Oposicion (ARCO) de sus datos personales. Para ejercer estos derechos, envie una solicitud a <a href="mailto:contacto@voxira.app" style={{ color: '#c9a84c', textDecoration: 'none' }}>contacto@voxira.app</a> con: su nombre completo, correo electronico asociado a su cuenta, descripcion de los datos y derecho que desea ejercer, y cualquier documento que acredite su identidad.</p>
-            <p style={ps}>Responderemos a su solicitud en un plazo maximo de 20 dias habiles conforme a la LFPDPPP.</p>
-
-            <h3 style={h3s}>Revocacion del Consentimiento</h3>
-            <p style={ps}>Usted puede revocar su consentimiento para el tratamiento de sus datos en cualquier momento eliminando su cuenta desde la pagina de Configuracion, o enviando una solicitud a nuestro correo de contacto.</p>
-
-            <h3 style={h3s}>Uso de Cookies</h3>
-            <p style={ps}>Utilizamos cookies esenciales para la autenticacion (Supabase Auth) y preferencias de usuario (idioma). No utilizamos cookies con fines publicitarios.</p>
-
-            <h3 style={h3s}>Consentimiento</h3>
-            <p style={ps}>Al registrarse y utilizar VOXIRA, usted otorga su consentimiento expreso para el tratamiento de sus datos personales, incluyendo datos sensibles (voz y bienestar emocional), conforme a lo descrito en este aviso de privacidad.</p>
+          {/* 3 */}
+          <h2 style={h2}>3. Datos Biometricos</h2>
+          <div style={{ background: 'rgba(201,168,76,0.03)', border: '1px solid rgba(201,168,76,0.08)', borderRadius: '12px', padding: '20px', margin: '0 0 14px' }}>
+            <p style={p}>Las grabaciones de voz que usted proporciona constituyen <strong style={b}>datos biometricos sensibles</strong>. Tratamos estos datos con las siguientes medidas especificas:</p>
+            <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
+              <li style={li}><strong style={b}>Almacenamiento cifrado:</strong> Su muestra de voz se almacena en Supabase Storage con cifrado en reposo y en transito.</li>
+              <li style={li}><strong style={b}>Eliminacion temporal en ElevenLabs:</strong> Los clones de voz creados para generacion de audio se eliminan automaticamente inmediatamente despues de cada uso. No se mantienen clones activos.</li>
+              <li style={li}><strong style={b}>Acceso restringido:</strong> Solo usted puede acceder a su muestra de voz a traves de su cuenta autenticada.</li>
+              <li style={li}><strong style={b}>Retencion maxima:</strong> Las muestras de voz se retienen mientras su cuenta este activa, con un maximo de 3 anos. Despues de este periodo o al eliminar su cuenta, se borran permanentemente.</li>
+              <li style={li}><strong style={b}>Consentimiento explicito:</strong> Al grabar su voz, usted otorga consentimiento expreso para el procesamiento de estos datos biometricos.</li>
+            </ul>
           </div>
 
-          <h2 style={h2s}>12. Contacto</h2>
-          <p style={ps}>Para preguntas sobre esta politica o para ejercer sus derechos, contactenos en: <a href="mailto:contacto@voxira.app" style={{ color: '#c9a84c', textDecoration: 'none' }}>contacto@voxira.app</a></p>
+          {/* 4 */}
+          <h2 style={h2}>4. Cookies</h2>
+          <p style={p}>VOXIRA utiliza exclusivamente <strong style={b}>cookies esenciales</strong> para:</p>
+          <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
+            <li style={li}>Autenticacion de sesion (Supabase Auth / tokens JWT).</li>
+            <li style={li}>Preferencias de idioma (localStorage, no cookies de terceros).</li>
+          </ul>
+          <p style={p}><strong style={b}>NO utilizamos</strong> cookies publicitarias, de rastreo, de redes sociales ni de analitica de terceros. No participamos en redes de publicidad programatica.</p>
+
+          {/* 5 */}
+          <h2 style={h2}>5. Como Compartimos su Informacion</h2>
+          <p style={p}><strong style={{ color: '#22c55e' }}>NO vendemos, alquilamos ni comercializamos sus datos personales.</strong></p>
+          <p style={p}>Compartimos datos exclusivamente con los siguientes proveedores de servicio, estrictamente necesarios para el funcionamiento de VOXIRA:</p>
+          <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
+            <li style={li}><strong style={b}>Supabase</strong> (EE.UU.) — Base de datos, autenticacion y almacenamiento de archivos.</li>
+            <li style={li}><strong style={b}>Google</strong> (EE.UU.) — Autenticacion OAuth para inicio de sesion.</li>
+            <li style={li}><strong style={b}>ElevenLabs</strong> (EE.UU.) — Clonacion de voz y sintesis de texto a voz (procesamiento temporal, datos eliminados tras uso).</li>
+            <li style={li}><strong style={b}>OpenAI</strong> (EE.UU.) — Generacion de afirmaciones personalizadas e intenciones para ciclos.</li>
+            <li style={li}><strong style={b}>Vercel</strong> (EE.UU.) — Hospedaje de la aplicacion web y funciones serverless.</li>
+            <li style={li}><strong style={b}>Railway</strong> (EE.UU.) — Procesamiento de audio con FFmpeg (frecuencias y beats binaurales).</li>
+            <li style={li}><strong style={b}>Stripe</strong> (EE.UU.) — Procesamiento seguro de pagos (cuando aplique).</li>
+          </ul>
+
+          {/* 6 */}
+          <h2 style={h2}>6. Almacenamiento y Seguridad</h2>
+          <p style={p}>Sus datos se almacenan en servidores ubicados en Estados Unidos a traves de nuestros proveedores de infraestructura. Implementamos las siguientes medidas de seguridad:</p>
+          <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
+            <li style={li}>Cifrado en transito mediante HTTPS/TLS en todas las comunicaciones.</li>
+            <li style={li}>Row Level Security (RLS) en Supabase para que cada usuario solo acceda a sus propios datos.</li>
+            <li style={li}>Autenticacion segura con tokens JWT y OAuth 2.0.</li>
+            <li style={li}>Eliminacion automatica de clones de voz temporales.</li>
+            <li style={li}>Variables de entorno cifradas para claves de API.</li>
+          </ul>
+
+          {/* 7 */}
+          <h2 style={h2}>7. Retencion de Datos</h2>
+          <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
+            <li style={li}><strong style={b}>Datos de cuenta:</strong> Mientras su cuenta este activa. Al eliminar su cuenta, se borran dentro de 30 dias.</li>
+            <li style={li}><strong style={b}>Datos biometricos (voz):</strong> Mientras su cuenta este activa, con un maximo de 3 anos de retencion.</li>
+            <li style={li}><strong style={b}>Tracks generados:</strong> Mientras su cuenta este activa. Se eliminan al cerrar la cuenta.</li>
+            <li style={li}><strong style={b}>Datos anonimizados:</strong> Pueden retenerse indefinidamente para fines estadisticos y de mejora del servicio.</li>
+          </ul>
+
+          {/* 8 */}
+          <h2 style={h2}>8. Sus Derechos</h2>
+          <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
+            <li style={li}><strong style={b}>Opt-out de marketing:</strong> Puede desactivar comunicaciones de marketing en cualquier momento.</li>
+            <li style={li}><strong style={b}>Cambiar informacion:</strong> Puede actualizar su perfil desde la pagina de Configuracion.</li>
+            <li style={li}><strong style={b}>Solicitar eliminacion:</strong> Puede eliminar su cuenta y todos sus datos desde Configuracion o contactandonos directamente.</li>
+            <li style={li}><strong style={b}>Exportar datos:</strong> Puede solicitar una copia de sus datos personales.</li>
+          </ul>
+
+          {/* 9 */}
+          <h2 style={h2}>9. Pagos</h2>
+          <p style={p}>Los pagos de suscripcion son procesados por <strong style={b}>Stripe</strong>. VOXIRA no almacena, procesa ni tiene acceso a datos de tarjetas de credito o debito. Toda la informacion financiera es gestionada directamente por Stripe conforme a sus propias politicas de privacidad y el estandar PCI DSS.</p>
+
+          {/* 10 */}
+          <h2 style={h2}>10. Menores de Edad</h2>
+          <p style={p}>VOXIRA esta dirigido exclusivamente a personas mayores de 18 anos. No recopilamos conscientemente informacion de menores de edad. Si descubrimos que hemos recopilado datos de un menor, los eliminaremos inmediatamente y cerraremos la cuenta asociada.</p>
+
+          {/* 11 */}
+          <h2 style={h2}>11. Cambios a este Aviso</h2>
+          <p style={p}>Podemos actualizar esta Politica de Privacidad periodicamente. Le notificaremos sobre cambios significativos por correo electronico o mediante un aviso dentro de la aplicacion al menos 15 dias antes de su entrada en vigor. El uso continuado del Servicio despues de la fecha efectiva de los cambios constituye su aceptacion.</p>
+
+          {/* 12 */}
+          <h2 style={h2}>12. Contacto</h2>
+          <p style={p}>Para preguntas sobre privacidad o para ejercer sus derechos:<br/>Email: <a href="mailto:contacto@voxira.app" style={link}>contacto@voxira.app</a><br/>VOXIRA · Tepic, Nayarit, Mexico</p>
+
+          {/* ═══════════════════════════════════════════════════ */}
+          {/* PARTE 2 — AVISO DE PRIVACIDAD INTEGRAL (LFPDPPP)  */}
+          {/* ═══════════════════════════════════════════════════ */}
+
+          <div style={{ height: '1px', background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.2), transparent)', margin: '56px 0' }} />
+
+          <div style={{ fontSize: '10px', color: 'rgba(201,168,76,0.5)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '8px' }}>Parte 2</div>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '26px', fontWeight: 400, color: '#c9a84c', margin: '0 0 8px' }}>Aviso de Privacidad Integral</h2>
+          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', marginBottom: '32px' }}>Conforme a la Ley Federal de Proteccion de Datos Personales en Posesion de los Particulares (LFPDPPP) de Mexico</p>
+
+          {/* I.1 */}
+          <h2 style={h2}>I. Identidad del Responsable</h2>
+          <p style={p}>VOXIRA, con domicilio en Tepic, Nayarit, Mexico, es responsable del tratamiento de sus datos personales. Para cualquier asunto relacionado con el tratamiento de sus datos, puede contactarnos en: <a href="mailto:contacto@voxira.app" style={link}>contacto@voxira.app</a></p>
+
+          {/* I.2 */}
+          <h2 style={h2}>II. Datos Personales Recabados</h2>
+          <h3 style={h3}>Datos de identificacion:</h3>
+          <p style={p}>Nombre completo, correo electronico, fotografia de perfil (proporcionados por Google OAuth).</p>
+          <h3 style={h3}>Datos biometricos sensibles:</h3>
+          <p style={p}>Muestras de grabacion de voz utilizadas para clonacion mediante inteligencia artificial. Estos datos se consideran sensibles conforme al articulo 3, fraccion VI de la LFPDPPP.</p>
+          <h3 style={h3}>Datos de uso del servicio:</h3>
+          <p style={p}>Intenciones de reprogramacion, frecuencias seleccionadas, duracion de sesiones, progreso en ciclos, puntuaciones emocionales diarias, estadisticas de escucha.</p>
+          <h3 style={h3}>Datos de onboarding:</h3>
+          <p style={p}>Objetivo principal, experiencia con meditacion, minutos diarios preferidos.</p>
+          <h3 style={h3}>Datos de dispositivo:</h3>
+          <p style={p}>Direccion IP, tipo de navegador, sistema operativo, datos de cookies esenciales.</p>
+
+          {/* I.3 */}
+          <h2 style={h2}>III. Finalidades del Tratamiento</h2>
+          <h3 style={h3}>Finalidades primarias (necesarias):</h3>
+          <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
+            <li style={li}>Crear y gestionar su cuenta de usuario.</li>
+            <li style={li}>Clonar su voz para generar audio personalizado.</li>
+            <li style={li}>Generar afirmaciones con inteligencia artificial basadas en sus intenciones.</li>
+            <li style={li}>Procesar audio con frecuencias Solfeggio y beats binaurales.</li>
+            <li style={li}>Gestionar ciclos de 21 dias con seguimiento de progreso y emociones.</li>
+            <li style={li}>Procesar pagos de suscripcion (cuando aplique).</li>
+            <li style={li}>Proporcionar soporte tecnico y atencion al usuario.</li>
+          </ul>
+          <h3 style={h3}>Finalidades secundarias (no necesarias):</h3>
+          <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
+            <li style={li}>Enviar comunicaciones de marketing sobre nuevas funciones y promociones.</li>
+            <li style={li}>Realizar analisis estadisticos anonimizados para mejorar el servicio.</li>
+            <li style={li}>Personalizar su experiencia basandose en sus preferencias y progreso.</li>
+            <li style={li}>Entrenar y mejorar modelos de inteligencia artificial con datos anonimizados.</li>
+          </ul>
+          <p style={p}>Si desea oponerse al tratamiento de sus datos para finalidades secundarias, envie un correo a <a href="mailto:contacto@voxira.app" style={link}>contacto@voxira.app</a> con el asunto &ldquo;Opt-out finalidades secundarias&rdquo;.</p>
+
+          {/* I.4 */}
+          <h2 style={h2}>IV. Transferencias Internacionales</h2>
+          <p style={p}>Conforme a los articulos 36 y 37 de la LFPDPPP, le informamos que sus datos personales pueden ser transferidos y tratados fuera de Mexico, especificamente a Estados Unidos, por los siguientes proveedores:</p>
+          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '16px', margin: '0 0 14px' }}>
+            {[
+              ['Supabase', 'Base de datos, autenticacion, almacenamiento'],
+              ['Google', 'Autenticacion OAuth'],
+              ['ElevenLabs', 'Clonacion de voz (temporal)'],
+              ['OpenAI', 'Generacion de afirmaciones con IA'],
+              ['Vercel', 'Hospedaje web y funciones serverless'],
+              ['Railway', 'Procesamiento de audio'],
+              ['Stripe', 'Procesamiento de pagos'],
+            ].map(([name, desc]) => (
+              <div key={name} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{name}</span>
+                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>{desc}</span>
+              </div>
+            ))}
+          </div>
+          <p style={p}>Al utilizar VOXIRA, usted otorga su consentimiento expreso para estas transferencias internacionales, las cuales se realizan con medidas de seguridad adecuadas conforme a la normativa aplicable.</p>
+
+          {/* I.5 */}
+          <h2 style={h2}>V. Derechos ARCO</h2>
+          <p style={p}>Conforme a la LFPDPPP, usted tiene derecho a:</p>
+          <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
+            <li style={li}><strong style={b}>Acceder</strong> a sus datos personales que obran en nuestro poder.</li>
+            <li style={li}><strong style={b}>Rectificar</strong> sus datos cuando sean inexactos o incompletos.</li>
+            <li style={li}><strong style={b}>Cancelar</strong> sus datos cuando considere que no se requieren para las finalidades descritas.</li>
+            <li style={li}><strong style={b}>Oponerse</strong> al tratamiento de sus datos para finalidades especificas.</li>
+          </ul>
+          <h3 style={h3}>Procedimiento para ejercer derechos ARCO:</h3>
+          <p style={p}>Envie una solicitud a <a href="mailto:contacto@voxira.app" style={link}>contacto@voxira.app</a> con la siguiente informacion:</p>
+          <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
+            <li style={li}>Nombre completo del titular.</li>
+            <li style={li}>Correo electronico asociado a su cuenta de VOXIRA.</li>
+            <li style={li}>Descripcion clara de los datos personales respecto de los cuales busca ejercer sus derechos.</li>
+            <li style={li}>Derecho ARCO que desea ejercer y la razon.</li>
+            <li style={li}>Copia de identificacion oficial vigente.</li>
+          </ul>
+          <p style={p}><strong style={b}>Plazo de respuesta:</strong> 20 dias habiles contados desde la recepcion de la solicitud completa, conforme al articulo 32 de la LFPDPPP.</p>
+
+          {/* I.6 */}
+          <h2 style={h2}>VI. Revocacion del Consentimiento</h2>
+          <p style={p}>Usted puede revocar su consentimiento para el tratamiento de sus datos personales en cualquier momento mediante: eliminacion de su cuenta desde la pagina de Configuracion (revocacion total), o solicitud escrita a <a href="mailto:contacto@voxira.app" style={link}>contacto@voxira.app</a> especificando el alcance de la revocacion.</p>
+          <p style={p}>Tenga en cuenta que la revocacion del consentimiento para finalidades primarias puede resultar en la imposibilidad de continuar proporcionando el Servicio.</p>
+
+          {/* I.7 */}
+          <h2 style={h2}>VII. Limitacion de Uso y Divulgacion</h2>
+          <p style={p}>Si desea limitar el uso o divulgacion de sus datos personales, puede inscribirse en el Registro Publico para Evitar Publicidad (REPEP) de la Procuraduria Federal del Consumidor (PROFECO). Para mas informacion, visite <strong style={b}>www.profeco.gob.mx</strong> o consulte directamente con PROFECO.</p>
+
+          {/* I.8 */}
+          <h2 style={h2}>VIII. Cookies</h2>
+          <p style={p}>Utilizamos unicamente cookies esenciales para la autenticacion (Supabase Auth / JWT) y preferencias de usuario almacenadas en localStorage (idioma). No utilizamos cookies con fines publicitarios, de rastreo ni de analitica de terceros.</p>
+
+          {/* I.9 */}
+          <h2 style={h2}>IX. Modificaciones al Aviso</h2>
+          <p style={p}>VOXIRA se reserva el derecho de modificar el presente Aviso de Privacidad en cualquier momento. Las modificaciones seran notificadas por correo electronico y/o mediante un aviso en la aplicacion al menos 15 dias antes de su entrada en vigor. La version vigente estara siempre disponible en <a href="/privacy" style={link}>voxira.app/privacy</a>.</p>
+
+          {/* I.10 */}
+          <h2 style={h2}>X. Consentimiento</h2>
+          <div style={{ background: 'rgba(201,168,76,0.03)', border: '1px solid rgba(201,168,76,0.08)', borderRadius: '12px', padding: '20px', margin: '0 0 14px' }}>
+            <p style={{ ...p, color: 'rgba(255,255,255,0.6)', margin: 0 }}>Al registrarse y utilizar VOXIRA, usted manifiesta que ha leido y comprendido este Aviso de Privacidad y otorga su <strong style={b}>consentimiento expreso</strong> para el tratamiento de sus datos personales, incluyendo <strong style={b}>datos personales sensibles</strong> (datos biometricos de voz y datos de bienestar emocional), conforme a lo descrito en el presente documento.</p>
+          </div>
 
           <footer style={{ textAlign: 'center', marginTop: '64px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
-            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.12)', letterSpacing: '2px' }}>© 2026 VOXIRA. Todos los derechos reservados.</p>
+            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.12)', letterSpacing: '2px' }}>© 2026 VOXIRA. Todos los derechos reservados. Tepic, Nayarit, Mexico.</p>
           </footer>
         </div>
       </div>
