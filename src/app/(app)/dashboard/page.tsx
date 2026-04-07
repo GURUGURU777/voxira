@@ -178,7 +178,6 @@ function DashboardContent() {
       if (cloneData.voice_audio_url) setSavedVoiceUrl(cloneData.voice_audio_url);
 
       setStatusMessage(t(lang, '✨ Generating affirmations with your voice...', '✨ Generando afirmaciones con tu voz...'));
-      console.log('SENDING TO API:', { ambient: selectedAmbient, frequency: selectedFrequency.hz, duration: selectedDuration });
       const genRes = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: cloneData.voice_id, intention: goal, frequency: selectedFrequency.hz, duration: selectedDuration, lang, ambient: selectedAmbient }) });
       const genData = await genRes.json();
       if (!genRes.ok || !genData.audio) throw new Error(genData.error || 'Generation failed');
@@ -214,7 +213,7 @@ function DashboardContent() {
     } catch (err) {
       setStatusMessage(`❌ ${err instanceof Error ? err.message : 'Error'}`);
     } finally { setIsGenerating(false); }
-  }, [audioBlob, savedVoiceUrl, selectedFrequency, selectedDuration, goal, lang]);
+  }, [audioBlob, savedVoiceUrl, selectedFrequency, selectedDuration, goal, lang, selectedAmbient]);
 
   const formatTime = (s: number) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
   const toggleAmbient = (id: string) => setSelectedAmbient(p => p === id ? 'none' : id);
