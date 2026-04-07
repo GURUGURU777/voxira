@@ -178,6 +178,7 @@ function DashboardContent() {
       if (cloneData.voice_audio_url) setSavedVoiceUrl(cloneData.voice_audio_url);
 
       setStatusMessage(t(lang, '✨ Generating affirmations with your voice...', '✨ Generando afirmaciones con tu voz...'));
+      console.log('SENDING TO API:', { ambient: selectedAmbient, frequency: selectedFrequency.hz, duration: selectedDuration });
       const genRes = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: cloneData.voice_id, intention: goal, frequency: selectedFrequency.hz, duration: selectedDuration, lang, ambient: selectedAmbient }) });
       const genData = await genRes.json();
       if (!genRes.ok || !genData.audio) throw new Error(genData.error || 'Generation failed');
