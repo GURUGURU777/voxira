@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ─── Step 2: Convert affirmations to speech with Fish Audio ───
-    const fullScript = affirmations.join('.\n\n.\n\n.\n\n');
+    const fullScript = affirmations.map((a: string) => a.trim().endsWith('.') ? a : a + '.').join('\n\n');
 
     const ttsResponse = await fetch('https://api.fish.audio/v1/tts', {
       method: 'POST',
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         text: fullScript,
         reference_id: voice_id,
         format: 'mp3',
-        speed: 0.85,
+        speed: 0.70,
       }),
     });
 
