@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         text: fullScript,
         reference_id: voice_id,
         format: 'mp3',
-        prosody: { speed: 0.95 },
+        prosody: { speed: 0.90 },
       }),
     });
 
