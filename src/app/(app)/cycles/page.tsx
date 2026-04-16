@@ -86,22 +86,24 @@ export default function CyclesPage() {
       <div style={{ minHeight: '100vh', padding: '36px 32px', fontFamily: "'Outfit', sans-serif" }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
-          {/* HEADER */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '36px' }}>
-            <div>
-              <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '34px', fontWeight: 300, color: '#fff', margin: 0 }}>
-                ciclos <span style={{ color: '#c9a84c', fontWeight: 400 }}>21 dias</span>
-              </h1>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', marginTop: '6px' }}>21 dias de escucha consciente transforman tu mente</p>
+          {/* HEADER — compact when cycles exist */}
+          {(activeCycles.length > 0 || completedCycles.length > 0 || createStep > 0) && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '36px' }}>
+              <div>
+                <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '34px', fontWeight: 300, color: '#fff', margin: 0 }}>
+                  ciclos <span style={{ color: '#c9a84c', fontWeight: 400 }}>21 dias</span>
+                </h1>
+                <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', marginTop: '6px' }}>21 dias de escucha consciente transforman tu mente</p>
+              </div>
+              {createStep === 0 && (
+                <button onClick={() => setCreateStep(1)} style={{
+                  background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '10px',
+                  padding: '10px 22px', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
+                  cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: "'Outfit', sans-serif",
+                }}>+ Nuevo Ciclo</button>
+              )}
             </div>
-            {createStep === 0 && (
-              <button onClick={() => setCreateStep(1)} style={{
-                background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '10px',
-                padding: '10px 22px', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
-                cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: "'Outfit', sans-serif",
-              }}>+ Nuevo Ciclo</button>
-            )}
-          </div>
+          )}
 
           {/* ═══ CREATE FLOW ═══ */}
           {createStep > 0 && (
@@ -238,16 +240,58 @@ export default function CyclesPage() {
 
           {loading && <div style={{ textAlign: 'center', padding: '60px 0' }}><p style={{ color: 'rgba(201,168,76,0.6)', fontSize: '14px' }}>Cargando ciclos...</p></div>}
 
+          {/* HERO — full when no cycles, hidden during create flow */}
           {!loading && cycles.length === 0 && createStep === 0 && (
-            <div style={{ textAlign: 'center', padding: '80px 0' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.3 }}>◎</div>
-              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 300, color: 'rgba(255,255,255,0.5)', margin: '0 0 8px 0' }}>Sin ciclos activos</h2>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.2)', marginBottom: '28px' }}>Comienza tu primer ciclo de 21 dias</p>
+            <div style={{ textAlign: 'center', padding: '40px 0 20px' }}>
+              {/* Title */}
+              <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '46px', fontWeight: 300, color: '#fff', margin: '0 0 14px 0', lineHeight: 1.15 }}>
+                Transforma tu mente en <span style={{ color: '#c9a84c', fontWeight: 500 }}>21 dias</span>
+              </h1>
+              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.4)', maxWidth: '560px', margin: '0 auto 44px', lineHeight: 1.7 }}>
+                La neurociencia demuestra que 21 dias de practica consistente crean nuevas rutas neuronales. Tu voz, tus frecuencias, tu transformacion.
+              </p>
+
+              {/* 3 Steps */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '44px' }}>
+                {[
+                  { icon: '🎯', title: 'Define tu intencion', desc: 'Elige que quieres transformar en tu vida' },
+                  { icon: '🎧', title: 'Escucha cada dia', desc: 'Tu voz clonada entrega afirmaciones con frecuencias de sanacion' },
+                  { icon: '✨', title: 'Transforma', desc: 'Despues de 21 dias, tu subconsciente abraza tu nueva verdad' },
+                ].map((step, i) => (
+                  <div key={i} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '28px 20px' }}>
+                    <div style={{ fontSize: '32px', marginBottom: '14px' }}>{step.icon}</div>
+                    <div style={{ fontSize: '10px', color: 'rgba(201,168,76,0.5)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 600 }}>Paso {i + 1}</div>
+                    <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '20px', fontWeight: 500, color: '#fff', margin: '0 0 8px 0' }}>{step.title}</h3>
+                    <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', margin: 0, lineHeight: 1.5 }}>{step.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* 3 Phases */}
+              <div style={{ textAlign: 'left', background: 'rgba(201,168,76,0.03)', border: '1px solid rgba(201,168,76,0.08)', borderRadius: '16px', padding: '28px 28px', marginBottom: '44px' }}>
+                <p style={{ fontSize: '10px', color: '#c9a84c', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '20px', fontWeight: 600 }}>Las 3 fases de reprogramacion</p>
+                {[
+                  { days: 'Dias 1–7', name: 'Sembrando semillas', desc: 'Tu subconsciente comienza a escuchar y aceptar nuevas creencias', color: 'rgba(201,168,76,0.6)' },
+                  { days: 'Dias 8–14', name: 'Transformacion y accion', desc: 'Los viejos patrones se disuelven, nuevos habitos emergen', color: 'rgba(201,168,76,0.8)' },
+                  { days: 'Dias 15–21', name: 'Integracion', desc: 'Tus nuevas creencias se convierten en tu estado natural', color: '#c9a84c' },
+                ].map((phase, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', marginBottom: i < 2 ? '18px' : 0 }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: phase.color, marginTop: '6px', flexShrink: 0 }} />
+                    <div>
+                      <span style={{ fontSize: '13px', color: phase.color, fontWeight: 600 }}>{phase.days}: {phase.name}</span>
+                      <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', margin: '4px 0 0', lineHeight: 1.5 }}>{phase.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA */}
               <button onClick={() => setCreateStep(1)} style={{
                 background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none',
-                borderRadius: '12px', padding: '14px 32px', fontSize: '13px', fontWeight: 700, cursor: 'pointer',
+                borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700, cursor: 'pointer',
                 letterSpacing: '1px', textTransform: 'uppercase', fontFamily: "'Outfit', sans-serif",
-              }}>Crear Primer Ciclo</button>
+                boxShadow: '0 4px 30px rgba(201,168,76,0.25)',
+              }}>Comienza tu primer ciclo</button>
             </div>
           )}
 
