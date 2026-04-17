@@ -231,6 +231,41 @@ export default function CycleDetailPage() {
             </div>
           </div>
 
+          {/* ═══ A2 — TODAY ACTION BUTTON ═══ */}
+          {todayDay && !cycle.completed && (
+            <div style={{ marginBottom: '24px' }}>
+              {todayCompleted ? (
+                <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)', borderRadius: '14px', padding: '18px 24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(34,197,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', color: '#22c55e', flexShrink: 0 }}>✓</div>
+                  <span style={{ fontSize: '16px', color: '#22c55e', fontWeight: 600 }}>Dia {todayDay.day_number} completado</span>
+                </div>
+              ) : (
+                <button onClick={() => document.getElementById('session-section')?.scrollIntoView({ behavior: 'smooth' })} style={{
+                  width: '100%', background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '14px',
+                  padding: '20px 28px', fontSize: '16px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
+                  letterSpacing: '0.5px', boxShadow: '0 4px 30px rgba(201,168,76,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                }}>
+                  <span style={{ fontSize: '20px' }}>🎧</span> Escuchar sesion del dia {todayDay.day_number}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* ═══ A3 — PHASE EXPLANATION ═══ */}
+          {todayDay && !cycle.completed && (
+            <div style={{ background: `${phase.color}08`, border: `1px solid ${phase.color}15`, borderRadius: '12px', padding: '14px 18px', marginBottom: '24px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: phase.color, marginTop: '5px', flexShrink: 0 }} />
+              <div>
+                <span style={{ fontSize: '13px', color: phase.color, fontWeight: 600 }}>Fase {phaseIdx + 1}: {phase.name}</span>
+                <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: '4px 0 0', lineHeight: 1.5 }}>
+                  {phaseIdx === 0 && 'Tu subconsciente comienza a escuchar y aceptar nuevas creencias con compasion y apertura.'}
+                  {phaseIdx === 1 && 'Los viejos patrones se disuelven, nuevos habitos emergen. Activando el cambio con empoderamiento.'}
+                  {phaseIdx === 2 && 'Tus nuevas creencias se convierten en tu estado natural. Consolidando tu nueva identidad.'}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* ═══ B — PROGRESS ═══ */}
           <div style={{ ...card, display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '24px' }}>
             <div style={{ width: '80px', height: '80px', position: 'relative', flexShrink: 0 }}>
@@ -288,12 +323,12 @@ export default function CycleDetailPage() {
                   return (
                     <div key={day.id} style={{
                       borderRadius: '8px', padding: '6px 2px', textAlign: 'center',
-                      background: day.completed ? 'rgba(34,197,94,0.15)' : missed ? 'rgba(239,68,68,0.1)' : today ? 'rgba(201,168,76,0.08)' : 'rgba(255,255,255,0.015)',
+                      background: day.completed ? 'rgba(34,197,94,0.15)' : today && !day.completed ? 'rgba(201,168,76,0.08)' : 'rgba(255,255,255,0.015)',
                       border: today && !day.completed ? '1px solid #c9a84c' : '1px solid transparent',
                       animation: today && !day.completed ? 'pulse 2s infinite' : 'none',
                     }}>
-                      <div style={{ fontSize: '13px', fontWeight: 600, color: day.completed ? '#22c55e' : missed ? '#ef4444' : today ? '#c9a84c' : 'rgba(255,255,255,0.15)' }}>
-                        {day.completed ? '✓' : missed ? '✗' : day.day_number}
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: day.completed ? '#22c55e' : today ? '#c9a84c' : missed ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.15)' }}>
+                        {day.completed ? '✓' : missed ? '○' : day.day_number}
                       </div>
                       <div style={{ fontSize: '9px', color: today ? 'rgba(201,168,76,0.6)' : 'rgba(255,255,255,0.15)', marginTop: '1px' }}>
                         {date.getDate()} {date.toLocaleDateString('es', { month: 'short' })}
@@ -331,9 +366,21 @@ export default function CycleDetailPage() {
           {/* ═══ E — EMOTIONAL CHART ═══ */}
           <EmotionalChart days={sortedDays} startedAt={cycle.started_at} />
 
+          {/* ═══ MOTIVATIONAL MESSAGE ═══ */}
+          {todayDay && !cycle.completed && (
+            <div style={{ padding: '0 4px', marginBottom: '24px' }}>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', fontStyle: 'italic', margin: 0, lineHeight: 1.6 }}>
+                {completedDays >= 15 && '¡Estas en la recta final! Tu subconsciente ya esta integrando tus nuevas creencias.'}
+                {completedDays < 15 && streak >= 3 && `¡Increible! Llevas ${streak} dias seguidos. Tu mente esta creando nuevos caminos.`}
+                {completedDays < 15 && streak < 3 && !todayCompleted && 'Cada dia es una nueva oportunidad. Escucha tu sesion de hoy.'}
+                {completedDays < 15 && streak < 3 && todayCompleted && 'Excelente sesion. Tu mente esta procesando nuevas creencias mientras descansas.'}
+              </p>
+            </div>
+          )}
+
           {/* ═══ F+G — GENERATE SESSION + PLAYER ═══ */}
           {todayDay && !cycle.completed && (
-            <div style={{ ...card, marginBottom: '24px', background: 'rgba(201,168,76,0.03)', border: '1px solid rgba(201,168,76,0.08)' }}>
+            <div id="session-section" style={{ ...card, marginBottom: '24px', background: 'rgba(201,168,76,0.03)', border: '1px solid rgba(201,168,76,0.08)' }}>
               <p style={{ fontSize: '10px', color: '#c9a84c', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '4px' }}>
                 {todayCompleted ? `Dia ${todayDay.day_number} — completado` : `Sesion del dia ${todayDay.day_number} — Fase ${phaseIdx + 1}`}
               </p>
