@@ -346,14 +346,14 @@ export default function CycleDetailPage() {
             <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '14px' }}>Tu programa de 3 fases</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
               {[
-                { n: 1, name: 'Aceptacion', desc: 'Tomaras consciencia de tus patrones con compasion y apertura', days: '1-7', color: '#388add', icon: '🌱' },
-                { n: 2, name: 'Transformacion', desc: 'Activaras el cambio con afirmaciones de empoderamiento', days: '8-14', color: '#c9a84c', icon: '⚡' },
-                { n: 3, name: 'Integracion', desc: 'Consolidaras tu nueva identidad con certeza absoluta', days: '15-21', color: '#22c55e', icon: '👑' },
+                { n: 1, name: 'Aceptacion', desc: 'Tomaras consciencia de tus patrones con compasion y apertura', days: '1-7', color: '#388add', icon: <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round"><path d="M14 22v-10"/><path d="M14 12c0-4 3-6 6-8"/><path d="M14 12c0-4-3-6-6-8"/><path d="M10 22h8"/></svg> },
+                { n: 2, name: 'Transformacion', desc: 'Activaras el cambio con afirmaciones de empoderamiento', days: '8-14', color: '#c9a84c', icon: <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3L10 15h8L12 25"/></svg> },
+                { n: 3, name: 'Integracion', desc: 'Consolidaras tu nueva identidad con certeza absoluta', days: '15-21', color: '#22c55e', icon: <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round"><path d="M14 10V4M8.5 12l-4-3M19.5 12l4-3"/><path d="M6 20h16"/><path d="M8 20a6 6 0 0112 0"/></svg> },
               ].map(p => {
                 const isCurrent = phaseIdx === p.n - 1;
                 return (
                   <div key={p.n} style={{ background: isCurrent ? `${p.color}08` : 'rgba(255,255,255,0.01)', border: `1px solid ${isCurrent ? p.color + '20' : 'rgba(255,255,255,0.03)'}`, borderRadius: '12px', padding: '16px', opacity: isCurrent ? 1 : 0.5, transition: 'all 0.3s' }}>
-                    <div style={{ fontSize: '20px', marginBottom: '8px' }}>{p.icon}</div>
+                    <div style={{ marginBottom: '8px' }}>{p.icon}</div>
                     <div style={{ fontSize: '11px', color: p.color, fontWeight: 600, marginBottom: '4px' }}>Fase {p.n} · Dias {p.days}</div>
                     <div style={{ fontSize: '13px', color: '#fff', fontWeight: 500, marginBottom: '4px' }}>{p.name}</div>
                     <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', lineHeight: 1.5 }}>{p.desc}</div>

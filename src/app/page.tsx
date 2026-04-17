@@ -340,6 +340,63 @@ export default function LandingPage() {
             </div>
           </section>
 
+          {/* 21-DAY CYCLE */}
+          <section style={{ padding: '100px 24px', maxWidth: '900px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+              <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.6)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '12px' }}>{L('21-day cycles', 'ciclos de 21 dias')}</p>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 400, margin: '0 0 14px 0' }}>
+                {L('The 21-Day ', 'El ciclo de ')}<span style={{ fontStyle: 'italic', color: '#c9a84c', fontWeight: 600 }}>{L('Mind Reprogramming Cycle', 'reprogramacion mental de 21 dias')}</span>
+              </h2>
+              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.4)', maxWidth: '560px', margin: '0 auto', lineHeight: 1.7 }}>
+                {L('Neuroscience shows that 21 days of consistent practice creates new neural pathways. Your voice, your frequencies, your transformation.', 'La neurociencia demuestra que 21 dias de practica consistente crean nuevas rutas neuronales. Tu voz, tus frecuencias, tu transformacion.')}
+              </p>
+            </div>
+
+            {/* 3 Steps */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '48px' }}>
+              {[
+                { icon: '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="rgba(201,168,76,0.7)" stroke-width="1.5" stroke-linecap="round"><circle cx="16" cy="16" r="12"/><circle cx="16" cy="16" r="6"/><circle cx="16" cy="16" r="1.5" fill="rgba(201,168,76,0.7)" stroke="none"/></svg>', title: L('Set Your Intention', 'Define tu intencion'), desc: L('Choose what you want to transform in your life', 'Elige que quieres transformar en tu vida') },
+                { icon: '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="rgba(201,168,76,0.7)" stroke-width="1.5" stroke-linecap="round"><path d="M8 18v-2a8 8 0 0116 0v2"/><rect x="6" y="18" width="4" height="6" rx="1.5"/><rect x="22" y="18" width="4" height="6" rx="1.5"/></svg>', title: L('Listen Daily', 'Escucha cada dia'), desc: L('Your cloned voice delivers personalized affirmations with healing frequencies', 'Tu voz clonada entrega afirmaciones con frecuencias de sanacion') },
+                { icon: '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="rgba(201,168,76,0.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4v24M4 16h24M8.5 8.5l15 15M23.5 8.5l-15 15"/><circle cx="16" cy="16" r="3"/></svg>', title: L('Transform', 'Transforma'), desc: L('After 21 days, your subconscious embraces your new truth', 'Despues de 21 dias, tu subconsciente abraza tu nueva verdad') },
+              ].map((step, i) => (
+                <div key={i} style={{ background: 'linear-gradient(160deg, rgba(12,26,46,0.6), rgba(8,16,32,0.8))', border: '1px solid rgba(61,142,207,0.06)', borderRadius: '20px', padding: '32px 24px', textAlign: 'center' }}>
+                  <div style={{ marginBottom: '14px', display: 'flex', justifyContent: 'center' }} dangerouslySetInnerHTML={{ __html: step.icon }} />
+                  <div style={{ fontSize: '10px', color: 'rgba(201,168,76,0.5)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 600 }}>{L('Step', 'Paso')} {i + 1}</div>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '20px', fontWeight: 500, color: '#fff', margin: '0 0 8px 0' }}>{step.title}</h3>
+                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', margin: 0, lineHeight: 1.5 }}>{step.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* 3 Phases */}
+            <div style={{ background: 'rgba(201,168,76,0.03)', border: '1px solid rgba(201,168,76,0.08)', borderRadius: '16px', padding: '28px', marginBottom: '44px' }}>
+              <p style={{ fontSize: '10px', color: '#c9a84c', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '20px', fontWeight: 600, textAlign: 'center' }}>{L('The 3 phases of reprogramming', 'Las 3 fases de reprogramacion')}</p>
+              {[
+                { days: L('Days 1–7', 'Dias 1–7'), name: L('Planting Seeds', 'Sembrando semillas'), desc: L('Your subconscious begins to hear and accept new beliefs', 'Tu subconsciente comienza a escuchar y aceptar nuevas creencias'), color: 'rgba(201,168,76,0.6)' },
+                { days: L('Days 8–14', 'Dias 8–14'), name: L('Transformation', 'Transformacion'), desc: L('Old patterns dissolve, new habits emerge', 'Los viejos patrones se disuelven, nuevos habitos emergen'), color: 'rgba(201,168,76,0.8)' },
+                { days: L('Days 15–21', 'Dias 15–21'), name: L('Integration', 'Integracion'), desc: L('Your new beliefs become your natural state of being', 'Tus nuevas creencias se convierten en tu estado natural'), color: '#c9a84c' },
+              ].map((phase, i) => (
+                <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', marginBottom: i < 2 ? '18px' : 0 }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: phase.color, marginTop: '6px', flexShrink: 0 }} />
+                  <div>
+                    <span style={{ fontSize: '13px', color: phase.color, fontWeight: 600 }}>{phase.days}: {phase.name}</span>
+                    <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', margin: '4px 0 0', lineHeight: 1.5 }}>{phase.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <div style={{ textAlign: 'center' }}>
+              <a href="/login" style={{
+                display: 'inline-block', background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none',
+                borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700,
+                letterSpacing: '0.5px', fontFamily: "'Outfit', sans-serif",
+                boxShadow: '0 4px 30px rgba(201,168,76,0.25)',
+              }}>{L('Start Your 21-Day Journey — Free', 'Comienza tu viaje de 21 dias — Gratis')}</a>
+            </div>
+          </section>
+
           {/* FREQUENCIES */}
           <section id="frequencies" style={{ padding: '100px 24px', maxWidth: '800px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '48px' }}>
