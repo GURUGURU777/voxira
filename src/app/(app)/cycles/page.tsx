@@ -254,12 +254,12 @@ export default function CyclesPage() {
               {/* 3 Steps */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '44px' }}>
                 {[
-                  { icon: '🎯', title: 'Define tu intencion', desc: 'Elige que quieres transformar en tu vida' },
-                  { icon: '🎧', title: 'Escucha cada dia', desc: 'Tu voz clonada entrega afirmaciones con frecuencias de sanacion' },
-                  { icon: '✨', title: 'Transforma', desc: 'Despues de 21 dias, tu subconsciente abraza tu nueva verdad' },
+                  { icon: <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round"><circle cx="16" cy="16" r="12"/><circle cx="16" cy="16" r="6"/><circle cx="16" cy="16" r="1.5" fill="#c9a84c" stroke="none"/></svg>, title: 'Define tu intencion', desc: 'Elige que quieres transformar en tu vida' },
+                  { icon: <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round"><path d="M8 18v-2a8 8 0 0116 0v2"/><rect x="6" y="18" width="4" height="6" rx="1.5"/><rect x="22" y="18" width="4" height="6" rx="1.5"/></svg>, title: 'Escucha cada dia', desc: 'Tu voz clonada entrega afirmaciones con frecuencias de sanacion' },
+                  { icon: <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4v24M4 16h24M8.5 8.5l15 15M23.5 8.5l-15 15"/><circle cx="16" cy="16" r="3"/></svg>, title: 'Transforma', desc: 'Despues de 21 dias, tu subconsciente abraza tu nueva verdad' },
                 ].map((step, i) => (
                   <div key={i} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '28px 20px' }}>
-                    <div style={{ fontSize: '32px', marginBottom: '14px' }}>{step.icon}</div>
+                    <div style={{ marginBottom: '14px' }}>{step.icon}</div>
                     <div style={{ fontSize: '10px', color: 'rgba(201,168,76,0.5)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 600 }}>Paso {i + 1}</div>
                     <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '20px', fontWeight: 500, color: '#fff', margin: '0 0 8px 0' }}>{step.title}</h3>
                     <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', margin: 0, lineHeight: 1.5 }}>{step.desc}</p>
