@@ -237,7 +237,7 @@ export default function Sidebar() {
             }} />
           </div>
           {profile?.plan !== 'pro' && (
-            <a href="#" style={{
+            <a href="/pricing" style={{
               fontSize: 11,
               color: '#c9a84c',
               textDecoration: 'none',
