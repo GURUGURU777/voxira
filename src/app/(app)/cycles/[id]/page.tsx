@@ -133,6 +133,36 @@ export default function CycleDetailPage() {
     const todayDay = sortedDays.find(d => isToday(getDayDate(cycle.started_at, d.day_number)));
     if (!todayDay || todayDay.completed) return;
     setIsGenerating(true); setGenAudioUrl(null);
+
+    // ═══ CACHÉ POR FASE (Opción 1) ═══
+    const phaseStartDay = todayDay.day_number <= 7 ? 1 : todayDay.day_number <= 14 ? 8 : 15;
+    const phaseAnchorDay = sortedDays.find(d => d.day_number === phaseStartDay);
+    const canReuse = phaseAnchorDay && phaseAnchorDay.track_id && todayDay.day_number !== phaseStartDay;
+
+    if (canReuse) {
+      try {
+        setGenStatus('✨ Preparando tu sesion de fase...');
+        const reusedTrackId = phaseAnchorDay.track_id;
+        const reusedFileUrl = phaseAnchorDay.tracks?.file_url || null;
+
+        const patchData = await (await fetch('/api/cycles', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cycle_id: cycle.id, day_number: todayDay.day_number, track_id: reusedTrackId, emotional_score: emotionalScore }) })).json();
+
+        setCycle(prev => {
+          if (!prev) return prev;
+          return { ...prev, current_day: Math.min(todayDay.day_number + 1, 21), completed: patchData.completed || false, completed_at: patchData.completed ? new Date().toISOString() : null,
+            cycle_days: prev.cycle_days.map(d => d.day_number === todayDay.day_number ? { ...d, completed: true, completed_at: new Date().toISOString(), track_id: reusedTrackId, tracks: reusedFileUrl ? { file_url: reusedFileUrl } : d.tracks, emotional_score: emotionalScore } : d) };
+        });
+        if (reusedFileUrl) setGenAudioUrl(reusedFileUrl);
+        setGenStatus('✅ Sesion del dia ' + todayDay.day_number + ' lista! (audio de tu fase actual)');
+      } catch (err) {
+        setGenStatus(`❌ ${err instanceof Error ? err.message : 'Error'}`);
+      } finally {
+        setIsGenerating(false);
+      }
+      return;
+    }
+    // ═══ FIN CACHÉ POR FASE ═══
+
     try {
       setGenStatus('🎙 Obteniendo tu voz...');
       const profileData = await (await fetch('/api/profile')).json();
