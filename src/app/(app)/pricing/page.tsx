@@ -219,7 +219,7 @@ export default function PricingPage() {
                 </span>
                 {!isFree && (
                   <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14, marginLeft: 6 }}>
-                    /{cycle === 'monthly' ? 'mes' : 'mes · facturado anual'}
+                    USD /{cycle === 'monthly' ? 'mes' : 'mes · facturado anual'}
                   </span>
                 )}
               </div>
