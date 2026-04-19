@@ -46,14 +46,13 @@ export default function CyclesPage() {
   const [blockedModalOpen, setBlockedModalOpen] = useState(false);
 
   // Create flow
-  const [createStep, setCreateStep] = useState<0 | 1 | 2 | 3 | 4>(0); // 4 = preferred time
+  const [createStep, setCreateStep] = useState<0 | 1 | 2 | 3>(0);
   const [area, setArea] = useState('');
   const [pattern, setPattern] = useState('');
   const [emotions, setEmotions] = useState<string[]>([]);
   const [aiIntention, setAiIntention] = useState('');
   const [aiFrequency, setAiFrequency] = useState(528);
   const [aiReason, setAiReason] = useState('');
-  const [preferredTime, setPreferredTime] = useState('07:00');
   const [generating, setGenerating] = useState(false);
   const [creating, setCreating] = useState(false);
 
@@ -74,7 +73,7 @@ export default function CyclesPage() {
     })();
   }, []);
 
-  const resetCreate = () => { setCreateStep(0); setArea(''); setPattern(''); setEmotions([]); setAiIntention(''); setAiFrequency(528); setAiReason(''); setPreferredTime('07:00'); };
+  const resetCreate = () => { setCreateStep(0); setArea(''); setPattern(''); setEmotions([]); setAiIntention(''); setAiFrequency(528); setAiReason(''); };
 
   const handleGenerateIntention = useCallback(async () => {
     setGenerating(true);
@@ -89,9 +88,10 @@ export default function CyclesPage() {
     if (!aiIntention.trim()) return;
     setCreating(true);
     try {
-      const res = await fetch('/api/cycles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ intention: aiIntention, frequency: aiFrequency, preferred_time: preferredTime }) });
+      const res = await fetch('/api/cycles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ intention: aiIntention, frequency: aiFrequency }) });
       const d = await res.json();
       if (res.status === 403 && d.error === 'free_cycle_used') {
+        resetCreate();
         setBlockedModalOpen(true);
         return;
       }
@@ -101,7 +101,7 @@ export default function CyclesPage() {
         resetCreate();
       }
     } catch {} finally { setCreating(false); }
-  }, [aiIntention, aiFrequency, preferredTime]);
+  }, [aiIntention, aiFrequency]);
 
   const activeCycles = cycles.filter(c => !c.completed);
   const completedCycles = cycles.filter(c => c.completed);
@@ -122,7 +122,13 @@ export default function CyclesPage() {
                 <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', marginTop: '6px' }}>21 dias de escucha consciente transforman tu mente</p>
               </div>
               {createStep === 0 && (
-                <button onClick={() => setCreateStep(1)} style={{
+                <button onClick={() => {
+                  if (userPlan === 'free' && hasUsedFreeCycle) {
+                    setBlockedModalOpen(true);
+                  } else {
+                    setCreateStep(1);
+                  }
+                }} style={{
                   background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '10px',
                   padding: '10px 22px', fontSize: '12px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
                   cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: "'Outfit', sans-serif",
@@ -135,7 +141,7 @@ export default function CyclesPage() {
           {createStep > 0 && (
             <div style={{ background: 'rgba(201,168,76,0.03)', border: '1px solid rgba(201,168,76,0.1)', borderRadius: '16px', padding: '28px', marginBottom: '28px' }}>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-                {[1, 2, 3, 4].map(s => (
+                {[1, 2, 3].map(s => (
                   <div key={s} style={{ height: '3px', flex: 1, borderRadius: '2px', background: createStep >= s ? '#c9a84c' : 'rgba(255,255,255,0.05)', transition: 'background 0.3s' }} />
                 ))}
               </div>
@@ -220,47 +226,16 @@ export default function CyclesPage() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={() => setCreateStep(4)} style={{
-                      background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '10px',
-                      padding: '12px 28px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
-                      letterSpacing: '0.5px',
-                    }}>Continuar</button>
-                    <button onClick={() => setCreateStep(2)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '12px 24px', fontSize: '13px', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Atras</button>
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 4: Preferred time */}
-              {createStep === 4 && (
-                <div>
-                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontWeight: 400, color: '#fff', margin: '0 0 6px 0' }}>
-                    A que hora prefieres tu <span style={{ color: '#c9a84c' }}>sesion diaria</span>?
-                  </h3>
-                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', marginBottom: '20px' }}>La consistencia es clave para la reprogramacion</p>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
-                    {['06:00', '07:00', '08:00', '09:00', '12:00', '18:00', '21:00', '22:00'].map(t => {
-                      const sel = preferredTime === t;
-                      const label = Number(t.split(':')[0]) < 12 ? `${t} AM` : t === '12:00' ? '12:00 PM' : `${Number(t.split(':')[0]) - 12}:00 PM`;
-                      return (
-                        <button key={t} onClick={() => setPreferredTime(t)} style={{
-                          background: sel ? 'rgba(201,168,76,0.08)' : 'rgba(255,255,255,0.02)',
-                          border: `1px solid ${sel ? 'rgba(201,168,76,0.2)' : 'rgba(255,255,255,0.05)'}`,
-                          borderRadius: '8px', padding: '8px 16px', fontSize: '13px', cursor: 'pointer',
-                          color: sel ? '#c9a84c' : 'rgba(255,255,255,0.35)', fontFamily: "'Outfit', sans-serif",
-                        }}>{label}</button>
-                      );
-                    })}
-                  </div>
-                  <div style={{ display: 'flex', gap: '10px' }}>
                     <button onClick={handleCreateCycle} disabled={creating} style={{
                       background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '10px',
                       padding: '12px 28px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
                       letterSpacing: '0.5px', opacity: creating ? 0.5 : 1,
                     }}>{creating ? 'Creando...' : 'Iniciar mi ciclo de 21 dias'}</button>
-                    <button onClick={() => setCreateStep(3)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '12px 24px', fontSize: '13px', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Atras</button>
+                    <button onClick={() => setCreateStep(2)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '12px 24px', fontSize: '13px', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Atras</button>
                   </div>
                 </div>
               )}
+
             </div>
           )}
 
