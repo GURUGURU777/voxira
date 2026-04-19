@@ -156,7 +156,7 @@ export default function PricingPage() {
                 transition: 'all 0.2s',
               }}
             >
-              {c === 'monthly' ? 'Mensual' : 'Anual \u00b7 ahorra 20%'}
+              {c === 'monthly' ? 'Mensual' : 'Anual · ahorra 20%'}
             </button>
           ))}
         </div>
@@ -219,7 +219,7 @@ export default function PricingPage() {
                 </span>
                 {!isFree && (
                   <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14, marginLeft: 6 }}>
-                    /{cycle === 'monthly' ? 'mes' : 'mes \u00b7 facturado anual'}
+                    /{cycle === 'monthly' ? 'mes' : 'mes · facturado anual'}
                   </span>
                 )}
               </div>
@@ -260,7 +260,7 @@ export default function PricingPage() {
 
       {/* FAQ mini */}
       <div style={{ marginTop: 80, textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontSize: 13, maxWidth: 540, margin: '80px auto 0' }}>
-        <p style={{ marginBottom: 8 }}>Pagos seguros \u00b7 Cancela en cualquier momento</p>
+        <p style={{ marginBottom: 8 }}>Pagos seguros · Cancela en cualquier momento</p>
         <p>Todos los precios en USD. Impuestos aplicables segun tu pais.</p>
       </div>
 
