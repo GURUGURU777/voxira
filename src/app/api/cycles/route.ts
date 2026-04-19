@@ -58,6 +58,21 @@ export async function POST(request: NextRequest) {
 
   if (!intention || !frequency) return withCookies(NextResponse.json({ error: 'Missing intention or frequency' }, { status: 400 }));
 
+  // ═══ GATE: Free solo puede tener 1 ciclo en toda la vida de la cuenta ═══
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('plan, has_used_free_cycle')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.plan === 'free' && profile?.has_used_free_cycle) {
+    return withCookies(NextResponse.json({
+      error: 'free_cycle_used',
+      message: 'Ya usaste tu ciclo gratis. Upgrade a Pro para ciclos ilimitados.',
+    }, { status: 403 }));
+  }
+  // ═══ FIN GATE ═══
+
   // Create cycle
   const { data: cycle, error: cycleError } = await supabase
     .from('cycles')
@@ -129,6 +144,23 @@ export async function PATCH(request: NextRequest) {
     .eq('day_number', day_number);
 
   if (dayError) return withCookies(NextResponse.json({ error: dayError.message }, { status: 500 }));
+
+  // ═══ Quemar ticket de ciclo gratis al completar día 1 ═══
+  if (day_number === 1) {
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('plan, has_used_free_cycle')
+      .eq('id', user.id)
+      .single();
+
+    if (userProfile?.plan === 'free' && !userProfile?.has_used_free_cycle) {
+      await supabase
+        .from('profiles')
+        .update({ has_used_free_cycle: true })
+        .eq('id', user.id);
+    }
+  }
+  // ═══ FIN ═══
 
   // Update current_day on cycle
   const nextDay = Math.min(day_number + 1, 21);

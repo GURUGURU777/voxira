@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface CycleDay { id: string; day_number: number; completed: boolean; }
 interface Cycle { id: string; intention: string; frequency: number; current_day: number; completed: boolean; started_at: string; completed_at: string | null; cycle_days: CycleDay[]; }
@@ -37,8 +38,12 @@ function getStreak(days: CycleDay[], startedAt: string): number {
 }
 
 export default function CyclesPage() {
+  const router = useRouter();
   const [cycles, setCycles] = useState<Cycle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userPlan, setUserPlan] = useState<string>('free');
+  const [hasUsedFreeCycle, setHasUsedFreeCycle] = useState(false);
+  const [blockedModalOpen, setBlockedModalOpen] = useState(false);
 
   // Create flow
   const [createStep, setCreateStep] = useState<0 | 1 | 2 | 3 | 4>(0); // 4 = preferred time
@@ -54,6 +59,19 @@ export default function CyclesPage() {
 
   useEffect(() => {
     fetch('/api/cycles').then(r => r.json()).then(d => setCycles(d.cycles || [])).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/profile');
+        const d = await res.json();
+        if (d.profile) {
+          setUserPlan(d.profile.plan || 'free');
+          setHasUsedFreeCycle(d.profile.has_used_free_cycle || false);
+        }
+      } catch {}
+    })();
   }, []);
 
   const resetCreate = () => { setCreateStep(0); setArea(''); setPattern(''); setEmotions([]); setAiIntention(''); setAiFrequency(528); setAiReason(''); setPreferredTime('07:00'); };
@@ -73,9 +91,17 @@ export default function CyclesPage() {
     try {
       const res = await fetch('/api/cycles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ intention: aiIntention, frequency: aiFrequency, preferred_time: preferredTime }) });
       const d = await res.json();
-      if (d.cycle) { setCycles(p => [d.cycle, ...p]); resetCreate(); }
+      if (res.status === 403 && d.error === 'free_cycle_used') {
+        setBlockedModalOpen(true);
+        return;
+      }
+      if (d.cycle) {
+        setCycles(p => [d.cycle, ...p]);
+        setHasUsedFreeCycle(true);
+        resetCreate();
+      }
     } catch {} finally { setCreating(false); }
-  }, [aiIntention, aiFrequency]);
+  }, [aiIntention, aiFrequency, preferredTime]);
 
   const activeCycles = cycles.filter(c => !c.completed);
   const completedCycles = cycles.filter(c => c.completed);
@@ -286,12 +312,31 @@ export default function CyclesPage() {
               </div>
 
               {/* CTA */}
-              <button onClick={() => setCreateStep(1)} style={{
-                background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none',
-                borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700, cursor: 'pointer',
-                letterSpacing: '1px', textTransform: 'uppercase', fontFamily: "'Outfit', sans-serif",
-                boxShadow: '0 4px 30px rgba(201,168,76,0.25)',
-              }}>Comienza tu primer ciclo</button>
+              <button
+                onClick={() => {
+                  if (userPlan === 'free' && hasUsedFreeCycle) {
+                    router.push('/pricing');
+                  } else {
+                    setCreateStep(1);
+                  }
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #c9a84c, #dbb960)',
+                  color: '#081020',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '18px 48px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  letterSpacing: '1px',
+                  textTransform: 'uppercase',
+                  fontFamily: "'Outfit', sans-serif",
+                  boxShadow: '0 4px 30px rgba(201,168,76,0.25)',
+                }}
+              >
+                {userPlan === 'free' && hasUsedFreeCycle ? 'Desbloquea ciclos ilimitados' : 'Comienza tu primer ciclo'}
+              </button>
             </div>
           )}
 
@@ -367,6 +412,50 @@ export default function CyclesPage() {
           )}
         </div>
       </div>
+
+      {blockedModalOpen && (
+        <div
+          onClick={() => setBlockedModalOpen(false)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20,
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#0e1424', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 20,
+              padding: 40, maxWidth: 440, width: '100%', textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: 11, color: 'rgba(201,168,76,0.7)', letterSpacing: 2, textTransform: 'uppercase', fontWeight: 700, marginBottom: 16 }}>
+              Ciclo gratis completado
+            </div>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: '#fff', fontWeight: 400, marginBottom: 12 }}>
+              Ya usaste tu ciclo gratis
+            </h2>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
+              Upgrade a Pro para ciclos ilimitados y seguir transformando tu mente sin pausas.
+            </p>
+            <button
+              onClick={() => router.push('/pricing')}
+              style={{
+                width: '100%', padding: '14px', borderRadius: 12, border: 'none',
+                background: '#c9a84c', color: '#0a0e1a', fontSize: 14, fontWeight: 700,
+                letterSpacing: 0.5, cursor: 'pointer', marginBottom: 12,
+              }}
+            >
+              Ver planes
+            </button>
+            <button
+              onClick={() => setBlockedModalOpen(false)}
+              style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer' }}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
