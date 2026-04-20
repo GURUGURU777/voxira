@@ -1,5 +1,8 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
+import { t, type Lang } from '@/lib/i18n';
 
 interface Track { id: string; intention: string; frequency: number; ambient: string; duration_minutes: number; file_url: string; file_size: number; processed: boolean; created_at: string; }
 
@@ -15,10 +18,18 @@ const FN: Record<number, string> = {
 
 function freqColor(hz: number) { return FC[hz] || 'rgba(201,168,76,1)'; }
 function freqName(hz: number) { return FN[hz] || hz + 'Hz'; }
-function fmtDate(iso: string) { return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+function fmtDate(iso: string, lang: Lang = 'en') { return new Date(iso).toLocaleDateString(lang === 'es' ? 'es' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
 function fmtTime(s: number) { if (!s || !isFinite(s)) return '0:00'; const m = Math.floor(s / 60); return `${m}:${Math.floor(s % 60).toString().padStart(2, '0')}`; }
 
 export default function LibraryPage() {
+  return <Suspense fallback={null}><LibraryContent /></Suspense>;
+}
+
+function LibraryContent() {
+  const searchParams = useSearchParams();
+  const paramLang = searchParams?.get('lang');
+  const lang: Lang = paramLang === 'es' ? 'es' : 'en';
+
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
   const [playing, setPlaying] = useState<string | null>(null);
@@ -79,7 +90,7 @@ export default function LibraryPage() {
   }, []);
 
   const handleDelete = useCallback(async (id: string) => {
-    if (!confirm('Delete this track?')) return;
+    if (!confirm(t(lang, 'Delete this track?', '¿Eliminar este track?'))) return;
     await fetch(`/api/tracks?id=${id}`, { method: 'DELETE' }).catch(() => {});
     setTracks(p => p.filter(t => t.id !== id));
     if (playing === id) { audioRef.current?.pause(); setPlaying(null); setCurrentTrack(null); }
@@ -128,26 +139,26 @@ export default function LibraryPage() {
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '32px' }}>
             <div>
               <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '34px', fontWeight: 300, color: '#fff', margin: 0 }}>
-                tu <span style={{ color: '#c9a84c', fontWeight: 400 }}>biblioteca</span>
+                {t(lang, 'your', 'tu')} <span style={{ color: '#c9a84c', fontWeight: 400 }}>{t(lang, 'library', 'biblioteca')}</span>
               </h1>
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', marginTop: '6px' }}>
-                {tracks.length} sesion{tracks.length !== 1 ? 'es' : ''} de reprogramacion
+                {tracks.length} {t(lang, `reprogramming session${tracks.length !== 1 ? 's' : ''}`, `sesion${tracks.length !== 1 ? 'es' : ''} de reprogramacion`)}
               </p>
             </div>
             <a href="/dashboard" style={{
               background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none',
               borderRadius: '10px', padding: '10px 22px', fontSize: '12px', fontWeight: 700,
               letterSpacing: '1px', textTransform: 'uppercase', whiteSpace: 'nowrap',
-            }}>+ New Track</a>
+            }}>{t(lang, '+ NEW TRACK', '+ NUEVO TRACK')}</a>
           </div>
 
           {/* FILTERS */}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '28px' }}>
             {[
-              { id: 'recent', label: 'Recientes' },
-              { id: 'frequency', label: 'Frecuencia' },
-              { id: 'duration', label: 'Duracion' },
-              { id: 'all', label: 'Todas' },
+              { id: 'recent', label: t(lang, 'Recent', 'Recientes') },
+              { id: 'frequency', label: t(lang, 'Frequency', 'Frecuencia') },
+              { id: 'duration', label: t(lang, 'Duration', 'Duracion') },
+              { id: 'all', label: t(lang, 'All', 'Todas') },
             ].map(f => (
               <button key={f.id} onClick={() => setFilter(f.id)} style={{
                 background: filter === f.id ? 'rgba(201,168,76,0.08)' : 'rgba(255,255,255,0.02)',
@@ -162,7 +173,7 @@ export default function LibraryPage() {
           {/* LOADING */}
           {loading && (
             <div style={{ textAlign: 'center', padding: '60px 0' }}>
-              <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: '14px' }}>Cargando tus tracks...</p>
+              <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: '14px' }}>{t(lang, 'Loading your tracks...', 'Cargando tus tracks...')}</p>
             </div>
           )}
 
@@ -170,13 +181,13 @@ export default function LibraryPage() {
           {!loading && tracks.length === 0 && (
             <div style={{ textAlign: 'center', padding: '80px 0' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.3 }}>♫</div>
-              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 300, color: 'rgba(255,255,255,0.5)', margin: '0 0 8px 0' }}>No tracks yet</h2>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.2)', marginBottom: '28px' }}>Generate your first personalized track</p>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 300, color: 'rgba(255,255,255,0.5)', margin: '0 0 8px 0' }}>{t(lang, 'No tracks yet', 'Aún no hay tracks')}</h2>
+              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.2)', marginBottom: '28px' }}>{t(lang, 'Generate your first personalized track', 'Genera tu primer track personalizado')}</p>
               <a href="/dashboard" style={{
                 background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none',
                 borderRadius: '12px', padding: '14px 32px', fontSize: '13px', fontWeight: 700,
                 letterSpacing: '1px', textTransform: 'uppercase',
-              }}>Create Your First Track</a>
+              }}>{t(lang, 'Create Your First Track', 'Crea Tu Primer Track')}</a>
             </div>
           )}
 
@@ -187,7 +198,7 @@ export default function LibraryPage() {
               borderRadius: '16px', padding: '22px 26px', marginBottom: '24px',
             }}>
               <div style={{ fontSize: '9px', color: '#c9a84c', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '14px' }}>
-                Reproduciendo ahora
+                {t(lang, 'Now playing', 'Reproduciendo ahora')}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <button onClick={() => handlePlay(playingTrack)} style={{
@@ -207,7 +218,7 @@ export default function LibraryPage() {
                   <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>
                     <span style={{ color: freqColor(playingTrack.frequency), fontWeight: 600 }}>{playingTrack.frequency}Hz</span>
                     <span>{playingTrack.duration_minutes}min</span>
-                    <span>{fmtDate(playingTrack.created_at)}</span>
+                    <span>{fmtDate(playingTrack.created_at, lang)}</span>
                   </div>
                   {/* Progress bar */}
                   <div onClick={handleSeek} style={{ marginTop: '12px', height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', cursor: 'pointer', position: 'relative' }}>
@@ -268,7 +279,7 @@ export default function LibraryPage() {
                       </p>
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                         <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)' }}>{track.duration_minutes}min</span>
-                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.15)' }}>{fmtDate(track.created_at)}</span>
+                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.15)' }}>{fmtDate(track.created_at, lang)}</span>
                         {track.processed && <span style={{ fontSize: '9px', color: 'rgba(34,197,94,0.5)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>binaural</span>}
                       </div>
                     </div>
@@ -314,7 +325,7 @@ export default function LibraryPage() {
                             fontFamily: "'Outfit', sans-serif",
                           }}>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
-                            Descargar
+                            {t(lang, 'Download', 'Descargar')}
                           </button>
                           <button onClick={() => handleDelete(track.id)} style={{
                             display: 'flex', alignItems: 'center', gap: '8px', width: '100%',
@@ -323,7 +334,7 @@ export default function LibraryPage() {
                             fontFamily: "'Outfit', sans-serif",
                           }}>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
-                            Eliminar
+                            {t(lang, 'Delete', 'Eliminar')}
                           </button>
                         </div>
                       )}

@@ -1,10 +1,22 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { t, type Lang } from '@/lib/i18n';
 
 const FC: Record<number, string> = { 396: '#c9a84c', 417: '#d85a30', 432: '#639922', 528: '#639922', 639: '#d4537e', 741: '#388add', 852: '#1d9e75', 963: '#534ab7' };
 const FN: Record<number, string> = { 396: 'Liberation', 417: 'Change', 432: 'Harmony', 528: 'Miracle', 639: 'Connection', 741: 'Expression', 852: 'Intuition', 963: 'Crown' };
-const WEEKDAYS = ['L', 'M', 'Mi', 'J', 'V', 'S', 'D'];
-const QUOTES = [
+const WEEKDAYS_ES = ['L', 'M', 'Mi', 'J', 'V', 'S', 'D'];
+const WEEKDAYS_EN = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+const QUOTES_EN = [
+  'Every thought you choose is a seed you plant.',
+  'Your mind is the garden, your thoughts are the seeds.',
+  'Repetition is the mother of mastery.',
+  'Today is the perfect day to reprogram your mind.',
+  'Your voice has the power to transform your reality.',
+  'Consistency creates invisible miracles.',
+  'You are the architect of your own mind.',
+];
+const QUOTES_ES = [
   'Cada pensamiento que eliges es una semilla que plantas.',
   'Tu mente es el jardin, tus pensamientos son las semillas.',
   'La repeticion es la madre de la maestria.',
@@ -14,11 +26,10 @@ const QUOTES = [
   'Eres el arquitecto de tu propia mente.',
 ];
 
-function getGreeting(): string {
+function getGreeting(lang: Lang): string {
   const h = new Date().getHours();
-  if (h < 12) return 'Buenos dias';
-  if (h < 18) return 'Buenas tardes';
-  return 'Buenas noches';
+  if (lang === 'es') { if (h < 12) return 'Buenos dias'; if (h < 18) return 'Buenas tardes'; return 'Buenas noches'; }
+  if (h < 12) return 'Good morning'; if (h < 18) return 'Good afternoon'; return 'Good evening';
 }
 
 function fmtTime(s: number) { if (!s || !isFinite(s)) return '0:00'; return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`; }
@@ -27,6 +38,13 @@ interface Track { id: string; intention: string; frequency: number; duration_min
 interface ActiveCycle { id: string; intention: string; frequency: number; current_day: number; cycle_days: { day_number: number; completed: boolean }[]; started_at: string; }
 
 export default function HomePage() {
+  return <Suspense fallback={null}><HomeContent /></Suspense>;
+}
+
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const paramLang = searchParams?.get('lang');
+  const lang: Lang = paramLang === 'es' ? 'es' : 'en';
   const [userName, setUserName] = useState('');
   const [streak, setStreak] = useState(0);
   const [totalTracks, setTotalTracks] = useState(0);
@@ -91,7 +109,8 @@ export default function HomePage() {
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  const todayQuote = QUOTES[new Date().getDay()];
+  const todayQuote = (lang === 'es' ? QUOTES_ES : QUOTES_EN)[new Date().getDay()];
+  const weekDays = lang === 'es' ? WEEKDAYS_ES : WEEKDAYS_EN;
   const weekDone = weekActivity.filter(Boolean).length;
   const todayIdx = (new Date().getDay() + 6) % 7;
 
@@ -101,7 +120,7 @@ export default function HomePage() {
     <>
       <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
       <div style={{ minHeight: '100vh', padding: '36px 32px', fontFamily: "'Outfit', sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: '14px' }}>Cargando...</p>
+        <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: '14px' }}>{t(lang, 'Loading...', 'Cargando...')}</p>
       </div>
     </>
   );
@@ -116,7 +135,7 @@ export default function HomePage() {
           {/* A — GREETING */}
           <div style={{ marginBottom: '32px' }}>
             <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '32px', fontWeight: 300, color: '#fff', margin: '0 0 6px 0' }}>
-              {getGreeting()}, <span style={{ color: '#c9a84c', fontWeight: 400 }}>{userName || 'viajero'}</span>
+              {getGreeting(lang)}, <span style={{ color: '#c9a84c', fontWeight: 400 }}>{userName || t(lang, 'traveler', 'viajero')}</span>
             </h1>
             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>{todayQuote}</p>
           </div>
@@ -125,11 +144,11 @@ export default function HomePage() {
           <div style={{ ...card, background: 'linear-gradient(160deg, rgba(201,168,76,0.04), rgba(201,168,76,0.01))', border: '1px solid rgba(201,168,76,0.08)', marginBottom: '20px' }}>
             {activeCycle ? (
               <>
-                <p style={{ fontSize: '10px', color: '#c9a84c', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '10px' }}>Tu ciclo activo</p>
+                <p style={{ fontSize: '10px', color: '#c9a84c', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '10px' }}>{t(lang, 'YOUR ACTIVE CYCLE', 'TU CICLO ACTIVO')}</p>
                 <p style={{ fontSize: '16px', color: '#fff', fontWeight: 500, margin: '0 0 6px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{activeCycle.intention}</p>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '14px' }}>
                   <span style={{ fontSize: '12px', color: FC[activeCycle.frequency] || '#c9a84c', fontWeight: 600 }}>{activeCycle.frequency}Hz {FN[activeCycle.frequency] || ''}</span>
-                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>Dia {activeCycle.current_day}/21</span>
+                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>{t(lang, 'Day', 'Dia')} {activeCycle.current_day}/21</span>
                 </div>
                 <div style={{ height: '3px', background: 'rgba(255,255,255,0.04)', borderRadius: '2px', marginBottom: '16px' }}>
                   <div style={{ height: '100%', width: `${(activeCycle.cycle_days.filter(d => d.completed).length / 21) * 100}%`, background: FC[activeCycle.frequency] || '#c9a84c', borderRadius: '2px' }} />
@@ -137,15 +156,15 @@ export default function HomePage() {
                 <a href={`/cycles/${activeCycle.id}`} style={{
                   background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none',
                   borderRadius: '10px', padding: '10px 22px', fontSize: '13px', fontWeight: 600, display: 'inline-block',
-                }}>Escuchar sesion del dia {activeCycle.current_day}</a>
+                }}>{t(lang, 'Listen to day', 'Escuchar sesion del dia')} {activeCycle.current_day}</a>
               </>
             ) : (
               <>
-                <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 500, marginBottom: '10px' }}>Comienza hoy</p>
-                <p style={{ fontSize: '16px', color: '#fff', fontWeight: 500, margin: '0 0 14px 0' }}>Crea tu primera sesion personalizada</p>
+                <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 500, marginBottom: '10px' }}>{t(lang, 'Start today', 'Comienza hoy')}</p>
+                <p style={{ fontSize: '16px', color: '#fff', fontWeight: 500, margin: '0 0 14px 0' }}>{t(lang, 'Create your first personalized session', 'Crea tu primera sesion personalizada')}</p>
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  <a href="/dashboard" style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '10px', padding: '10px 22px', fontSize: '13px', fontWeight: 600 }}>Crear track</a>
-                  <a href="/cycles" style={{ background: 'transparent', border: '1px solid rgba(201,168,76,0.15)', color: '#c9a84c', textDecoration: 'none', borderRadius: '10px', padding: '10px 22px', fontSize: '13px' }}>Iniciar ciclo 21 dias</a>
+                  <a href="/dashboard" style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '10px', padding: '10px 22px', fontSize: '13px', fontWeight: 600 }}>{t(lang, 'Create track', 'Crear track')}</a>
+                  <a href="/cycles" style={{ background: 'transparent', border: '1px solid rgba(201,168,76,0.15)', color: '#c9a84c', textDecoration: 'none', borderRadius: '10px', padding: '10px 22px', fontSize: '13px' }}>{t(lang, 'Start 21-day cycle', 'Iniciar ciclo 21 dias')}</a>
                 </div>
               </>
             )}
@@ -154,15 +173,15 @@ export default function HomePage() {
           {/* C — QUICK STATS */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '20px' }}>
             <div style={card}>
-              <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Racha</div>
+              <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>{t(lang, 'STREAK', 'RACHA')}</div>
               <div style={{ fontSize: '24px', fontWeight: 600, color: '#c9a84c', fontFamily: "'Cormorant Garamond', serif" }}>{streak > 0 ? `🔥 ${streak}` : '—'}</div>
             </div>
             <div style={card}>
-              <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Sesiones</div>
+              <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>{t(lang, 'SESSIONS', 'SESIONES')}</div>
               <div style={{ fontSize: '24px', fontWeight: 600, color: '#fff', fontFamily: "'Cormorant Garamond', serif" }}>{totalTracks}</div>
             </div>
             <div style={card}>
-              <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Escuchado</div>
+              <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>{t(lang, 'LISTENED', 'ESCUCHADO')}</div>
               <div style={{ fontSize: '24px', fontWeight: 600, color: '#fff', fontFamily: "'Cormorant Garamond', serif" }}>{listeningMins > 60 ? `${Math.floor(listeningMins / 60)}h` : `${listeningMins}m`}</div>
             </div>
           </div>
@@ -170,7 +189,7 @@ export default function HomePage() {
           {/* D — LATEST TRACK */}
           {latestTrack ? (
             <div style={{ ...card, marginBottom: '20px' }}>
-              <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '12px' }}>Tu track mas reciente</p>
+              <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '12px' }}>{t(lang, 'YOUR LATEST TRACK', 'TU TRACK MAS RECIENTE')}</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                 <button onClick={() => {
                   if (!audioRef.current) return;
@@ -185,7 +204,7 @@ export default function HomePage() {
                   : <div style={{ width: 0, height: 0, borderTop: '7px solid transparent', borderBottom: '7px solid transparent', borderLeft: '12px solid #c9a84c', marginLeft: '3px' }} />}
                 </button>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: '14px', color: '#fff', margin: '0 0 3px 0', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{latestTrack.intention || 'Sin titulo'}</p>
+                  <p style={{ fontSize: '14px', color: '#fff', margin: '0 0 3px 0', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{latestTrack.intention || t(lang, 'Untitled', 'Sin titulo')}</p>
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <span style={{ fontSize: '11px', color: FC[latestTrack.frequency] || '#c9a84c', fontWeight: 600 }}>{latestTrack.frequency}Hz</span>
                     <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)' }}>{latestTrack.duration_minutes}min</span>
@@ -201,19 +220,19 @@ export default function HomePage() {
             </div>
           ) : (
             <div style={{ ...card, marginBottom: '20px', textAlign: 'center', padding: '28px' }}>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.25)', margin: '0 0 12px 0' }}>Aun no tienes tracks</p>
-              <a href="/dashboard" style={{ fontSize: '13px', color: '#c9a84c', textDecoration: 'none' }}>Genera tu primer track →</a>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.25)', margin: '0 0 12px 0' }}>{t(lang, 'No tracks yet', 'Aun no tienes tracks')}</p>
+              <a href="/dashboard" style={{ fontSize: '13px', color: '#c9a84c', textDecoration: 'none' }}>{t(lang, 'Generate your first track →', 'Genera tu primer track →')}</a>
             </div>
           )}
 
           {/* E — WEEKLY PROGRESS */}
           <div style={{ ...card, marginBottom: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1.5px', margin: 0 }}>Esta semana</p>
-              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>{weekDone} de 7 dias</span>
+              <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1.5px', margin: 0 }}>{t(lang, 'THIS WEEK', 'ESTA SEMANA')}</p>
+              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>{weekDone} {t(lang, 'of 7 days', 'de 7 dias')}</span>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px' }}>
-              {WEEKDAYS.map((wd, i) => {
+              {weekDays.map((wd, i) => {
                 const done = weekActivity[i];
                 const isToday = i === todayIdx;
                 return (
@@ -236,28 +255,28 @@ export default function HomePage() {
 
           {/* F — ACHIEVEMENTS PREVIEW */}
           <div style={card}>
-            <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1.5px', margin: '0 0 12px 0' }}>Logros</p>
+            <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1.5px', margin: '0 0 12px 0' }}>{t(lang, 'ACHIEVEMENTS', 'LOGROS')}</p>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               {totalTracks >= 1 && (
                 <div style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.1)', borderRadius: '10px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '16px' }}>🎵</span>
-                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Primera sesion</span>
+                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>{t(lang, 'First session', 'Primera sesion')}</span>
                 </div>
               )}
               {streak >= 3 && (
                 <div style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.1)', borderRadius: '10px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '16px' }}>🔥</span>
-                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>Racha de 3 dias</span>
+                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>{t(lang, '3-day streak', 'Racha de 3 dias')}</span>
                 </div>
               )}
               {totalTracks >= 10 && (
                 <div style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.1)', borderRadius: '10px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '16px' }}>⭐</span>
-                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>10 sesiones</span>
+                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>{t(lang, '10 sessions', '10 sesiones')}</span>
                 </div>
               )}
               {totalTracks === 0 && streak < 3 && (
-                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.15)', margin: 0 }}>Genera tu primer track para desbloquear logros</p>
+                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.15)', margin: 0 }}>{t(lang, 'Generate your first track to unlock achievements', 'Genera tu primer track para desbloquear logros')}</p>
               )}
             </div>
           </div>
