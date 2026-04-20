@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 
 export const maxDuration = 300; // 5 min timeout for full pipeline
 
@@ -21,6 +22,78 @@ export async function POST(request: NextRequest) {
 
     const isSpanish = lang === 'es';
     const durationMin = duration || 5;
+
+    // ═══ GATE DE PLANES ═══
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return request.cookies.getAll(); },
+          setAll() {},
+        },
+      }
+    );
+
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('plan, tracks_this_month, tracks_month_reset_at')
+      .eq('id', authUser.id)
+      .single();
+
+    if (!profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    }
+
+    // Reset mensual de contador si pasaron 30+ dias
+    let currentMonthCount = profile.tracks_this_month || 0;
+    const resetAt = new Date(profile.tracks_month_reset_at || new Date());
+    const nowDate = new Date();
+    const daysSinceReset = (nowDate.getTime() - resetAt.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSinceReset >= 30) {
+      currentMonthCount = 0;
+      await supabase
+        .from('profiles')
+        .update({ tracks_this_month: 0, tracks_month_reset_at: nowDate.toISOString() })
+        .eq('id', authUser.id);
+    }
+
+    // Limites por plan
+    const planLimits: Record<string, { maxTracks: number; maxDuration: number }> = {
+      free: { maxTracks: 3, maxDuration: 5 },
+      pro: { maxTracks: 50, maxDuration: 30 },
+      premium: { maxTracks: 200, maxDuration: 30 },
+    };
+    const userPlan = profile.plan || 'free';
+    const limits = planLimits[userPlan] || planLimits.free;
+
+    // Validar limite de audios/mes
+    if (currentMonthCount >= limits.maxTracks) {
+      return NextResponse.json({
+        error: 'monthly_limit_reached',
+        message: `Has usado tus ${limits.maxTracks} audios de este mes. Upgrade para generar mas.`,
+        plan: userPlan,
+        limit: limits.maxTracks,
+        used: currentMonthCount,
+      }, { status: 403 });
+    }
+
+    // Validar duracion maxima
+    if (durationMin > limits.maxDuration) {
+      return NextResponse.json({
+        error: 'duration_exceeded',
+        message: `Tu plan ${userPlan} permite maximo ${limits.maxDuration} minutos por audio.`,
+        plan: userPlan,
+        max_duration: limits.maxDuration,
+        requested: durationMin,
+      }, { status: 403 });
+    }
+    // ═══ FIN GATE DE PLANES ═══
 
     // ─── Step 1: Generate affirmations (if not provided) ───
     let affirmations = providedAffirmations;
@@ -124,6 +197,12 @@ export async function POST(request: NextRequest) {
           console.log('[generate] Processed audio size:', processedBuffer.length, 'bytes');
           const processedBase64 = processedBuffer.toString('base64');
 
+          // Incrementar contador de audios del mes
+          await supabase
+            .from('profiles')
+            .update({ tracks_this_month: currentMonthCount + 1 })
+            .eq('id', authUser.id);
+
           return NextResponse.json({
             success: true,
             affirmations,
@@ -147,6 +226,12 @@ export async function POST(request: NextRequest) {
 
     // ─── Fallback: Return voice-only audio ───
     const audioBase64 = voiceAudioBuffer.toString('base64');
+
+    // Incrementar contador de audios del mes (fallback)
+    await supabase
+      .from('profiles')
+      .update({ tracks_this_month: currentMonthCount + 1 })
+      .eq('id', authUser.id);
 
     return NextResponse.json({
       success: true,
