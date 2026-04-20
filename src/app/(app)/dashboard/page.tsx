@@ -360,8 +360,8 @@ function DashboardContent() {
 {/* BADGE DE PLAN — FIJO ARRIBA DERECHA */}
 <div style={{position:'fixed',top:'20px',right:'20px',zIndex:100,background:'rgba(14,20,36,0.85)',backdropFilter:'blur(10px)',border:'1px solid rgba(201,168,76,0.15)',borderRadius:'12px',padding:'10px 16px',display:'flex',alignItems:'center',gap:'12px',fontSize:'12px',fontFamily:"'Outfit',sans-serif"}}>
   <span style={{color:'rgba(201,168,76,0.7)',fontWeight:700,letterSpacing:'1px',textTransform:'uppercase'}}>{userPlan.toUpperCase()}</span>
-  <span style={{color:'rgba(255,255,255,0.4)'}}>{tracksThisMonth}/{userPlan==='free'?3:userPlan==='pro'?50:200} audios</span>
-  {userPlan==='free' && <a href="/pricing" style={{color:'#c9a84c',textDecoration:'none',fontWeight:600,fontSize:'11px',letterSpacing:'0.5px'}}>Upgrade →</a>}
+  <span style={{color:'rgba(255,255,255,0.4)'}}>{tracksThisMonth}/{userPlan==='free'?3:userPlan==='pro'?50:200} {t(lang,'tracks','audios')}</span>
+  {userPlan==='free' && <a href="/pricing" style={{color:'#c9a84c',textDecoration:'none',fontWeight:600,fontSize:'11px',letterSpacing:'0.5px'}}>{t(lang,'Upgrade →','Mejorar →')}</a>}
 </div>
 
 {/* MODAL DE UPGRADE */}
@@ -369,16 +369,16 @@ function DashboardContent() {
   <div onClick={()=>setUpgradeModalOpen(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',backdropFilter:'blur(8px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:20}}>
     <div onClick={e=>e.stopPropagation()} style={{background:'#0e1424',border:'1px solid rgba(201,168,76,0.2)',borderRadius:20,padding:40,maxWidth:440,width:'100%',textAlign:'center'}}>
       <div style={{fontSize:11,color:'rgba(201,168,76,0.7)',letterSpacing:2,textTransform:'uppercase',fontWeight:700,marginBottom:16}}>
-        {upgradeModalReason==='limit'?'Limite alcanzado':upgradeModalReason==='duration'?'Funcion Pro':'Upgrade'}
+        {upgradeModalReason==='limit'?t(lang,'Limit reached','Limite alcanzado'):upgradeModalReason==='duration'?t(lang,'Pro feature','Funcion Pro'):t(lang,'Upgrade','Upgrade')}
       </div>
       <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:28,color:'#fff',fontWeight:400,marginBottom:12}}>
-        {upgradeModalReason==='limit'?'Has usado tus audios del mes':'Audios extendidos en Pro'}
+        {upgradeModalReason==='limit'?t(lang,'You used your monthly tracks','Has usado tus audios del mes'):t(lang,'Extended tracks on Pro','Audios extendidos en Pro')}
       </h2>
       <p style={{color:'rgba(255,255,255,0.6)',fontSize:14,marginBottom:24,lineHeight:1.6}}>
-        {upgradeModalReason==='limit'?'Plan Free: 3 audios al mes. Upgrade a Pro para 50 audios y duraciones de hasta 30 minutos.':'Plan Free: 5 minutos maximo. Upgrade a Pro para audios de hasta 30 minutos.'}
+        {upgradeModalReason==='limit'?t(lang,'Free plan: 3 tracks per month. Upgrade to Pro for 50 tracks and durations up to 30 minutes.','Plan Free: 3 audios al mes. Upgrade a Pro para 50 audios y duraciones de hasta 30 minutos.'):t(lang,'Free plan: 5 minutes max. Upgrade to Pro for tracks up to 30 minutes.','Plan Free: 5 minutos maximo. Upgrade a Pro para audios de hasta 30 minutos.')}
       </p>
-      <a href="/pricing" style={{display:'block',width:'100%',padding:'14px',borderRadius:12,border:'none',background:'#c9a84c',color:'#0a0e1a',fontSize:14,fontWeight:700,letterSpacing:0.5,textDecoration:'none',marginBottom:12,boxSizing:'border-box'}}>Ver planes</a>
-      <button onClick={()=>setUpgradeModalOpen(false)} style={{background:'transparent',border:'none',color:'rgba(255,255,255,0.4)',fontSize:13,cursor:'pointer'}}>Cerrar</button>
+      <a href="/pricing" style={{display:'block',width:'100%',padding:'14px',borderRadius:12,border:'none',background:'#c9a84c',color:'#0a0e1a',fontSize:14,fontWeight:700,letterSpacing:0.5,textDecoration:'none',marginBottom:12,boxSizing:'border-box'}}>{t(lang,'See plans','Ver planes')}</a>
+      <button onClick={()=>setUpgradeModalOpen(false)} style={{background:'transparent',border:'none',color:'rgba(255,255,255,0.4)',fontSize:13,cursor:'pointer'}}>{t(lang,'Close','Cerrar')}</button>
     </div>
   </div>
 )}
