@@ -76,6 +76,10 @@ function DashboardContent() {
   const [recommendedHz, setRecommendedHz] = useState<number | null>(null);
   const [selectedAmbient, setSelectedAmbient] = useState<string>('none');
   const [selectedDuration, setSelectedDuration] = useState(5);
+  const [userPlan, setUserPlan] = useState<string>('free');
+  const [tracksThisMonth, setTracksThisMonth] = useState(0);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [upgradeModalReason, setUpgradeModalReason] = useState<string>('');
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [hasRecording, setHasRecording] = useState(false);
@@ -95,6 +99,8 @@ function DashboardContent() {
   useEffect(() => {
     fetch('/api/profile').then(r => r.json()).then(data => {
       if (data.profile?.voice_audio_url) setSavedVoiceUrl(data.profile.voice_audio_url);
+      if (data.profile?.plan) setUserPlan(data.profile.plan);
+      if (data.profile?.tracks_this_month != null) setTracksThisMonth(data.profile.tracks_this_month);
       if (data.user?.name) setUserName(data.user.name);
       if (data.user?.avatar) setUserAvatar(data.user.avatar);
     }).catch(() => {});
@@ -180,6 +186,13 @@ function DashboardContent() {
       setStatusMessage(t(lang, '✨ Generating affirmations with your voice...', '✨ Generando afirmaciones con tu voz...'));
       const genRes = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: cloneData.voice_id, intention: goal, frequency: selectedFrequency.hz, duration: selectedDuration, lang, ambient: selectedAmbient }) });
       const genData = await genRes.json();
+      if (genRes.status === 403 && (genData.error === 'monthly_limit_reached' || genData.error === 'duration_exceeded')) {
+        setUpgradeModalReason(genData.error === 'monthly_limit_reached' ? 'limit' : 'duration');
+        setUpgradeModalOpen(true);
+        setStatusMessage('');
+        setIsGenerating(false);
+        return;
+      }
       if (!genRes.ok || !genData.audio) throw new Error(genData.error || 'Generation failed');
 
       setAffirmations(genData.affirmations || []);
@@ -254,7 +267,7 @@ function DashboardContent() {
           {step===2&&(<div style={{animation:'fadeUp 0.7s ease'}}><div style={card}><div style={accent}/><div style={{position:'relative',zIndex:1}}><div style={{textAlign:'center',marginBottom:'36px'}}><p style={{fontSize:'11px',fontWeight:500,color:'rgba(201,168,76,0.6)',letterSpacing:'3px',textTransform:'uppercase',marginBottom:'12px'}}>{t(lang,'step two','paso dos')}</p><h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'32px',fontWeight:400,color:'#fff',margin:0}}>{t(lang,'choose your ','elige tu ')}<span style={{background:'linear-gradient(135deg,#c9a84c,#e8d08c)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',fontWeight:600}}>{t(lang,'solfeggio frequency','frecuencia solfeggio')}</span></h2></div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:'12px',marginBottom:'36px'}}>{FREQUENCIES.map(f=><FreqCard key={f.hz} freq={f} isSelected={selectedFrequency?.hz===f.hz} isRecommended={recommendedHz===f.hz} onClick={()=>setSelectedFrequency(f)} lang={lang}/>)}</div>
           <div style={{marginBottom:'36px'}}><p style={{fontSize:'10px',color:'rgba(255,255,255,0.25)',textTransform:'uppercase',letterSpacing:'2px',marginBottom:'14px'}}>{t(lang,'Ambient layers','Capas ambientales')} <span style={{color:'rgba(255,255,255,0.15)',fontStyle:'italic',textTransform:'none'}}>{t(lang,'optional','opcional')}</span></p><div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>{AMBIENT_SOUNDS.map(s=>{const a=selectedAmbient===s.id;return <button key={s.id} onClick={()=>toggleAmbient(s.id)} style={{background:a?'rgba(61,142,207,0.1)':'rgba(12,26,46,0.5)',border:`1px solid ${a?'rgba(61,142,207,0.25)':'rgba(61,142,207,0.08)'}`,borderRadius:'12px',padding:'10px 20px',color:a?'#4a9eff':'rgba(255,255,255,0.4)',fontSize:'14px',cursor:'pointer',display:'flex',alignItems:'center',gap:'8px'}}><span style={{fontSize:'16px'}}>{s.icon}</span>{t(lang,s.nameEn,s.nameEs)}</button>;})}</div></div>
-          <div style={{marginBottom:'36px'}}><p style={{fontSize:'10px',color:'rgba(255,255,255,0.25)',textTransform:'uppercase',letterSpacing:'2px',marginBottom:'14px'}}>{t(lang,'Session duration','Duración de sesión')}</p><div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>{[5,10,15,30].map(d=>{const sel=selectedDuration===d;return <button key={d} onClick={()=>setSelectedDuration(d)} style={{background:sel?'rgba(201,168,76,0.08)':'rgba(255,255,255,0.03)',border:`1px solid ${sel?'rgba(201,168,76,0.15)':'rgba(255,255,255,0.06)'}`,borderRadius:'10px',padding:'10px 22px',color:sel?'#c9a84c':'rgba(255,255,255,0.4)',fontSize:'14px',cursor:'pointer',fontFamily:"'Outfit',sans-serif",fontWeight:sel?600:400,transition:'all 0.2s'}}>{d} min</button>;})}</div></div>
+          <div style={{marginBottom:'36px'}}><p style={{fontSize:'10px',color:'rgba(255,255,255,0.25)',textTransform:'uppercase',letterSpacing:'2px',marginBottom:'14px'}}>{t(lang,'Session duration','Duración de sesión')}</p><div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>{[5,10,15,30].map(d=>{const sel=selectedDuration===d;const maxDur=userPlan==='free'?5:30;const locked=d>maxDur;return <button key={d} onClick={()=>{if(locked){setUpgradeModalReason('duration');setUpgradeModalOpen(true);return;}setSelectedDuration(d);}} style={{background:sel?'rgba(201,168,76,0.08)':locked?'rgba(255,255,255,0.015)':'rgba(255,255,255,0.03)',border:`1px solid ${sel?'rgba(201,168,76,0.15)':locked?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.06)'}`,borderRadius:'10px',padding:'10px 22px',color:sel?'#c9a84c':locked?'rgba(255,255,255,0.25)':'rgba(255,255,255,0.4)',fontSize:'14px',cursor:'pointer',fontFamily:"'Outfit',sans-serif",fontWeight:sel?600:400,transition:'all 0.2s',display:'inline-flex',alignItems:'center',gap:'6px'}}>{locked && <span style={{fontSize:'11px'}}>🔒</span>}{d} min</button>;})}</div></div>
           <div style={{display:'flex',justifyContent:'space-between'}}><button onClick={()=>setStep(1)} style={btnS}>← {t(lang,'Back','Atrás')}</button><button onClick={()=>selectedFrequency&&setStep(3)} disabled={!selectedFrequency} style={{...btnG,opacity:selectedFrequency?1:0.3,cursor:selectedFrequency?'pointer':'not-allowed'}}>{t(lang,'Continue','Continuar')} →</button></div></div></div></div>)}
 
           {/* STEP 3 */}
@@ -343,6 +356,32 @@ function DashboardContent() {
         @keyframes spinSlow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
         *{box-sizing:border-box;margin:0}::selection{background:rgba(201,168,76,0.3)}textarea::placeholder{color:rgba(255,255,255,0.2)}button:hover{filter:brightness(1.1)}
       `}</style>
+
+{/* BADGE DE PLAN — FIJO ARRIBA DERECHA */}
+<div style={{position:'fixed',top:'20px',right:'20px',zIndex:100,background:'rgba(14,20,36,0.85)',backdropFilter:'blur(10px)',border:'1px solid rgba(201,168,76,0.15)',borderRadius:'12px',padding:'10px 16px',display:'flex',alignItems:'center',gap:'12px',fontSize:'12px',fontFamily:"'Outfit',sans-serif"}}>
+  <span style={{color:'rgba(201,168,76,0.7)',fontWeight:700,letterSpacing:'1px',textTransform:'uppercase'}}>{userPlan.toUpperCase()}</span>
+  <span style={{color:'rgba(255,255,255,0.4)'}}>{tracksThisMonth}/{userPlan==='free'?3:userPlan==='pro'?50:200} audios</span>
+  {userPlan==='free' && <a href="/pricing" style={{color:'#c9a84c',textDecoration:'none',fontWeight:600,fontSize:'11px',letterSpacing:'0.5px'}}>Upgrade →</a>}
+</div>
+
+{/* MODAL DE UPGRADE */}
+{upgradeModalOpen && (
+  <div onClick={()=>setUpgradeModalOpen(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',backdropFilter:'blur(8px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:20}}>
+    <div onClick={e=>e.stopPropagation()} style={{background:'#0e1424',border:'1px solid rgba(201,168,76,0.2)',borderRadius:20,padding:40,maxWidth:440,width:'100%',textAlign:'center'}}>
+      <div style={{fontSize:11,color:'rgba(201,168,76,0.7)',letterSpacing:2,textTransform:'uppercase',fontWeight:700,marginBottom:16}}>
+        {upgradeModalReason==='limit'?'Limite alcanzado':upgradeModalReason==='duration'?'Funcion Pro':'Upgrade'}
+      </div>
+      <h2 style={{fontFamily:"'Cormorant Garamond',serif",fontSize:28,color:'#fff',fontWeight:400,marginBottom:12}}>
+        {upgradeModalReason==='limit'?'Has usado tus audios del mes':'Audios extendidos en Pro'}
+      </h2>
+      <p style={{color:'rgba(255,255,255,0.6)',fontSize:14,marginBottom:24,lineHeight:1.6}}>
+        {upgradeModalReason==='limit'?'Plan Free: 3 audios al mes. Upgrade a Pro para 50 audios y duraciones de hasta 30 minutos.':'Plan Free: 5 minutos maximo. Upgrade a Pro para audios de hasta 30 minutos.'}
+      </p>
+      <a href="/pricing" style={{display:'block',width:'100%',padding:'14px',borderRadius:12,border:'none',background:'#c9a84c',color:'#0a0e1a',fontSize:14,fontWeight:700,letterSpacing:0.5,textDecoration:'none',marginBottom:12,boxSizing:'border-box'}}>Ver planes</a>
+      <button onClick={()=>setUpgradeModalOpen(false)} style={{background:'transparent',border:'none',color:'rgba(255,255,255,0.4)',fontSize:13,cursor:'pointer'}}>Cerrar</button>
+    </div>
+  </div>
+)}
     </>
   );
 }
