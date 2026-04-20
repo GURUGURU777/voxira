@@ -1,7 +1,8 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { t, type Lang } from '@/lib/i18n';
 
 interface UserProfile {
   name: string;
@@ -13,18 +14,25 @@ interface UserProfile {
 }
 
 const NAV_ITEMS = [
-  { label: 'Inicio', icon: '\u2302', href: '/home' },
-  { label: 'Crear', icon: '\u2726', href: '/dashboard' },
-  { label: 'Biblioteca', icon: '\u266B', href: '/library', hasBadge: true },
-  { label: 'Ciclos 21 d\u00edas', icon: '\u25CE', href: '/cycles' },
-  { label: 'Estad\u00edsticas', icon: '\u25C8', href: '/stats' },
+  { en: 'Home', es: 'Inicio', icon: '\u2302', href: '/home' },
+  { en: 'Create', es: 'Crear', icon: '\u2726', href: '/dashboard' },
+  { en: 'Library', es: 'Biblioteca', icon: '\u266B', href: '/library', hasBadge: true },
+  { en: '21-day Cycles', es: 'Ciclos 21 d\u00edas', icon: '\u25CE', href: '/cycles' },
+  { en: 'Statistics', es: 'Estad\u00edsticas', icon: '\u25C8', href: '/stats' },
 ];
 
 const BOTTOM_ITEMS = [
-  { label: 'Configuraci\u00f3n', icon: '\u2699', href: '/settings' },
+  { en: 'Settings', es: 'Configuraci\u00f3n', icon: '\u2699', href: '/settings' },
 ];
 
 export default function Sidebar() {
+  return <Suspense fallback={null}><SidebarContent /></Suspense>;
+}
+
+function SidebarContent() {
+  const searchParams = useSearchParams();
+  const paramLang = searchParams?.get('lang');
+  const lang: Lang = paramLang === 'es' ? 'es' : 'en';
   const pathname = usePathname();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [cycleStreak, setCycleStreak] = useState(0);
@@ -111,7 +119,7 @@ export default function Sidebar() {
             const isActive = item.href !== '#' && pathname.startsWith(item.href);
             return (
               <a
-                key={item.label}
+                key={item.href}
                 href={item.href}
                 style={{
                   display: 'flex',
@@ -140,7 +148,7 @@ export default function Sidebar() {
                   color: isActive ? '#c9a84c' : 'rgba(255,255,255,0.35)',
                   letterSpacing: 0.3,
                 }}>
-                  {item.label}
+                  {t(lang, item.en, item.es)}
                 </span>
                 {item.href === '/cycles' && cycleStreak > 1 && (
                   <span style={{
@@ -186,7 +194,7 @@ export default function Sidebar() {
             const isActive = pathname.startsWith(item.href);
             return (
             <a
-              key={item.label}
+              key={item.href}
               href={item.href}
               style={{
                 display: 'flex',
@@ -203,7 +211,7 @@ export default function Sidebar() {
                 {item.icon}
               </span>
               <span style={{ fontSize: 13, color: isActive ? '#c9a84c' : 'rgba(255,255,255,0.35)', fontWeight: isActive ? 600 : 400, letterSpacing: 0.3 }}>
-                {item.label}
+                {t(lang, item.en, item.es)}
               </span>
             </a>
             );
@@ -220,7 +228,7 @@ export default function Sidebar() {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
             <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(201,168,76,0.6)', letterSpacing: 1.5, textTransform: 'uppercase' }}>
-              {profile?.plan === 'pro' ? 'Pro' : 'Free'}
+              {profile?.plan === 'premium' ? 'Premium' : profile?.plan === 'pro' ? 'Pro' : 'Free'}
             </span>
             <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>
               {tracksUsed}/{maxTracks}
@@ -244,7 +252,7 @@ export default function Sidebar() {
               fontWeight: 500,
               opacity: 0.7,
             }}>
-              Upgrade a Pro
+              {t(lang, 'Upgrade to Pro', 'Upgrade a Pro')}
             </a>
           )}
         </div>
@@ -299,7 +307,7 @@ export default function Sidebar() {
               textTransform: 'uppercase',
               letterSpacing: 0.5,
             }}>
-              {profile?.plan === 'pro' ? 'Pro' : 'Free plan'}
+              {profile?.plan === 'premium' ? t(lang, 'PREMIUM PLAN', 'PLAN PREMIUM') : profile?.plan === 'pro' ? t(lang, 'PRO PLAN', 'PLAN PRO') : t(lang, 'FREE PLAN', 'PLAN FREE')}
             </div>
           </div>
         </div>
