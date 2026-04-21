@@ -10,7 +10,7 @@ export default function TermsPage() {
       <div style={{ background: '#0b1121', minHeight: '100vh', padding: '32px 24px', fontFamily: "'Outfit', sans-serif" }}>
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '48px' }}>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '18px', fontWeight: 300, color: '#fff', letterSpacing: '8px' }}>VOXIRA</div>
+            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '18px', fontWeight: 300, color: '#fff', letterSpacing: '8px' }}>AFIRMIA</div>
             <a href="/" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>← Volver</a>
           </div>
 
@@ -21,7 +21,7 @@ export default function TermsPage() {
 
           {/* 1 */}
           <h2 style={h2}>1. Aceptacion de los Terminos</h2>
-          <p style={p}>Al acceder, registrarse o utilizar VOXIRA (&ldquo;el Servicio&rdquo;), usted acepta quedar vinculado por estos Terminos de Servicio (&ldquo;Terminos&rdquo;). Si no esta de acuerdo con alguna parte de estos Terminos, no debe utilizar el Servicio.</p>
+          <p style={p}>Al acceder, registrarse o utilizar AFIRMIA (&ldquo;el Servicio&rdquo;), usted acepta quedar vinculado por estos Terminos de Servicio (&ldquo;Terminos&rdquo;). Si no esta de acuerdo con alguna parte de estos Terminos, no debe utilizar el Servicio.</p>
           <p style={p}>Nos reservamos el derecho de modificar estos Terminos en cualquier momento. Le notificaremos sobre cambios materiales por correo electronico o mediante un aviso dentro de la aplicacion. El uso continuado del Servicio despues de cualquier modificacion constituye su aceptacion de los nuevos Terminos.</p>
 
           {/* 2 */}
@@ -30,7 +30,7 @@ export default function TermsPage() {
 
           {/* 3 */}
           <h2 style={h2}>3. Descripcion del Servicio</h2>
-          <p style={p}>VOXIRA es una plataforma de reprogramacion mental que utiliza inteligencia artificial para:</p>
+          <p style={p}>AFIRMIA es una plataforma de reprogramacion mental que utiliza inteligencia artificial para:</p>
           <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
             <li style={li}><strong style={b}>Clonar su voz</strong> mediante tecnologia de IA (ElevenLabs) para generar audio personalizado con su propia voz.</li>
             <li style={li}><strong style={b}>Generar afirmaciones personalizadas</strong> con inteligencia artificial (OpenAI GPT-4o-mini) basadas en sus intenciones y objetivos.</li>
@@ -41,29 +41,29 @@ export default function TermsPage() {
 
           {/* 4 */}
           <h2 style={h2}>4. Modelo de Voz</h2>
-          <p style={p}>Al grabar su voz en VOXIRA:</p>
+          <p style={p}>Al grabar su voz en AFIRMIA:</p>
           <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
             <li style={li}><strong style={b}>Solo su propia voz:</strong> Usted declara y garantiza que la voz que graba es su propia voz. Queda estrictamente prohibido grabar o clonar la voz de terceros sin su consentimiento explicito por escrito.</li>
             <li style={li}><strong style={b}>Almacenamiento seguro:</strong> Su muestra de voz original se almacena de forma cifrada en Supabase Storage (infraestructura AWS) bajo su cuenta personal.</li>
-            <li style={li}><strong style={b}>Eliminacion temporal:</strong> Los clones de voz creados en ElevenLabs son temporales y se eliminan automaticamente inmediatamente despues de cada generacion de audio. VOXIRA no mantiene clones de voz activos en servicios de terceros.</li>
-            <li style={li}><strong style={b}>Licencia limitada:</strong> Usted otorga a VOXIRA una licencia limitada, no exclusiva y revocable para procesar su muestra de voz con el unico proposito de generar contenido de audio personalizado dentro del Servicio.</li>
+            <li style={li}><strong style={b}>Eliminacion temporal:</strong> Los clones de voz creados en ElevenLabs son temporales y se eliminan automaticamente inmediatamente despues de cada generacion de audio. AFIRMIA no mantiene clones de voz activos en servicios de terceros.</li>
+            <li style={li}><strong style={b}>Licencia limitada:</strong> Usted otorga a AFIRMIA una licencia limitada, no exclusiva y revocable para procesar su muestra de voz con el unico proposito de generar contenido de audio personalizado dentro del Servicio.</li>
           </ul>
 
           {/* 5 */}
           <h2 style={h2}>5. Registro y Cuenta</h2>
           <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
-            <li style={li}><strong style={b}>Edad minima:</strong> Debe tener al menos 18 anos para utilizar VOXIRA.</li>
-            <li style={li}><strong style={b}>Autenticacion:</strong> El registro se realiza exclusivamente mediante Google OAuth. VOXIRA no almacena contrasenas.</li>
+            <li style={li}><strong style={b}>Edad minima:</strong> Debe tener al menos 18 anos para utilizar AFIRMIA.</li>
+            <li style={li}><strong style={b}>Autenticacion:</strong> El registro se realiza exclusivamente mediante Google OAuth. AFIRMIA no almacena contrasenas.</li>
             <li style={li}><strong style={b}>Una cuenta por usuario:</strong> Cada persona puede tener una sola cuenta activa.</li>
-            <li style={li}><strong style={b}>Responsabilidad:</strong> Usted es responsable de mantener la seguridad de su cuenta de Google y de todas las actividades realizadas bajo su cuenta de VOXIRA.</li>
+            <li style={li}><strong style={b}>Responsabilidad:</strong> Usted es responsable de mantener la seguridad de su cuenta de Google y de todas las actividades realizadas bajo su cuenta de AFIRMIA.</li>
             <li style={li}><strong style={b}>Notificacion:</strong> Debe notificarnos inmediatamente sobre cualquier uso no autorizado de su cuenta.</li>
           </ul>
 
           {/* 6 */}
           <h2 style={h2}>6. Contenido y Propiedad Intelectual</h2>
-          <p style={p}><strong style={b}>Su contenido:</strong> El audio generado por VOXIRA utilizando su voz le pertenece a usted. En planes de pago (Pro y Premium), usted obtiene una licencia completa para uso personal y comercial. En el plan gratuito, el uso es exclusivamente personal y no comercial.</p>
-          <p style={p}><strong style={b}>Propiedad de VOXIRA:</strong> VOXIRA retiene todos los derechos sobre la plataforma, tecnologia, algoritmos, diseno, marca, logotipos y todo el software subyacente. Las afirmaciones generadas por IA son creadas como herramienta de bienestar y no constituyen obra protegida independiente.</p>
-          <p style={p}><strong style={b}>Licencia a VOXIRA:</strong> Al utilizar el Servicio, usted otorga a VOXIRA una licencia mundial, no exclusiva y libre de regalias para utilizar, reproducir y procesar su contenido (voz, intenciones) exclusivamente para proporcionar y mejorar el Servicio.</p>
+          <p style={p}><strong style={b}>Su contenido:</strong> El audio generado por AFIRMIA utilizando su voz le pertenece a usted. En planes de pago (Pro y Premium), usted obtiene una licencia completa para uso personal y comercial. En el plan gratuito, el uso es exclusivamente personal y no comercial.</p>
+          <p style={p}><strong style={b}>Propiedad de AFIRMIA:</strong> AFIRMIA retiene todos los derechos sobre la plataforma, tecnologia, algoritmos, diseno, marca, logotipos y todo el software subyacente. Las afirmaciones generadas por IA son creadas como herramienta de bienestar y no constituyen obra protegida independiente.</p>
+          <p style={p}><strong style={b}>Licencia a AFIRMIA:</strong> Al utilizar el Servicio, usted otorga a AFIRMIA una licencia mundial, no exclusiva y libre de regalias para utilizar, reproducir y procesar su contenido (voz, intenciones) exclusivamente para proporcionar y mejorar el Servicio.</p>
 
           {/* 7 */}
           <h2 style={h2}>7. Planes y Tarifas</h2>
@@ -73,11 +73,11 @@ export default function TermsPage() {
             <p style={p}><strong style={b}>Premium — $19.99 USD/mes:</strong> Tracks ilimitados, duracion hasta 60 minutos, todas las funciones Pro, soporte prioritario, acceso anticipado a nuevas funciones.</p>
             <p style={p}><strong style={b}>Descuento anual:</strong> 20% de descuento al elegir facturacion anual (Pro: $7.99/mes, Premium: $15.99/mes).</p>
           </div>
-          <p style={p}><strong style={b}>Pagos:</strong> Procesados de forma segura a traves de Stripe. VOXIRA no almacena datos de tarjeta de credito. Las suscripciones se renuevan automaticamente a menos que se cancelen antes del periodo de renovacion. No se ofrecen reembolsos por periodos parciales ya consumidos.</p>
+          <p style={p}><strong style={b}>Pagos:</strong> Procesados de forma segura a traves de Stripe. AFIRMIA no almacena datos de tarjeta de credito. Las suscripciones se renuevan automaticamente a menos que se cancelen antes del periodo de renovacion. No se ofrecen reembolsos por periodos parciales ya consumidos.</p>
 
           {/* 8 */}
           <h2 style={h2}>8. Conducta del Usuario</h2>
-          <p style={p}>Usted se compromete a NO utilizar VOXIRA para:</p>
+          <p style={p}>Usted se compromete a NO utilizar AFIRMIA para:</p>
           <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
             <li style={li}>Clonar la voz de terceros sin su consentimiento explicito por escrito.</li>
             <li style={li}>Generar contenido ilegal, danino, amenazante, abusivo, difamatorio, obsceno o fraudulento.</li>
@@ -92,24 +92,24 @@ export default function TermsPage() {
           {/* 9 */}
           <h2 style={h2}>9. Aviso de Salud</h2>
           <div style={{ background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.1)', borderRadius: '12px', padding: '20px', margin: '0 0 14px' }}>
-            <p style={{ ...p, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>VOXIRA NO CONSTITUYE CONSEJO MEDICO, PSICOLOGICO NI TERAPEUTICO.</p>
+            <p style={{ ...p, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>AFIRMIA NO CONSTITUYE CONSEJO MEDICO, PSICOLOGICO NI TERAPEUTICO.</p>
             <p style={p}>El Servicio es una herramienta de bienestar personal y no sustituye el diagnostico, tratamiento o consejo de profesionales medicos o de salud mental. Si tiene condiciones de salud mental, consulte a un profesional antes de usar el Servicio.</p>
-            <p style={p}><strong style={b}>Frecuencias binaurales:</strong> Los beats binaurales pueden no ser adecuados para personas con epilepsia, trastornos convulsivos o que utilicen marcapasos. Consulte a su medico si tiene alguna de estas condiciones. No utilice VOXIRA mientras conduce o opera maquinaria pesada.</p>
-            <p style={{ ...p, margin: 0 }}>Los resultados de la reprogramacion mental varian significativamente entre individuos. VOXIRA no garantiza resultados especificos.</p>
+            <p style={p}><strong style={b}>Frecuencias binaurales:</strong> Los beats binaurales pueden no ser adecuados para personas con epilepsia, trastornos convulsivos o que utilicen marcapasos. Consulte a su medico si tiene alguna de estas condiciones. No utilice AFIRMIA mientras conduce o opera maquinaria pesada.</p>
+            <p style={{ ...p, margin: 0 }}>Los resultados de la reprogramacion mental varian significativamente entre individuos. AFIRMIA no garantiza resultados especificos.</p>
           </div>
 
           {/* 10 */}
           <h2 style={h2}>10. Exencion de Garantias</h2>
-          <p style={p}>EL SERVICIO SE PROPORCIONA &ldquo;TAL CUAL&rdquo; Y &ldquo;SEGUN DISPONIBILIDAD&rdquo;, SIN GARANTIAS DE NINGUN TIPO, YA SEAN EXPRESAS O IMPLICITAS. VOXIRA NO GARANTIZA QUE EL SERVICIO SERA ININTERRUMPIDO, SEGURO, LIBRE DE ERRORES O QUE CUMPLIRA SUS EXPECTATIVAS ESPECIFICAS.</p>
+          <p style={p}>EL SERVICIO SE PROPORCIONA &ldquo;TAL CUAL&rdquo; Y &ldquo;SEGUN DISPONIBILIDAD&rdquo;, SIN GARANTIAS DE NINGUN TIPO, YA SEAN EXPRESAS O IMPLICITAS. AFIRMIA NO GARANTIZA QUE EL SERVICIO SERA ININTERRUMPIDO, SEGURO, LIBRE DE ERRORES O QUE CUMPLIRA SUS EXPECTATIVAS ESPECIFICAS.</p>
 
           {/* 11 */}
           <h2 style={h2}>11. Limitacion de Responsabilidad</h2>
-          <p style={p}>EN LA MAXIMA MEDIDA PERMITIDA POR LA LEY APLICABLE, EN NINGUN CASO VOXIRA, SUS DIRECTORES, EMPLEADOS, SOCIOS O AFILIADOS SERAN RESPONSABLES POR DANOS INDIRECTOS, INCIDENTALES, ESPECIALES, CONSECUENTES O PUNITIVOS, INCLUYENDO PERO NO LIMITADO A PERDIDA DE DATOS, PERDIDA DE BENEFICIOS, DANO EMOCIONAL O INTERRUPCION DEL NEGOCIO.</p>
-          <p style={p}>La responsabilidad total acumulada de VOXIRA por cualquier reclamacion no excedera el mayor de: (a) el monto total pagado por usted a VOXIRA durante los 6 meses anteriores al evento que dio origen a la reclamacion, o (b) $100 USD.</p>
+          <p style={p}>EN LA MAXIMA MEDIDA PERMITIDA POR LA LEY APLICABLE, EN NINGUN CASO AFIRMIA, SUS DIRECTORES, EMPLEADOS, SOCIOS O AFILIADOS SERAN RESPONSABLES POR DANOS INDIRECTOS, INCIDENTALES, ESPECIALES, CONSECUENTES O PUNITIVOS, INCLUYENDO PERO NO LIMITADO A PERDIDA DE DATOS, PERDIDA DE BENEFICIOS, DANO EMOCIONAL O INTERRUPCION DEL NEGOCIO.</p>
+          <p style={p}>La responsabilidad total acumulada de AFIRMIA por cualquier reclamacion no excedera el mayor de: (a) el monto total pagado por usted a AFIRMIA durante los 6 meses anteriores al evento que dio origen a la reclamacion, o (b) $100 USD.</p>
 
           {/* 12 */}
           <h2 style={h2}>12. Indemnizacion</h2>
-          <p style={p}>Usted acepta indemnizar, defender y mantener indemne a VOXIRA y sus directores, empleados, agentes y afiliados de cualquier reclamacion, dano, perdida, responsabilidad o gasto (incluyendo honorarios legales razonables) que surjan de o esten relacionados con: su uso del Servicio, su violacion de estos Terminos, su violacion de cualquier derecho de terceros, o el contenido que usted genere o comparta a traves del Servicio.</p>
+          <p style={p}>Usted acepta indemnizar, defender y mantener indemne a AFIRMIA y sus directores, empleados, agentes y afiliados de cualquier reclamacion, dano, perdida, responsabilidad o gasto (incluyendo honorarios legales razonables) que surjan de o esten relacionados con: su uso del Servicio, su violacion de estos Terminos, su violacion de cualquier derecho de terceros, o el contenido que usted genere o comparta a traves del Servicio.</p>
 
           {/* 13 */}
           <h2 style={h2}>13. Resolucion de Disputas</h2>
@@ -122,7 +122,7 @@ export default function TermsPage() {
 
           {/* 14 */}
           <h2 style={h2}>14. Terminacion</h2>
-          <p style={p}>VOXIRA puede suspender o terminar su acceso al Servicio en cualquier momento, con o sin causa, incluyendo por violacion de estos Terminos. Usted puede cancelar su cuenta en cualquier momento desde la pagina de Configuracion. Tras la terminacion: sus datos personales seran eliminados conforme a nuestra Politica de Privacidad; los tracks generados en su cuenta seran eliminados de nuestros servidores; y las suscripciones activas seran canceladas sin reembolso del periodo en curso.</p>
+          <p style={p}>AFIRMIA puede suspender o terminar su acceso al Servicio en cualquier momento, con o sin causa, incluyendo por violacion de estos Terminos. Usted puede cancelar su cuenta en cualquier momento desde la pagina de Configuracion. Tras la terminacion: sus datos personales seran eliminados conforme a nuestra Politica de Privacidad; los tracks generados en su cuenta seran eliminados de nuestros servidores; y las suscripciones activas seran canceladas sin reembolso del periodo en curso.</p>
 
           {/* 15 */}
           <h2 style={h2}>15. Ley Aplicable y Jurisdiccion</h2>
@@ -131,20 +131,20 @@ export default function TermsPage() {
           {/* 16 */}
           <h2 style={h2}>16. Disposiciones Generales</h2>
           <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
-            <li style={li}><strong style={b}>Acuerdo completo:</strong> Estos Terminos, junto con la Politica de Privacidad, constituyen el acuerdo completo entre usted y VOXIRA.</li>
+            <li style={li}><strong style={b}>Acuerdo completo:</strong> Estos Terminos, junto con la Politica de Privacidad, constituyen el acuerdo completo entre usted y AFIRMIA.</li>
             <li style={li}><strong style={b}>Divisibilidad:</strong> Si alguna disposicion se considera invalida o inaplicable, las demas disposiciones permaneceran en pleno vigor.</li>
             <li style={li}><strong style={b}>Renuncia:</strong> La falta de ejercicio de cualquier derecho no constituye una renuncia al mismo.</li>
-            <li style={li}><strong style={b}>Cesion:</strong> Usted no puede ceder ni transferir estos Terminos sin el consentimiento previo por escrito de VOXIRA.</li>
-            <li style={li}><strong style={b}>Fuerza mayor:</strong> VOXIRA no sera responsable por retrasos o incumplimientos causados por eventos fuera de su control razonable.</li>
+            <li style={li}><strong style={b}>Cesion:</strong> Usted no puede ceder ni transferir estos Terminos sin el consentimiento previo por escrito de AFIRMIA.</li>
+            <li style={li}><strong style={b}>Fuerza mayor:</strong> AFIRMIA no sera responsable por retrasos o incumplimientos causados por eventos fuera de su control razonable.</li>
           </ul>
 
           {/* 17 */}
           <h2 style={h2}>17. Contacto</h2>
           <p style={p}>Para preguntas, comentarios o reclamaciones sobre estos Terminos de Servicio:</p>
-          <p style={p}>Email: <a href="mailto:contacto@voxira.app" style={link}>contacto@voxira.app</a><br/>VOXIRA · Tepic, Nayarit, Mexico</p>
+          <p style={p}>Email: <a href="mailto:contacto@afirmia.app" style={link}>contacto@afirmia.app</a><br/>AFIRMIA · Tepic, Nayarit, Mexico</p>
 
           <footer style={{ textAlign: 'center', marginTop: '64px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
-            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.12)', letterSpacing: '2px' }}>© 2026 VOXIRA. Todos los derechos reservados. Tepic, Nayarit, Mexico.</p>
+            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.12)', letterSpacing: '2px' }}>© 2026 AFIRMIA. Todos los derechos reservados. Tepic, Nayarit, Mexico.</p>
           </footer>
         </div>
       </div>

@@ -3,54 +3,12 @@
 import { useState, useRef, useEffect } from 'react';
 
 /* ══════════════════════════════════════════════════════════
-   VOXIRA LANDING PAGE — Production Build
+   AFIRMIA LANDING PAGE — Production Build
    Navy-blue palette matching dashboard V3
    ══════════════════════════════════════════════════════════ */
 
 function VoxiraLogo({ size = 200 }: { size?: number }) {
-  const xCenter = 128;
-  return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', height: size * 0.28 }}>
-      <svg viewBox="0 0 300 60" style={{ height: '100%', width: 'auto' }}>
-        <defs>
-          <radialGradient id="lf" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#fff" stopOpacity="0.95" />
-            <stop offset="15%" stopColor="#d4edff" stopOpacity="0.6" />
-            <stop offset="35%" stopColor="#4a9eff" stopOpacity="0.2" />
-            <stop offset="60%" stopColor="#4a9eff" stopOpacity="0.05" />
-            <stop offset="100%" stopColor="#4a9eff" stopOpacity="0" />
-          </radialGradient>
-          <linearGradient id="st" x1="0%" y1="50%" x2="100%" y2="50%">
-            <stop offset="0%" stopColor="#4a9eff" stopOpacity="0" />
-            <stop offset="35%" stopColor="#4a9eff" stopOpacity="0.25" />
-            <stop offset="50%" stopColor="#b0d8ff" stopOpacity="0.5" />
-            <stop offset="65%" stopColor="#4a9eff" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="#4a9eff" stopOpacity="0" />
-          </linearGradient>
-          <filter id="tg"><feGaussianBlur stdDeviation="1.8" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
-          <filter id="wg"><feGaussianBlur stdDeviation="1.2" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
-        </defs>
-        <rect x={xCenter - 90} y="27" width="180" height="6" fill="url(#st)" opacity="0.6"><animate attributeName="opacity" values="0.4;0.7;0.4" dur="4s" repeatCount="indefinite" /></rect>
-        <g filter="url(#wg)" opacity="0.5">
-          <path d={`M${xCenter - 40},30 Q${xCenter - 15},5 ${xCenter},30 Q${xCenter + 15},55 ${xCenter + 40},30`} fill="none" stroke="#4a9eff" strokeWidth="0.8" opacity="0.6"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" repeatCount="indefinite" /></path>
-          <path d={`M${xCenter - 48},30 Q${xCenter - 18},0 ${xCenter},30 Q${xCenter + 18},60 ${xCenter + 48},30`} fill="none" stroke="#4a9eff" strokeWidth="0.5" opacity="0.4"><animate attributeName="opacity" values="0.2;0.5;0.2" dur="3.5s" repeatCount="indefinite" /></path>
-          <path d={`M${xCenter - 30},30 Q${xCenter - 12},10 ${xCenter},30 Q${xCenter + 12},50 ${xCenter + 30},30`} fill="none" stroke="#6db8ff" strokeWidth="0.6" opacity="0.5"><animate attributeName="opacity" values="0.4;0.6;0.4" dur="2.5s" repeatCount="indefinite" /></path>
-          <path d={`M${xCenter - 40},30 Q${xCenter - 15},55 ${xCenter},30 Q${xCenter + 15},5 ${xCenter + 40},30`} fill="none" stroke="#4a9eff" strokeWidth="0.8" opacity="0.6"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="3.2s" repeatCount="indefinite" begin="0.5s" /></path>
-          <path d={`M${xCenter - 48},30 Q${xCenter - 18},60 ${xCenter},30 Q${xCenter + 18},0 ${xCenter + 48},30`} fill="none" stroke="#4a9eff" strokeWidth="0.5" opacity="0.4"><animate attributeName="opacity" values="0.2;0.5;0.2" dur="3.8s" repeatCount="indefinite" begin="0.3s" /></path>
-          <path d={`M${xCenter - 30},30 Q${xCenter - 12},50 ${xCenter},30 Q${xCenter + 12},10 ${xCenter + 30},30`} fill="none" stroke="#6db8ff" strokeWidth="0.6" opacity="0.5"><animate attributeName="opacity" values="0.4;0.6;0.4" dur="2.8s" repeatCount="indefinite" begin="0.7s" /></path>
-        </g>
-        <circle cx={xCenter} cy="30" r="20" fill="url(#lf)"><animate attributeName="r" values="18;22;18" dur="4s" repeatCount="indefinite" /></circle>
-        <circle cx={xCenter} cy="30" r="3.5" fill="white" opacity="0.9"><animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite" /></circle>
-        <circle cx={xCenter} cy="30" r="10" fill="none" stroke="rgba(180,220,255,0.15)" strokeWidth="0.5"><animate attributeName="r" values="8;12;8" dur="4s" repeatCount="indefinite" /></circle>
-        <text x="18" y="43" fontFamily="'Outfit',sans-serif" fontWeight="300" fontSize="36" fill="white" filter="url(#tg)">V</text>
-        <text x="62" y="43" fontFamily="'Outfit',sans-serif" fontWeight="300" fontSize="36" fill="white" filter="url(#tg)">O</text>
-        <text x={xCenter} y="43" fontFamily="'Outfit',sans-serif" fontWeight="300" fontSize="36" fill="white" filter="url(#tg)" textAnchor="middle" opacity="0.95">X</text>
-        <text x="168" y="43" fontFamily="'Outfit',sans-serif" fontWeight="300" fontSize="36" fill="white" filter="url(#tg)">I</text>
-        <text x="196" y="43" fontFamily="'Outfit',sans-serif" fontWeight="300" fontSize="36" fill="white" filter="url(#tg)">R</text>
-        <text x="240" y="43" fontFamily="'Outfit',sans-serif" fontWeight="300" fontSize="36" fill="white" filter="url(#tg)">A</text>
-      </svg>
-    </div>
-  );
+  return (<div style={{display:'inline-flex',alignItems:'center',height:size*0.28}}><img src="/afirmia_256.png" alt="AFIRMIA" style={{height:'100%',width:'auto'}} /></div>);
 }
 
 function ParticleField() {
@@ -320,7 +278,7 @@ export default function LandingPage() {
             <div style={{ textAlign: 'center', marginBottom: '64px' }}>
               <p style={{ fontSize: '11px', color: 'rgba(201,168,76,0.6)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '12px' }}>{L('three steps', 'tres pasos')}</p>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', fontWeight: 400, margin: 0 }}>
-                {L('How ', 'Como funciona ')}<span style={{ fontStyle: 'italic', color: '#c9a84c', fontWeight: 600 }}>VOXIRA</span>{lang === 'en' ? ' works' : ''}
+                {L('How ', 'Como funciona ')}<span style={{ fontStyle: 'italic', color: '#c9a84c', fontWeight: 600 }}>AFIRMIA</span>{lang === 'en' ? ' works' : ''}
               </h2>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
@@ -450,7 +408,7 @@ export default function LandingPage() {
               <a href="#" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontSize: '12px' }}>{L('Privacy', 'Privacidad')}</a>
               <a href="#" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontSize: '12px' }}>{L('Contact', 'Contacto')}</a>
             </div>
-            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.1)', marginTop: '16px', letterSpacing: '2px' }}>© 2026 VOXIRA · Powered by ElevenLabs & OpenAI</p>
+            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.1)', marginTop: '16px', letterSpacing: '2px' }}>© 2026 AFIRMIA · Powered by AI</p>
           </footer>
         </div>
       </div>

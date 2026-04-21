@@ -25,8 +25,8 @@ export default function LoginPage() {
         <div style={{position:'absolute',width:'600px',height:'600px',borderRadius:'50%',bottom:'-200px',left:'-150px',background:'radial-gradient(circle,rgba(201,168,76,0.04),transparent 70%)',animation:'orbFloat 22s ease-in-out infinite reverse',pointerEvents:'none'}}/>
         <div style={{position:'relative',zIndex:1,maxWidth:'440px',width:'100%',padding:'0 24px'}}>
           <div style={{textAlign:'center',marginBottom:'48px'}}>
-            <h1 style={{fontFamily:"'Outfit',sans-serif",fontSize:'42px',fontWeight:300,color:'#fff',letterSpacing:'18px',margin:0}}>VOXIRA</h1>
-            <p style={{fontSize:'13px',color:'rgba(201,168,76,0.6)',letterSpacing:'3px',textTransform:'uppercase',marginTop:'12px'}}>Personal Mindset Frequencies</p>
+            <img src="/afirmia_256.png" alt="AFIRMIA" style={{width:'180px',height:'auto',margin:'0 auto 12px',display:'block'}} />
+            <p style={{fontSize:'13px',color:'rgba(201,168,76,0.6)',letterSpacing:'3px',textTransform:'uppercase',marginTop:'12px'}}>Subconscious Reprogramming</p>
           </div>
           <div style={{background:'linear-gradient(160deg,rgba(12,26,46,0.85),rgba(8,16,32,0.95))',border:'1px solid rgba(61,142,207,0.08)',borderRadius:'24px',padding:'48px 40px',backdropFilter:'blur(24px)',position:'relative',overflow:'hidden'}}>
             <div style={{position:'absolute',top:0,left:'15%',right:'15%',height:'1px',background:'linear-gradient(90deg,transparent,rgba(201,168,76,0.25),transparent)'}}/>

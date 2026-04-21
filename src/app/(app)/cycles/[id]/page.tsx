@@ -453,7 +453,7 @@ export default function CycleDetailPage() {
               </div>
               {/* Shareable card */}
               <div id="share-card" style={{ background: 'linear-gradient(160deg, #0b1121, #0d1526)', border: '1px solid rgba(201,168,76,0.15)', borderRadius: '14px', padding: '24px', margin: '0 auto', maxWidth: '340px', textAlign: 'center' }}>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '14px', color: 'rgba(255,255,255,0.3)', letterSpacing: '6px', marginBottom: '12px' }}>VOXIRA</div>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '14px', color: 'rgba(255,255,255,0.3)', letterSpacing: '6px', marginBottom: '12px' }}>AFIRMIA</div>
                 <div style={{ fontSize: '13px', color: '#22c55e', fontWeight: 600, marginBottom: '8px' }}>✓ 21 dias completados</div>
                 <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', fontStyle: 'italic', margin: '0 0 10px 0', lineHeight: 1.5 }}>&ldquo;{cycle.intention}&rdquo;</p>
                 <span style={{ fontSize: '11px', color, fontWeight: 600 }}>{cycle.frequency}Hz — {FN[cycle.frequency] || ''}</span>

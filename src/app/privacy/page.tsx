@@ -11,7 +11,7 @@ export default function PrivacyPage() {
       <div style={{ background: '#0b1121', minHeight: '100vh', padding: '32px 24px', fontFamily: "'Outfit', sans-serif" }}>
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '48px' }}>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '18px', fontWeight: 300, color: '#fff', letterSpacing: '8px' }}>VOXIRA</div>
+            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '18px', fontWeight: 300, color: '#fff', letterSpacing: '8px' }}>AFIRMIA</div>
             <a href="/" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>← Volver</a>
           </div>
 
@@ -60,7 +60,7 @@ export default function PrivacyPage() {
 
           {/* 4 */}
           <h2 style={h2}>4. Cookies</h2>
-          <p style={p}>VOXIRA utiliza exclusivamente <strong style={b}>cookies esenciales</strong> para:</p>
+          <p style={p}>AFIRMIA utiliza exclusivamente <strong style={b}>cookies esenciales</strong> para:</p>
           <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
             <li style={li}>Autenticacion de sesion (Supabase Auth / tokens JWT).</li>
             <li style={li}>Preferencias de idioma (localStorage, no cookies de terceros).</li>
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
           {/* 5 */}
           <h2 style={h2}>5. Como Compartimos su Informacion</h2>
           <p style={p}><strong style={{ color: '#22c55e' }}>NO vendemos, alquilamos ni comercializamos sus datos personales.</strong></p>
-          <p style={p}>Compartimos datos exclusivamente con los siguientes proveedores de servicio, estrictamente necesarios para el funcionamiento de VOXIRA:</p>
+          <p style={p}>Compartimos datos exclusivamente con los siguientes proveedores de servicio, estrictamente necesarios para el funcionamiento de AFIRMIA:</p>
           <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
             <li style={li}><strong style={b}>Supabase</strong> (EE.UU.) — Base de datos, autenticacion y almacenamiento de archivos.</li>
             <li style={li}><strong style={b}>Google</strong> (EE.UU.) — Autenticacion OAuth para inicio de sesion.</li>
@@ -112,11 +112,11 @@ export default function PrivacyPage() {
 
           {/* 9 */}
           <h2 style={h2}>9. Pagos</h2>
-          <p style={p}>Los pagos de suscripcion son procesados por <strong style={b}>Stripe</strong>. VOXIRA no almacena, procesa ni tiene acceso a datos de tarjetas de credito o debito. Toda la informacion financiera es gestionada directamente por Stripe conforme a sus propias politicas de privacidad y el estandar PCI DSS.</p>
+          <p style={p}>Los pagos de suscripcion son procesados por <strong style={b}>Stripe</strong>. AFIRMIA no almacena, procesa ni tiene acceso a datos de tarjetas de credito o debito. Toda la informacion financiera es gestionada directamente por Stripe conforme a sus propias politicas de privacidad y el estandar PCI DSS.</p>
 
           {/* 10 */}
           <h2 style={h2}>10. Menores de Edad</h2>
-          <p style={p}>VOXIRA esta dirigido exclusivamente a personas mayores de 18 anos. No recopilamos conscientemente informacion de menores de edad. Si descubrimos que hemos recopilado datos de un menor, los eliminaremos inmediatamente y cerraremos la cuenta asociada.</p>
+          <p style={p}>AFIRMIA esta dirigido exclusivamente a personas mayores de 18 anos. No recopilamos conscientemente informacion de menores de edad. Si descubrimos que hemos recopilado datos de un menor, los eliminaremos inmediatamente y cerraremos la cuenta asociada.</p>
 
           {/* 11 */}
           <h2 style={h2}>11. Cambios a este Aviso</h2>
@@ -124,7 +124,7 @@ export default function PrivacyPage() {
 
           {/* 12 */}
           <h2 style={h2}>12. Contacto</h2>
-          <p style={p}>Para preguntas sobre privacidad o para ejercer sus derechos:<br/>Email: <a href="mailto:contacto@voxira.app" style={link}>contacto@voxira.app</a><br/>VOXIRA · Tepic, Nayarit, Mexico</p>
+          <p style={p}>Para preguntas sobre privacidad o para ejercer sus derechos:<br/>Email: <a href="mailto:contacto@afirmia.app" style={link}>contacto@afirmia.app</a><br/>AFIRMIA · Tepic, Nayarit, Mexico</p>
 
           {/* ═══════════════════════════════════════════════════ */}
           {/* PARTE 2 — AVISO DE PRIVACIDAD INTEGRAL (LFPDPPP)  */}
@@ -138,7 +138,7 @@ export default function PrivacyPage() {
 
           {/* I.1 */}
           <h2 style={h2}>I. Identidad del Responsable</h2>
-          <p style={p}>VOXIRA, con domicilio en Tepic, Nayarit, Mexico, es responsable del tratamiento de sus datos personales. Para cualquier asunto relacionado con el tratamiento de sus datos, puede contactarnos en: <a href="mailto:contacto@voxira.app" style={link}>contacto@voxira.app</a></p>
+          <p style={p}>AFIRMIA, con domicilio en Tepic, Nayarit, Mexico, es responsable del tratamiento de sus datos personales. Para cualquier asunto relacionado con el tratamiento de sus datos, puede contactarnos en: <a href="mailto:contacto@afirmia.app" style={link}>contacto@afirmia.app</a></p>
 
           {/* I.2 */}
           <h2 style={h2}>II. Datos Personales Recabados</h2>
@@ -172,7 +172,7 @@ export default function PrivacyPage() {
             <li style={li}>Personalizar su experiencia basandose en sus preferencias y progreso.</li>
             <li style={li}>Entrenar y mejorar modelos de inteligencia artificial con datos anonimizados.</li>
           </ul>
-          <p style={p}>Si desea oponerse al tratamiento de sus datos para finalidades secundarias, envie un correo a <a href="mailto:contacto@voxira.app" style={link}>contacto@voxira.app</a> con el asunto &ldquo;Opt-out finalidades secundarias&rdquo;.</p>
+          <p style={p}>Si desea oponerse al tratamiento de sus datos para finalidades secundarias, envie un correo a <a href="mailto:contacto@afirmia.app" style={link}>contacto@afirmia.app</a> con el asunto &ldquo;Opt-out finalidades secundarias&rdquo;.</p>
 
           {/* I.4 */}
           <h2 style={h2}>IV. Transferencias Internacionales</h2>
@@ -193,7 +193,7 @@ export default function PrivacyPage() {
               </div>
             ))}
           </div>
-          <p style={p}>Al utilizar VOXIRA, usted otorga su consentimiento expreso para estas transferencias internacionales, las cuales se realizan con medidas de seguridad adecuadas conforme a la normativa aplicable.</p>
+          <p style={p}>Al utilizar AFIRMIA, usted otorga su consentimiento expreso para estas transferencias internacionales, las cuales se realizan con medidas de seguridad adecuadas conforme a la normativa aplicable.</p>
 
           {/* I.5 */}
           <h2 style={h2}>V. Derechos ARCO</h2>
@@ -205,10 +205,10 @@ export default function PrivacyPage() {
             <li style={li}><strong style={b}>Oponerse</strong> al tratamiento de sus datos para finalidades especificas.</li>
           </ul>
           <h3 style={h3}>Procedimiento para ejercer derechos ARCO:</h3>
-          <p style={p}>Envie una solicitud a <a href="mailto:contacto@voxira.app" style={link}>contacto@voxira.app</a> con la siguiente informacion:</p>
+          <p style={p}>Envie una solicitud a <a href="mailto:contacto@afirmia.app" style={link}>contacto@afirmia.app</a> con la siguiente informacion:</p>
           <ul style={{ paddingLeft: '20px', margin: '0 0 14px' }}>
             <li style={li}>Nombre completo del titular.</li>
-            <li style={li}>Correo electronico asociado a su cuenta de VOXIRA.</li>
+            <li style={li}>Correo electronico asociado a su cuenta de AFIRMIA.</li>
             <li style={li}>Descripcion clara de los datos personales respecto de los cuales busca ejercer sus derechos.</li>
             <li style={li}>Derecho ARCO que desea ejercer y la razon.</li>
             <li style={li}>Copia de identificacion oficial vigente.</li>
@@ -217,7 +217,7 @@ export default function PrivacyPage() {
 
           {/* I.6 */}
           <h2 style={h2}>VI. Revocacion del Consentimiento</h2>
-          <p style={p}>Usted puede revocar su consentimiento para el tratamiento de sus datos personales en cualquier momento mediante: eliminacion de su cuenta desde la pagina de Configuracion (revocacion total), o solicitud escrita a <a href="mailto:contacto@voxira.app" style={link}>contacto@voxira.app</a> especificando el alcance de la revocacion.</p>
+          <p style={p}>Usted puede revocar su consentimiento para el tratamiento de sus datos personales en cualquier momento mediante: eliminacion de su cuenta desde la pagina de Configuracion (revocacion total), o solicitud escrita a <a href="mailto:contacto@afirmia.app" style={link}>contacto@afirmia.app</a> especificando el alcance de la revocacion.</p>
           <p style={p}>Tenga en cuenta que la revocacion del consentimiento para finalidades primarias puede resultar en la imposibilidad de continuar proporcionando el Servicio.</p>
 
           {/* I.7 */}
@@ -230,16 +230,16 @@ export default function PrivacyPage() {
 
           {/* I.9 */}
           <h2 style={h2}>IX. Modificaciones al Aviso</h2>
-          <p style={p}>VOXIRA se reserva el derecho de modificar el presente Aviso de Privacidad en cualquier momento. Las modificaciones seran notificadas por correo electronico y/o mediante un aviso en la aplicacion al menos 15 dias antes de su entrada en vigor. La version vigente estara siempre disponible en <a href="/privacy" style={link}>voxira.app/privacy</a>.</p>
+          <p style={p}>AFIRMIA se reserva el derecho de modificar el presente Aviso de Privacidad en cualquier momento. Las modificaciones seran notificadas por correo electronico y/o mediante un aviso en la aplicacion al menos 15 dias antes de su entrada en vigor. La version vigente estara siempre disponible en <a href="/privacy" style={link}>afirmia.app/privacy</a>.</p>
 
           {/* I.10 */}
           <h2 style={h2}>X. Consentimiento</h2>
           <div style={{ background: 'rgba(201,168,76,0.03)', border: '1px solid rgba(201,168,76,0.08)', borderRadius: '12px', padding: '20px', margin: '0 0 14px' }}>
-            <p style={{ ...p, color: 'rgba(255,255,255,0.6)', margin: 0 }}>Al registrarse y utilizar VOXIRA, usted manifiesta que ha leido y comprendido este Aviso de Privacidad y otorga su <strong style={b}>consentimiento expreso</strong> para el tratamiento de sus datos personales, incluyendo <strong style={b}>datos personales sensibles</strong> (datos biometricos de voz y datos de bienestar emocional), conforme a lo descrito en el presente documento.</p>
+            <p style={{ ...p, color: 'rgba(255,255,255,0.6)', margin: 0 }}>Al registrarse y utilizar AFIRMIA, usted manifiesta que ha leido y comprendido este Aviso de Privacidad y otorga su <strong style={b}>consentimiento expreso</strong> para el tratamiento de sus datos personales, incluyendo <strong style={b}>datos personales sensibles</strong> (datos biometricos de voz y datos de bienestar emocional), conforme a lo descrito en el presente documento.</p>
           </div>
 
           <footer style={{ textAlign: 'center', marginTop: '64px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
-            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.12)', letterSpacing: '2px' }}>© 2026 VOXIRA. Todos los derechos reservados. Tepic, Nayarit, Mexico.</p>
+            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.12)', letterSpacing: '2px' }}>© 2026 AFIRMIA. Todos los derechos reservados. Tepic, Nayarit, Mexico.</p>
           </footer>
         </div>
       </div>

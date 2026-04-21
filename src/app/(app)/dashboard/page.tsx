@@ -333,7 +333,7 @@ function DashboardContent() {
           {generatedAudio ? (
           <div style={{display:'flex',justifyContent:'center',gap:'12px',flexWrap:'wrap'}}>
             <a href="/library" style={{background:'linear-gradient(135deg,#c9a84c,#dbb960)',color:'#0a0e1a',textDecoration:'none',borderRadius:'12px',padding:'16px 32px',fontSize:'14px',fontWeight:500,fontFamily:"'Outfit',sans-serif"}}>{t(lang,'Go to Library','Ir a Biblioteca')}</a>
-            <button onClick={()=>{const a=document.createElement('a');a.href=`data:audio/mp3;base64,${generatedAudio}`;a.download=`voxira-${selectedFrequency?.hz||528}hz-${selectedDuration}min.mp3`;a.click();}} style={{background:'transparent',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'12px',padding:'16px 32px',fontSize:'14px',fontWeight:500,color:'rgba(255,255,255,0.5)',cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>{t(lang,'Download','Descargar')}</button>
+            <button onClick={()=>{const a=document.createElement('a');a.href=`data:audio/mp3;base64,${generatedAudio}`;a.download=`afirmia-${selectedFrequency?.hz||528}hz-${selectedDuration}min.mp3`;a.click();}} style={{background:'transparent',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'12px',padding:'16px 32px',fontSize:'14px',fontWeight:500,color:'rgba(255,255,255,0.5)',cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>{t(lang,'Download','Descargar')}</button>
             <button onClick={()=>{setGeneratedAudio(null);setStatusMessage('');setAffirmations([]);setStep(1);setGoal('');setSelectedFrequency(null);setHasRecording(false);setAudioBlob(null);setRecordingTime(0);}} style={{background:'transparent',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'12px',padding:'16px 32px',fontSize:'14px',fontWeight:500,color:'rgba(255,255,255,0.5)',cursor:'pointer',fontFamily:"'Outfit',sans-serif"}}>{t(lang,'Generate Another','Generar otro')}</button>
           </div>
           ) : (
@@ -346,7 +346,7 @@ function DashboardContent() {
           )}
           </div></div></div>)}
 
-          <footer style={{textAlign:'center',marginTop:'56px',paddingBottom:'32px'}}><p style={{fontSize:'11px',color:'rgba(255,255,255,0.12)',letterSpacing:'2px'}}>© 2026 V O X I R A</p></footer>
+          <footer style={{textAlign:'center',marginTop:'56px',paddingBottom:'32px'}}><p style={{fontSize:'11px',color:'rgba(255,255,255,0.12)',letterSpacing:'2px'}}>© 2026 A F I R M I A</p></footer>
         </div>
       </div>
       <style>{`

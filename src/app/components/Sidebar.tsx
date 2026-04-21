@@ -95,16 +95,7 @@ function SidebarContent() {
     }}>
       {/* Logo */}
       <a href="/dashboard" style={{ textDecoration: 'none', padding: '0 24px', marginBottom: 40 }}>
-        <div style={{
-          fontFamily: "'Cormorant Garamond', serif",
-          fontSize: 18,
-          fontWeight: 300,
-          color: '#fff',
-          letterSpacing: 10,
-          textAlign: 'center',
-        }}>
-          VOXIRA
-        </div>
+        <img src="/afirmia_128.png" alt="AFIRMIA" style={{width:'100%',maxWidth:'140px',height:'auto',display:'block',margin:'0 auto 8px'}} />
         <div style={{
           height: 1,
           marginTop: 16,
