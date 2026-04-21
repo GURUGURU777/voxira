@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
+import { t, type Lang } from '@/lib/i18n';
 
 type BillingCycle = 'monthly' | 'yearly';
 type PlanId = 'free' | 'pro' | 'premium';
@@ -17,58 +19,66 @@ interface Plan {
   highlighted?: boolean;
 }
 
-const PLANS: Plan[] = [
-  {
-    id: 'free',
-    name: 'Free',
-    priceMonthly: 0,
-    priceYearly: 0,
-    tagline: 'Prueba la reprogramacion mental',
-    features: [
-      '3 audios por mes',
-      'Duracion maxima: 5 minutos',
-      '2 frecuencias Solfeggio (528, 396)',
-      'Sin sonidos ambientales',
-      'Sin ciclos de 21 dias',
-    ],
-    cta: 'Tu plan actual',
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    priceMonthly: 9.99,
-    priceYearly: 7.99,
-    tagline: 'Para transformaciones profundas',
-    features: [
-      '20 audios por mes',
-      'Duracion maxima: 15 minutos',
-      'Las 7 frecuencias Solfeggio',
-      'Los 5 sonidos ambientales',
-      '1 ciclo de 21 dias activo',
-      'Descargas ilimitadas',
-    ],
-    cta: 'Upgrade a Pro',
-    highlighted: true,
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    priceMonthly: 19.99,
-    priceYearly: 15.99,
-    tagline: 'Sin limites, maximo poder',
-    features: [
-      'Audios ilimitados',
-      'Duracion maxima: 30 minutos',
-      'Ciclos de 21 dias ilimitados',
-      'Estadisticas avanzadas',
-      'Soporte prioritario',
-      'Acceso anticipado a nuevas features',
-    ],
-    cta: 'Upgrade a Premium',
-  },
-];
-
 export default function PricingPage() {
+  return <Suspense fallback={null}><PricingContent /></Suspense>;
+}
+
+function PricingContent() {
+  const searchParams = useSearchParams();
+  const paramLang = searchParams?.get('lang');
+  const lang: Lang = paramLang === 'es' ? 'es' : 'en';
+
+  const PLANS: Plan[] = [
+    {
+      id: 'free',
+      name: 'Free',
+      priceMonthly: 0,
+      priceYearly: 0,
+      tagline: t(lang, 'Try mental reprogramming', 'Prueba la reprogramacion mental'),
+      features: [
+        t(lang, '3 audios per month', '3 audios por mes'),
+        t(lang, 'Max duration: 5 minutes', 'Duracion maxima: 5 minutos'),
+        t(lang, '2 Solfeggio frequencies (528, 396)', '2 frecuencias Solfeggio (528, 396)'),
+        t(lang, 'No ambient sounds', 'Sin sonidos ambientales'),
+        t(lang, 'No 21-day cycles', 'Sin ciclos de 21 dias'),
+      ],
+      cta: t(lang, 'Your current plan', 'Tu plan actual'),
+    },
+    {
+      id: 'pro',
+      name: 'Pro',
+      priceMonthly: 9.99,
+      priceYearly: 7.99,
+      tagline: t(lang, 'For deep transformations', 'Para transformaciones profundas'),
+      features: [
+        t(lang, '20 audios per month', '20 audios por mes'),
+        t(lang, 'Max duration: 15 minutes', 'Duracion maxima: 15 minutos'),
+        t(lang, 'All 7 Solfeggio frequencies', 'Las 7 frecuencias Solfeggio'),
+        t(lang, 'All 5 ambient sounds', 'Los 5 sonidos ambientales'),
+        t(lang, '1 active 21-day cycle', '1 ciclo de 21 dias activo'),
+        t(lang, 'Unlimited downloads', 'Descargas ilimitadas'),
+      ],
+      cta: t(lang, 'Upgrade to Pro', 'Upgrade a Pro'),
+      highlighted: true,
+    },
+    {
+      id: 'premium',
+      name: 'Premium',
+      priceMonthly: 19.99,
+      priceYearly: 15.99,
+      tagline: t(lang, 'No limits, maximum power', 'Sin limites, maximo poder'),
+      features: [
+        t(lang, 'Unlimited audios', 'Audios ilimitados'),
+        t(lang, 'Max duration: 30 minutes', 'Duracion maxima: 30 minutos'),
+        t(lang, 'Unlimited 21-day cycles', 'Ciclos de 21 dias ilimitados'),
+        t(lang, 'Advanced statistics', 'Estadisticas avanzadas'),
+        t(lang, 'Priority support', 'Soporte prioritario'),
+        t(lang, 'Early access to new features', 'Acceso anticipado a nuevas features'),
+      ],
+      cta: t(lang, 'Upgrade to Premium', 'Upgrade a Premium'),
+    },
+  ];
+
   const [cycle, setCycle] = useState<BillingCycle>('monthly');
   const [userPlan, setUserPlan] = useState<string>('free');
   const [modalOpen, setModalOpen] = useState(false);
@@ -123,10 +133,10 @@ export default function PricingPage() {
           marginBottom: 12,
           letterSpacing: '-0.02em',
         }}>
-          Elige tu <em style={{ color: '#c9a84c', fontStyle: 'italic' }}>viaje</em>
+          {t(lang, 'Choose your', 'Elige tu')} <em style={{ color: '#c9a84c', fontStyle: 'italic' }}>{t(lang, 'journey', 'viaje')}</em>
         </h1>
         <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 16, maxWidth: 540, margin: '0 auto' }}>
-          Reprograma tu mente al ritmo que quieras. Cancela cuando quieras.
+          {t(lang, 'Reprogram your mind at your own pace. Cancel anytime.', 'Reprograma tu mente al ritmo que quieras. Cancela cuando quieras.')}
         </p>
       </div>
 
@@ -156,7 +166,7 @@ export default function PricingPage() {
                 transition: 'all 0.2s',
               }}
             >
-              {c === 'monthly' ? 'Mensual' : 'Anual · ahorra 20%'}
+              {c === 'monthly' ? t(lang, 'Monthly', 'Mensual') : t(lang, 'Yearly · save 20%', 'Anual · ahorra 20%')}
             </button>
           ))}
         </div>
@@ -202,7 +212,7 @@ export default function PricingPage() {
                   letterSpacing: 1.5,
                   textTransform: 'uppercase',
                 }}>
-                  Mas popular
+                  {t(lang, 'Most popular', 'Mas popular')}
                 </div>
               )}
 
@@ -219,7 +229,7 @@ export default function PricingPage() {
                 </span>
                 {!isFree && (
                   <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14, marginLeft: 6 }}>
-                    USD /{cycle === 'monthly' ? 'mes' : 'mes · facturado anual'}
+                    USD /{cycle === 'monthly' ? t(lang, 'mo', 'mes') : t(lang, 'mo · billed yearly', 'mes · facturado anual')}
                   </span>
                 )}
               </div>
@@ -251,7 +261,7 @@ export default function PricingPage() {
                   transition: 'all 0.2s',
                 }}
               >
-                {isCurrent ? 'Tu plan actual' : plan.cta}
+                {isCurrent ? t(lang, 'Your current plan', 'Tu plan actual') : plan.cta}
               </button>
             </div>
           );
@@ -260,8 +270,8 @@ export default function PricingPage() {
 
       {/* FAQ mini */}
       <div style={{ marginTop: 80, textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontSize: 13, maxWidth: 540, margin: '80px auto 0' }}>
-        <p style={{ marginBottom: 8 }}>Pagos seguros · Cancela en cualquier momento</p>
-        <p>Todos los precios en USD. Impuestos aplicables segun tu pais.</p>
+        <p style={{ marginBottom: 8 }}>{t(lang, 'Secure payments · Cancel anytime', 'Pagos seguros · Cancela en cualquier momento')}</p>
+        <p>{t(lang, 'All prices in USD. Applicable taxes based on your country.', 'Todos los precios en USD. Impuestos aplicables segun tu pais.')}</p>
       </div>
 
       {/* Modal Waitlist */}
@@ -283,19 +293,19 @@ export default function PricingPage() {
             {!submitted ? (
               <>
                 <div style={{ fontSize: 11, color: 'rgba(201,168,76,0.7)', letterSpacing: 2, textTransform: 'uppercase', fontWeight: 700, marginBottom: 16 }}>
-                  Proximamente
+                  {t(lang, 'Coming soon', 'Proximamente')}
                 </div>
                 <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: '#fff', fontWeight: 400, marginBottom: 12 }}>
-                  Estamos finalizando los pagos
+                  {t(lang, 'We are finalizing payments', 'Estamos finalizando los pagos')}
                 </h2>
                 <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
-                  Dejanos tu correo y te avisamos en cuanto {selectedPlan === 'pro' ? 'Pro' : 'Premium'} este disponible. Los primeros en la lista reciben descuento de lanzamiento.
+                  {t(lang, `Leave your email and we'll notify you as soon as ${selectedPlan === 'pro' ? 'Pro' : 'Premium'} is available. First on the list get a launch discount.`, `Dejanos tu correo y te avisamos en cuanto ${selectedPlan === 'pro' ? 'Pro' : 'Premium'} este disponible. Los primeros en la lista reciben descuento de lanzamiento.`)}
                 </p>
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="tu@correo.com"
+                  placeholder={t(lang, 'your@email.com', 'tu@correo.com')}
                   style={{
                     width: '100%', padding: '14px 16px', borderRadius: 12,
                     border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)',
@@ -312,23 +322,23 @@ export default function PricingPage() {
                     opacity: submitting || !email ? 0.5 : 1,
                   }}
                 >
-                  {submitting ? 'Enviando...' : 'Avisarme cuando este listo'}
+                  {submitting ? t(lang, 'Sending...', 'Enviando...') : t(lang, 'Notify me when ready', 'Avisarme cuando este listo')}
                 </button>
                 <button
                   onClick={() => setModalOpen(false)}
                   style={{ marginTop: 12, background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer' }}
                 >
-                  Cerrar
+                  {t(lang, 'Close', 'Cerrar')}
                 </button>
               </>
             ) : (
               <>
                 <div style={{ fontSize: 48, marginBottom: 16 }}>&#10024;</div>
                 <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: '#fff', fontWeight: 400, marginBottom: 12 }}>
-                  Estas en la lista
+                  {t(lang, 'You are on the list', 'Estas en la lista')}
                 </h2>
                 <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
-                  Te avisaremos a {email} en cuanto los pagos esten listos. Gracias por tu interes.
+                  {t(lang, `We'll notify you at ${email} as soon as payments are ready. Thanks for your interest.`, `Te avisaremos a ${email} en cuanto los pagos esten listos. Gracias por tu interes.`)}
                 </p>
                 <button
                   onClick={() => setModalOpen(false)}
@@ -337,7 +347,7 @@ export default function PricingPage() {
                     background: 'transparent', color: '#c9a84c', fontSize: 14, fontWeight: 600, cursor: 'pointer',
                   }}
                 >
-                  Cerrar
+                  {t(lang, 'Close', 'Cerrar')}
                 </button>
               </>
             )}
