@@ -95,7 +95,18 @@ function SidebarContent() {
     }}>
       {/* Logo */}
       <a href="/dashboard" style={{ textDecoration: 'none', padding: '0 24px', marginBottom: 40 }}>
-        <img src="/afirmia_128.png" alt="AFIRMIA" style={{width:'100%',maxWidth:'140px',height:'auto',display:'block',margin:'0 auto 8px'}} />
+        <div style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: '20px',
+          fontWeight: 300,
+          letterSpacing: '8px',
+          color: '#fff',
+          textAlign: 'center',
+          padding: '20px 0',
+          marginBottom: '8px'
+        }}>
+          AFIRMIA
+        </div>
         <div style={{
           height: 1,
           marginTop: 16,

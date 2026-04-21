@@ -8,7 +8,7 @@ import { useState, useRef, useEffect } from 'react';
    ══════════════════════════════════════════════════════════ */
 
 function VoxiraLogo({ size = 200 }: { size?: number }) {
-  return (<div style={{display:'inline-flex',alignItems:'center',height:size*0.28}}><img src="/afirmia_256.png" alt="AFIRMIA" style={{height:'100%',width:'auto'}} /></div>);
+  return (<div style={{display:'inline-flex',alignItems:'center',height:size*0.36}}><img src="/afirmia_256.png" alt="AFIRMIA" style={{height:'100%',width:'auto',filter:'brightness(1.1) contrast(1.05)'}} /></div>);
 }
 
 function ParticleField() {

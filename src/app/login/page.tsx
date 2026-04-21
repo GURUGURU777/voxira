@@ -41,7 +41,7 @@ export default function LoginPage() {
             {error && <p style={{fontSize:'13px',color:'#ef4444',textAlign:'center',margin:'0 0 16px 0'}}>Error: {error}</p>}
             <p style={{fontSize:'11px',color:'rgba(255,255,255,0.25)',textAlign:'center',lineHeight:1.6,margin:0}}>By continuing, you consent to AI voice cloning for personal use. Your voice data can be deleted anytime.</p>
           </div>
-          <p style={{textAlign:'center',marginTop:'32px',fontSize:'11px',color:'rgba(255,255,255,0.12)',letterSpacing:'2px'}}>© 2026 V O X I R A</p>
+          <p style={{textAlign:'center',marginTop:'32px',fontSize:'11px',color:'rgba(255,255,255,0.12)',letterSpacing:'2px'}}>© 2026 A F I R M I A</p>
         </div>
         <style>{`
           @keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-25px) scale(1.05)}66%{transform:translate(-25px,18px) scale(0.95)}}
