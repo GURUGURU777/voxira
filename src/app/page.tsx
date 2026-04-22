@@ -7,8 +7,8 @@ import { useState, useRef, useEffect } from 'react';
    Navy-blue palette matching dashboard V3
    ══════════════════════════════════════════════════════════ */
 
-function VoxiraLogo({ size = 200 }: { size?: number }) {
-  return (<div style={{display:'inline-flex',alignItems:'center',height:size*0.36}}><img src="/afirmia_256.png" alt="AFIRMIA" style={{height:'100%',width:'auto',filter:'brightness(1.1) contrast(1.05)'}} /></div>);
+function VoxiraLogo() {
+  return (<div style={{display:'inline-flex',alignItems:'center'}}><img src="/afirmia_white_512.png" alt="AFIRMIA" style={{height:'120px',width:'auto',display:'block'}} /></div>);
 }
 
 function ParticleField() {
@@ -175,7 +175,7 @@ export default function LandingPage() {
 
         {/* NAV */}
         <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '20px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'linear-gradient(180deg, rgba(8,16,32,0.9) 0%, transparent 100%)', backdropFilter: 'blur(12px)' }}>
-          <VoxiraLogo size={140} />
+          <VoxiraLogo />
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
             <a href="#demo" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>Demo</a>
             <a href="#how" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', fontWeight: 400 }}>{L('How it works', 'Como funciona')}</a>
@@ -402,7 +402,7 @@ export default function LandingPage() {
 
           {/* FOOTER */}
           <footer style={{ padding: '40px 24px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
-            <VoxiraLogo size={100} />
+            <VoxiraLogo />
             <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginTop: '20px' }}>
               <a href="#" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontSize: '12px' }}>{L('Terms', 'Terminos')}</a>
               <a href="#" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontSize: '12px' }}>{L('Privacy', 'Privacidad')}</a>

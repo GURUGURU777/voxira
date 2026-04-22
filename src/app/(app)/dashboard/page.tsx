@@ -27,8 +27,8 @@ const GOAL_SUGGESTIONS_EN = ['Overcome fear of failure','Boost my confidence','A
 const GOAL_SUGGESTIONS_ES = ['Superar el miedo al fracaso','Aumentar mi confianza','Atraer abundancia','Sanar mi cuerpo','Encontrar paz interior','Mejorar mis relaciones','Despertar mi creatividad','Conectar con mi propósito'];
 const GOAL_TO_FREQUENCY: Record<string, number> = {fear:396,miedo:396,failure:396,fracaso:396,guilt:396,culpa:396,change:417,cambio:417,harmony:432,balance:432,confidence:528,confianza:528,love:528,amor:528,peace:528,paz:528,miracle:528,relationship:639,relaciones:639,connection:639,abundance:741,abundancia:741,creativity:741,creatividad:741,expression:741,intuition:852,purpose:963,universe:963,universo:963,crown:963,heal:528,sanar:528,body:432,cuerpo:432};
 
-function VoxiraLogo({ size = 180 }: { size?: number }) {
-  return (<div style={{display:'inline-flex',alignItems:'center',height:size*0.28}}><img src="/afirmia_256.png" alt="AFIRMIA" style={{height:'100%',width:'auto',filter:'brightness(1.1) contrast(1.05)'}} /></div>);
+function VoxiraLogo() {
+  return (<div style={{display:'inline-flex',alignItems:'center'}}><img src="/afirmia_256.png" alt="AFIRMIA" style={{height:'100px',width:'auto',display:'block',margin:'0 auto',filter:'brightness(1.1) contrast(1.05)'}} /></div>);
 }
 
 function ParticleField() {
@@ -248,7 +248,7 @@ function DashboardContent() {
         <div style={{position:'relative',zIndex:1,maxWidth:'860px',margin:'0 auto'}}>
           <header style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'48px'}}>
             <span style={{fontSize:'12px',fontWeight:300,color:'rgba(255,255,255,0.15)',letterSpacing:'1px'}}>Personal Mindset Frequencies</span>
-            <a href={`/?lang=${lang}`} style={{textDecoration:'none'}}><VoxiraLogo size={180}/></a>
+            <a href={`/?lang=${lang}`} style={{textDecoration:'none'}}><VoxiraLogo/></a>
             <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
               <button onClick={toggleLang} style={{background:'rgba(12,26,46,0.6)',border:'1px solid rgba(61,142,207,0.1)',borderRadius:'8px',padding:'6px 12px',fontSize:'11px',color:'rgba(255,255,255,0.4)',cursor:'pointer',letterSpacing:'1px',textTransform:'uppercase'}}>{lang==='en'?'ES':'EN'}</button>
               <div style={{width:'34px',height:'34px',borderRadius:'50%',background:'rgba(12,26,46,0.6)',border:'1px solid rgba(61,142,207,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
