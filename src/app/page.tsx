@@ -188,7 +188,7 @@ export default function LandingPage() {
         <div style={{ position: 'relative', zIndex: 1 }}>
 
           {/* HERO */}
-          <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '120px 24px 80px', position: 'relative' }}>
+          <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '160px 24px 80px', position: 'relative' }}>
             <p style={{ fontSize: '13px', fontWeight: 400, color: '#c9a84c', letterSpacing: '4px', textTransform: 'uppercase', marginBottom: '28px', fontStyle: 'italic', animation: 'fadeUp 0.8s ease both' }}>
               {L('elevate your mind, heal your soul', 'eleva tu mente, sana tu alma')}
             </p>
