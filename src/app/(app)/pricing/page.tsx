@@ -79,13 +79,21 @@ function PricingContent() {
     },
   ];
 
+  const PRICE_IDS: Record<string, Record<BillingCycle, string>> = {
+    pro: {
+      monthly: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY || '',
+      yearly: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY || '',
+    },
+    premium: {
+      monthly: process.env.NEXT_PUBLIC_STRIPE_PRICE_PREMIUM_MONTHLY || '',
+      yearly: process.env.NEXT_PUBLIC_STRIPE_PRICE_PREMIUM_YEARLY || '',
+    },
+  };
+
   const [cycle, setCycle] = useState<BillingCycle>('monthly');
   const [userPlan, setUserPlan] = useState<string>('free');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null);
-  const [email, setEmail] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<PlanId | null>(null);
+  const [checkoutError, setCheckoutError] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -94,30 +102,28 @@ function PricingContent() {
       if (user) {
         const { data } = await sb.from('profiles').select('plan').eq('id', user.id).single();
         if (data?.plan) setUserPlan(data.plan);
-        if (user.email) setEmail(user.email);
       }
     })();
   }, []);
 
-  const handleUpgradeClick = (planId: PlanId) => {
+  const handleCheckout = async (planId: PlanId) => {
     if (planId === 'free') return;
-    setSelectedPlan(planId);
-    setModalOpen(true);
-    setSubmitted(false);
-  };
-
-  const handleSubmitWaitlist = async () => {
-    if (!selectedPlan || !email) return;
-    setSubmitting(true);
+    const priceId = PRICE_IDS[planId]?.[cycle];
+    if (!priceId) return;
+    setCheckoutLoading(planId);
+    setCheckoutError('');
     try {
-      const res = await fetch('/api/waitlist', {
+      const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, interested_plan: selectedPlan, billing_cycle: cycle }),
+        body: JSON.stringify({ priceId }),
       });
-      if (res.ok) setSubmitted(true);
-    } finally {
-      setSubmitting(false);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Checkout failed');
+      if (data.url) window.location.href = data.url;
+    } catch (err) {
+      setCheckoutError(err instanceof Error ? err.message : 'Error');
+      setCheckoutLoading(null);
     }
   };
 
@@ -244,8 +250,8 @@ function PricingContent() {
               </ul>
 
               <button
-                onClick={() => handleUpgradeClick(plan.id)}
-                disabled={isCurrent || isFree}
+                onClick={() => handleCheckout(plan.id)}
+                disabled={isCurrent || isFree || checkoutLoading === plan.id}
                 style={{
                   width: '100%',
                   padding: '14px 20px',
@@ -256,12 +262,12 @@ function PricingContent() {
                   fontSize: 14,
                   fontWeight: 700,
                   letterSpacing: 0.5,
-                  cursor: (isCurrent || isFree) ? 'default' : 'pointer',
-                  opacity: (isCurrent || isFree) ? 0.4 : 1,
+                  cursor: (isCurrent || isFree || checkoutLoading === plan.id) ? 'default' : 'pointer',
+                  opacity: (isCurrent || isFree || checkoutLoading === plan.id) ? 0.4 : 1,
                   transition: 'all 0.2s',
                 }}
               >
-                {isCurrent ? t(lang, 'Your current plan', 'Tu plan actual') : plan.cta}
+                {checkoutLoading === plan.id ? t(lang, 'Redirecting...', 'Redirigiendo...') : isCurrent ? t(lang, 'Your current plan', 'Tu plan actual') : plan.cta}
               </button>
             </div>
           );
@@ -274,84 +280,18 @@ function PricingContent() {
         <p>{t(lang, 'All prices in USD. Applicable taxes based on your country.', 'Todos los precios en USD. Impuestos aplicables segun tu pais.')}</p>
       </div>
 
-      {/* Modal Waitlist */}
-      {modalOpen && (
+      {/* Checkout error toast */}
+      {checkoutError && (
         <div
-          onClick={() => setModalOpen(false)}
+          onClick={() => setCheckoutError('')}
           style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20,
+            position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 1000,
+            background: '#1a1020', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 12,
+            padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
           }}
         >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              background: '#0e1424', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 20,
-              padding: 40, maxWidth: 440, width: '100%', textAlign: 'center',
-            }}
-          >
-            {!submitted ? (
-              <>
-                <div style={{ fontSize: 11, color: 'rgba(201,168,76,0.7)', letterSpacing: 2, textTransform: 'uppercase', fontWeight: 700, marginBottom: 16 }}>
-                  {t(lang, 'Coming soon', 'Proximamente')}
-                </div>
-                <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: '#fff', fontWeight: 400, marginBottom: 12 }}>
-                  {t(lang, 'We are finalizing payments', 'Estamos finalizando los pagos')}
-                </h2>
-                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
-                  {t(lang, `Leave your email and we'll notify you as soon as ${selectedPlan === 'pro' ? 'Pro' : 'Premium'} is available. First on the list get a launch discount.`, `Dejanos tu correo y te avisamos en cuanto ${selectedPlan === 'pro' ? 'Pro' : 'Premium'} este disponible. Los primeros en la lista reciben descuento de lanzamiento.`)}
-                </p>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder={t(lang, 'your@email.com', 'tu@correo.com')}
-                  style={{
-                    width: '100%', padding: '14px 16px', borderRadius: 12,
-                    border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)',
-                    color: '#fff', fontSize: 14, marginBottom: 16, outline: 'none',
-                  }}
-                />
-                <button
-                  onClick={handleSubmitWaitlist}
-                  disabled={submitting || !email}
-                  style={{
-                    width: '100%', padding: '14px', borderRadius: 12, border: 'none',
-                    background: '#c9a84c', color: '#0a0e1a', fontSize: 14, fontWeight: 700,
-                    letterSpacing: 0.5, cursor: submitting ? 'wait' : 'pointer',
-                    opacity: submitting || !email ? 0.5 : 1,
-                  }}
-                >
-                  {submitting ? t(lang, 'Sending...', 'Enviando...') : t(lang, 'Notify me when ready', 'Avisarme cuando este listo')}
-                </button>
-                <button
-                  onClick={() => setModalOpen(false)}
-                  style={{ marginTop: 12, background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer' }}
-                >
-                  {t(lang, 'Close', 'Cerrar')}
-                </button>
-              </>
-            ) : (
-              <>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>&#10024;</div>
-                <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: '#fff', fontWeight: 400, marginBottom: 12 }}>
-                  {t(lang, 'You are on the list', 'Estas en la lista')}
-                </h2>
-                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
-                  {t(lang, `We'll notify you at ${email} as soon as payments are ready. Thanks for your interest.`, `Te avisaremos a ${email} en cuanto los pagos esten listos. Gracias por tu interes.`)}
-                </p>
-                <button
-                  onClick={() => setModalOpen(false)}
-                  style={{
-                    padding: '12px 32px', borderRadius: 12, border: '1px solid rgba(201,168,76,0.3)',
-                    background: 'transparent', color: '#c9a84c', fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                  }}
-                >
-                  {t(lang, 'Close', 'Cerrar')}
-                </button>
-              </>
-            )}
-          </div>
+          <span style={{ color: '#ef4444', fontSize: 14 }}>{checkoutError}</span>
+          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>✕</span>
         </div>
       )}
     </div>
