@@ -103,7 +103,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
-  const periodEnd = new Date((subscription as any).current_period_end * 1000).toISOString();
+  const subscriptionItem = subscription.items.data[0];
+  const periodEnd = subscriptionItem?.current_period_end
+    ? new Date(subscriptionItem.current_period_end * 1000).toISOString()
+    : null;
 
   const { error } = await supabaseAdmin
     .from('profiles')
@@ -143,7 +146,10 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     return;
   }
 
-  const periodEnd = new Date((subscription as any).current_period_end * 1000).toISOString();
+  const subscriptionItem = subscription.items.data[0];
+  const periodEnd = subscriptionItem?.current_period_end
+    ? new Date(subscriptionItem.current_period_end * 1000).toISOString()
+    : null;
 
   const { error } = await supabaseAdmin
     .from('profiles')
