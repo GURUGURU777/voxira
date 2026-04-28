@@ -14,6 +14,7 @@ export default function SettingsPage() {
   const [lang, setLang] = useState<'en' | 'es'>('es');
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   // Voice preview
   const voiceRef = useRef<HTMLAudioElement>(null);
@@ -48,6 +49,23 @@ export default function SettingsPage() {
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/');
+  };
+
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      const res = await fetch('/api/stripe/portal', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || 'No se pudo abrir el portal');
+        setPortalLoading(false);
+      }
+    } catch (e) {
+      alert('Error al abrir el portal de suscripcion');
+      setPortalLoading(false);
+    }
   };
 
   const initials = profile?.name ? profile.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
@@ -184,7 +202,13 @@ export default function SettingsPage() {
                     <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>{f}</span>
                   </div>
                 ))}
-                <button style={{ marginTop: '14px', width: '100%', background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Upgrade a Pro</button>
+                {profile?.plan === 'pro' ? (
+                <button disabled style={{ marginTop: '14px', width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '10px', fontSize: '12px', color: 'rgba(255,255,255,0.25)', cursor: 'default', fontFamily: "'Outfit', sans-serif" }}>Plan actual</button>
+              ) : profile?.plan === 'premium' ? (
+                <button onClick={handleManageSubscription} disabled={portalLoading} style={{ marginTop: '14px', width: '100%', background: 'transparent', border: '1px solid rgba(201,168,76,0.2)', color: '#c9a84c', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{portalLoading ? 'Abriendo...' : 'Administrar suscripcion'}</button>
+              ) : (
+                <button onClick={() => router.push('/pricing')} style={{ marginTop: '14px', width: '100%', background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Upgrade a Pro</button>
+              )}
               </div>
 
               {/* PREMIUM */}
@@ -199,7 +223,11 @@ export default function SettingsPage() {
                     <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>{f}</span>
                   </div>
                 ))}
-                <button style={{ marginTop: '14px', width: '100%', background: 'transparent', border: '1px solid rgba(201,168,76,0.2)', color: '#c9a84c', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Upgrade a Premium</button>
+                {profile?.plan === 'premium' ? (
+                <button onClick={handleManageSubscription} disabled={portalLoading} style={{ marginTop: '14px', width: '100%', background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)', color: '#c9a84c', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{portalLoading ? 'Abriendo...' : 'Administrar suscripcion'}</button>
+              ) : (
+                <button onClick={() => router.push('/pricing')} style={{ marginTop: '14px', width: '100%', background: 'transparent', border: '1px solid rgba(201,168,76,0.2)', color: '#c9a84c', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Upgrade a Premium</button>
+              )}
               </div>
             </div>
           </div>
