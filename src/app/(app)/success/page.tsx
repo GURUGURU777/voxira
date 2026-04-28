@@ -7,18 +7,18 @@ import { t, type Lang } from '@/lib/i18n';
 
 const PLAN_FEATURES: Record<string, { en: string; es: string }[]> = {
   pro: [
-    { en: '20 tracks per month', es: '20 audios por mes' },
-    { en: 'Up to 15 minutes per track', es: 'Hasta 15 minutos por audio' },
+    { en: '50 tracks per month', es: '50 audios por mes' },
+    { en: 'Up to 30 minutes per track', es: 'Hasta 30 minutos por audio' },
     { en: 'All 8 Solfeggio frequencies', es: 'Las 8 frecuencias Solfeggio' },
     { en: 'All 5 ambient sounds', es: 'Los 5 sonidos ambientales' },
     { en: '1 active 21-day cycle', es: '1 ciclo de 21 dias activo' },
   ],
   premium: [
-    { en: 'Unlimited tracks', es: 'Audios ilimitados' },
+    { en: '200 tracks per month', es: '200 audios por mes' },
     { en: 'Up to 30 minutes per track', es: 'Hasta 30 minutos por audio' },
-    { en: 'Unlimited 21-day cycles', es: 'Ciclos de 21 dias ilimitados' },
-    { en: 'Advanced statistics', es: 'Estadisticas avanzadas' },
-    { en: 'Priority support', es: 'Soporte prioritario' },
+    { en: 'All 8 Solfeggio frequencies', es: 'Las 8 frecuencias Solfeggio' },
+    { en: 'All 5 ambient sounds', es: 'Los 5 sonidos ambientales' },
+    { en: 'Unlimited active 21-day cycles', es: 'Ciclos de 21 dias activos ilimitados' },
   ],
 };
 
