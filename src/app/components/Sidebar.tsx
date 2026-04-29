@@ -77,7 +77,7 @@ function SidebarContent() {
     ? profile.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
     : '?';
 
-  const maxTracks = profile?.plan === 'pro' ? 100 : 5;
+  const maxTracks = profile?.plan === 'premium' ? 200 : profile?.plan === 'pro' ? 50 : 3;
   const tracksUsed = profile?.tracks_count ?? 0;
   const progressPct = Math.min((tracksUsed / maxTracks) * 100, 100);
 
