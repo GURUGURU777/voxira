@@ -7,13 +7,27 @@ import Stripe from 'stripe';
 // NUNCA importar desde componentes client-side.
 // ============================================================================
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing STRIPE_SECRET_KEY in environment variables');
+// Lazy initialization — avoids throwing at build time during static page collection
+let _stripe: Stripe | null = null;
+
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('Missing STRIPE_SECRET_KEY in environment variables');
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2026-02-25.clover',
+      typescript: true,
+    });
+  }
+  return _stripe;
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2026-02-25.clover',
-  typescript: true,
+// Named export for backward compatibility
+export const stripe = new Proxy({} as Stripe, {
+  get(_, prop) {
+    return (getStripe() as any)[prop];
+  },
 });
 
 // ============================================================================
