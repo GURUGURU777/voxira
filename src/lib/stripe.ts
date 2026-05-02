@@ -7,10 +7,18 @@ import Stripe from 'stripe';
 // NUNCA importar desde componentes client-side.
 // ============================================================================
 
-// Lazy initialization — avoids throwing at build time during static page collection
+// Lazy singleton — only initialized when first accessed at runtime (not at build time)
 let _stripe: Stripe | null = null;
 
-export function getStripe(): Stripe {
+export const stripe = {
+  get billingPortal() { return getStripeClient().billingPortal; },
+  get checkout() { return getStripeClient().checkout; },
+  get customers() { return getStripeClient().customers; },
+  get subscriptions() { return getStripeClient().subscriptions; },
+  get webhooks() { return getStripeClient().webhooks; },
+} as unknown as Stripe;
+
+function getStripeClient(): Stripe {
   if (!_stripe) {
     if (!process.env.STRIPE_SECRET_KEY) {
       throw new Error('Missing STRIPE_SECRET_KEY in environment variables');
@@ -22,13 +30,6 @@ export function getStripe(): Stripe {
   }
   return _stripe;
 }
-
-// Named export for backward compatibility
-export const stripe = new Proxy({} as Stripe, {
-  get(_, prop) {
-    return (getStripe() as any)[prop];
-  },
-});
 
 // ============================================================================
 // PRICE IDs (AFIRMIA products in Stripe)
