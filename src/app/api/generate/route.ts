@@ -143,39 +143,55 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No affirmations generated' }, { status: 500 });
     }
 
-    // ─── Step 2: Convert affirmations to speech with Fish Audio ───
-    const fullScript = affirmations.map((a: string) => a.trim().endsWith('.') ? a : a + '.').join('\n\n');
+    // ─── Step 2: Convert each affirmation to speech individually ───
+    const cleanedAffirmations = affirmations.map((a: string) => a.trim().endsWith('.') ? a : a + '.');
+    console.log(`[generate] Synthesizing ${cleanedAffirmations.length} affirmations individually...`);
 
-    const ttsResponse = await fetch('https://api.fish.audio/v1/tts', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${fishApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        text: fullScript,
-        reference_id: voice_id,
-        format: 'mp3',
-        prosody: { speed: 0.90 },
-      }),
-    });
+    const ttsResults = await Promise.allSettled(
+      cleanedAffirmations.map((text: string) =>
+        fetch('https://api.fish.audio/v1/tts', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${fishApiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, reference_id: voice_id, format: 'mp3', prosody: { speed: 0.90 } }),
+        }).then(async (res) => {
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            if (res.status === 404) throw new Error('voice_not_found');
+            throw new Error(err?.message || err?.detail || `TTS failed: ${res.status}`);
+          }
+          return Buffer.from(await res.arrayBuffer());
+        })
+      )
+    );
 
-    if (!ttsResponse.ok) {
-      const err = await ttsResponse.json().catch(() => ({}));
-      const errorMsg = err?.message || err?.detail || '';
-      if (ttsResponse.status === 404) {
-        return NextResponse.json({ error: errorMsg || 'Voice not found - please record again', voice_not_found: true }, { status: 404 });
+    const successSegments: Buffer[] = [];
+    let voiceNotFound = false;
+    for (const r of ttsResults) {
+      if (r.status === 'fulfilled') {
+        successSegments.push(r.value);
+      } else {
+        console.warn('[generate] TTS segment failed:', r.reason?.message);
+        if (r.reason?.message === 'voice_not_found') voiceNotFound = true;
       }
-      return NextResponse.json({ error: errorMsg || 'Failed to generate speech' }, { status: 500 });
     }
 
-    const voiceAudioBuffer = Buffer.from(await ttsResponse.arrayBuffer());
+    console.log(`[generate] TTS results: ${successSegments.length}/${cleanedAffirmations.length} succeeded`);
 
-    // ─── Step 3: Send to FFmpeg service for processing ───
+    if (successSegments.length === 0) {
+      if (voiceNotFound) {
+        return NextResponse.json({ error: 'Voice not found - please record again', voice_not_found: true }, { status: 404 });
+      }
+      return NextResponse.json({ error: 'Failed to generate speech' }, { status: 500 });
+    }
+
+    const audioSegmentsBase64 = successSegments.map(buf => buf.toString('base64'));
+    const totalSize = successSegments.reduce((s, b) => s + b.length, 0);
+    console.log(`[generate] Total TTS audio: ${totalSize} bytes across ${audioSegmentsBase64.length} segments`);
+
+    // ─── Step 3: Send segments to FFmpeg service for concatenation + processing ───
     if (ffmpegServiceUrl) {
       try {
-        console.log('[generate] Sending to FFmpeg service:', ffmpegServiceUrl);
-        console.log('[generate] Audio buffer size:', voiceAudioBuffer.length, 'bytes');
+        console.log('[generate] Sending segments to FFmpeg service:', ffmpegServiceUrl);
 
         const ffmpegResponse = await fetch(`${ffmpegServiceUrl}/process`, {
           method: 'POST',
@@ -183,7 +199,7 @@ export async function POST(request: NextRequest) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            audio_base64: voiceAudioBuffer.toString('base64'),
+            audio_segments_base64: audioSegmentsBase64,
             frequency: frequency || 528,
             ambient: ambient || 'none',
             duration: durationMin,
@@ -224,8 +240,8 @@ export async function POST(request: NextRequest) {
       console.warn('[generate] FFMPEG_SERVICE_URL not set!');
     }
 
-    // ─── Fallback: Return voice-only audio ───
-    const audioBase64 = voiceAudioBuffer.toString('base64');
+    // ─── Fallback: Return first segment as voice-only audio ───
+    const audioBase64 = audioSegmentsBase64[0];
 
     // Incrementar contador de audios del mes (fallback)
     await supabase
