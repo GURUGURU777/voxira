@@ -3,19 +3,20 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { stripe, getPlanFromPriceId } from '@/lib/stripe';
 
-// Supabase admin client (service role) — bypasses RLS for webhook writes
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
+// Lazy Supabase admin client — avoids env var access at build time
+let _sbAdmin: any = null;
+function getSupabaseAdmin() {
+  if (!_sbAdmin) {
+    _sbAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
   }
-);
+  return _sbAdmin;
+}
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+function getWebhookSecret() { return process.env.STRIPE_WEBHOOK_SECRET!; }
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    event = stripe.webhooks.constructEvent(body, signature, getWebhookSecret());
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
     console.error('[stripe-webhook] Signature verification failed:', msg);
@@ -108,7 +109,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     ? new Date(subscriptionItem.current_period_end * 1000).toISOString()
     : null;
 
-  const { error } = await supabaseAdmin
+  const { error } = await getSupabaseAdmin()
     .from('profiles')
     .update({
       plan: plan.tier,
@@ -151,7 +152,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     ? new Date(subscriptionItem.current_period_end * 1000).toISOString()
     : null;
 
-  const { error } = await supabaseAdmin
+  const { error } = await getSupabaseAdmin()
     .from('profiles')
     .update({
       plan: plan.tier,
@@ -176,7 +177,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
 
-  const { error } = await supabaseAdmin
+  const { error } = await getSupabaseAdmin()
     .from('profiles')
     .update({
       plan: 'free',
