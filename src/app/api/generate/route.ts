@@ -146,6 +146,9 @@ export async function POST(request: NextRequest) {
     // ─── Step 2: Convert each affirmation to speech individually ───
     const cleanedAffirmations = affirmations.map((a: string) => a.trim().endsWith('.') ? a : a + '.');
     console.log(`[generate] Synthesizing ${cleanedAffirmations.length} affirmations individually...`);
+    cleanedAffirmations.forEach((aff: string, i: number) => {
+      console.log(`[generate] Sending affirmation ${i}: "${aff.substring(0, 60)}..."`);
+    });
 
     const ttsResults = await Promise.allSettled(
       cleanedAffirmations.map((text: string) =>
@@ -163,6 +166,14 @@ export async function POST(request: NextRequest) {
         })
       )
     );
+
+    ttsResults.forEach((r, i) => {
+      if (r.status === 'fulfilled') {
+        console.log(`[generate] Result ${i}: SUCCESS, ${r.value.byteLength} bytes`);
+      } else {
+        console.log(`[generate] Result ${i}: FAILED - ${r.reason?.message || r.reason}`);
+      }
+    });
 
     const successSegments: Buffer[] = [];
     let voiceNotFound = false;
@@ -189,6 +200,11 @@ export async function POST(request: NextRequest) {
     console.log(`[generate] Total TTS audio: ${totalSize} bytes across ${audioSegmentsBase64.length} segments`);
 
     // ─── Step 3: Send segments to FFmpeg service for concatenation + processing ───
+    console.log(`[generate] Sending ${audioSegmentsBase64.length} segments to FFmpeg server`);
+    audioSegmentsBase64.forEach((seg, i) => {
+      console.log(`[generate]   audioSegments[${i}]: ${seg.length} chars base64`);
+    });
+
     if (ffmpegServiceUrl) {
       try {
         console.log('[generate] Sending segments to FFmpeg service:', ffmpegServiceUrl);
