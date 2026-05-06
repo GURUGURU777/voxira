@@ -150,22 +150,38 @@ export async function POST(request: NextRequest) {
       console.log(`[generate] Sending affirmation ${i}: "${aff.substring(0, 60)}..."`);
     });
 
-    const ttsResults = await Promise.allSettled(
-      cleanedAffirmations.map((text: string) =>
-        fetch('https://api.fish.audio/v1/tts', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${fishApiKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, reference_id: voice_id, format: 'mp3', prosody: { speed: 0.90 } }),
-        }).then(async (res) => {
-          if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            if (res.status === 404) throw new Error('voice_not_found');
-            throw new Error(err?.message || err?.detail || `TTS failed: ${res.status}`);
-          }
-          return Buffer.from(await res.arrayBuffer());
-        })
-      )
-    );
+    const BATCH_SIZE = 3;
+    const DELAY_MS = 300;
+    const ttsResults: PromiseSettledResult<Buffer>[] = [];
+
+    for (let i = 0; i < cleanedAffirmations.length; i += BATCH_SIZE) {
+      const batch = cleanedAffirmations.slice(i, i + BATCH_SIZE);
+      console.log(`[generate] Batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(cleanedAffirmations.length / BATCH_SIZE)}: indices ${i}-${i + batch.length - 1}`);
+
+      const batchResults = await Promise.allSettled(
+        batch.map((text: string) =>
+          fetch('https://api.fish.audio/v1/tts', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${fishApiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, reference_id: voice_id, format: 'mp3', prosody: { speed: 0.90 } }),
+          }).then(async (res) => {
+            if (!res.ok) {
+              const err = await res.json().catch(() => ({}));
+              if (res.status === 404) throw new Error('voice_not_found');
+              throw new Error(err?.message || err?.detail || `TTS failed: ${res.status}`);
+            }
+            return Buffer.from(await res.arrayBuffer());
+          })
+        )
+      );
+      ttsResults.push(...batchResults);
+
+      if (i + BATCH_SIZE < cleanedAffirmations.length) {
+        await new Promise(resolve => setTimeout(resolve, DELAY_MS));
+      }
+    }
+
+    console.log(`[generate] Total TTS results: ${ttsResults.length}, success: ${ttsResults.filter(r => r.status === 'fulfilled').length}`);
 
     ttsResults.forEach((r, i) => {
       if (r.status === 'fulfilled') {
