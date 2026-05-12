@@ -8,7 +8,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       background: 'linear-gradient(180deg, #0b1121 0%, #0d1526 50%, #0b1121 100%)',
     }}>
       <Sidebar />
-      <main style={{ flex: 1, overflow: 'auto' }}>
+      <main style={{ flex: 1, overflow: 'auto', minWidth: 0 }}>
         {children}
       </main>
     </div>

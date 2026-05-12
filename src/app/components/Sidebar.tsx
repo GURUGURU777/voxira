@@ -36,6 +36,18 @@ function SidebarContent() {
   const pathname = usePathname();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [cycleStreak, setCycleStreak] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  // Close drawer on navigation
+  useEffect(() => { setIsOpen(false); }, [pathname]);
 
   useEffect(() => {
     fetch('/api/profile')
@@ -82,6 +94,40 @@ function SidebarContent() {
   const progressPct = Math.min((tracksUsed / maxTracks) * 100, 100);
 
   return (
+    <>
+    {/* Hamburger button — mobile only */}
+    {isMobile && (
+      <button
+        onClick={() => setIsOpen(o => !o)}
+        aria-label="Menu"
+        style={{
+          position: 'fixed', top: 16, left: 16, zIndex: 1100,
+          width: 40, height: 40, borderRadius: 10,
+          background: 'rgba(8,12,24,0.85)', backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(201,168,76,0.15)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          gap: isOpen ? 0 : 5, cursor: 'pointer', padding: 0,
+        }}
+      >
+        {isOpen ? (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        ) : (
+          <>{[0,1,2].map(i => <div key={i} style={{ width: 18, height: 2, background: '#c9a84c', borderRadius: 1 }} />)}</>
+        )}
+      </button>
+    )}
+
+    {/* Overlay — mobile only */}
+    {isMobile && isOpen && (
+      <div
+        onClick={() => setIsOpen(false)}
+        style={{
+          position: 'fixed', inset: 0, zIndex: 1000,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+        }}
+      />
+    )}
+
     <aside style={{
       width: 230,
       minHeight: '100vh',
@@ -92,6 +138,14 @@ function SidebarContent() {
       padding: '28px 0',
       fontFamily: "'Outfit', sans-serif",
       flexShrink: 0,
+      ...(isMobile ? {
+        position: 'fixed' as const,
+        top: 0, left: 0, bottom: 0,
+        zIndex: 1050,
+        transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 0.25s ease',
+        overflowY: 'auto' as const,
+      } : {}),
     }}>
       {/* Logo */}
       <a href="/dashboard" style={{ textDecoration: 'none', padding: '0 24px', marginBottom: 40 }}>
@@ -315,5 +369,6 @@ function SidebarContent() {
         </div>
       </nav>
     </aside>
+    </>
   );
 }
