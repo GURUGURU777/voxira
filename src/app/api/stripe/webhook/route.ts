@@ -116,8 +116,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       stripe_customer_id: customerId,
       stripe_subscription_id: subscriptionId,
       subscription_status: subscription.status,
-      subscription_period_end: periodEnd,
-      current_price_id: priceId,
+      current_period_end: periodEnd,
+      plan_updated_at: new Date().toISOString(),
     })
     .eq('id', userId);
 
@@ -158,8 +158,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       plan: plan.tier,
       stripe_subscription_id: subscription.id,
       subscription_status: subscription.status,
-      subscription_period_end: periodEnd,
-      current_price_id: priceId,
+      current_period_end: periodEnd,
+      plan_updated_at: new Date().toISOString(),
     })
     .eq('stripe_customer_id', customerId);
 
@@ -183,7 +183,8 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       plan: 'free',
       subscription_status: 'canceled',
       stripe_subscription_id: null,
-      current_price_id: null,
+      current_period_end: null,
+      plan_updated_at: new Date().toISOString(),
       // Keep stripe_customer_id so user can resubscribe with same customer
     })
     .eq('stripe_customer_id', customerId);
