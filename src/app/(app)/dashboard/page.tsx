@@ -116,7 +116,7 @@ function DashboardContent() {
 
   useEffect(() => {
     const a = genAudioRef.current; if (!a) return;
-    const t = () => setGenProgress(a.currentTime); const d = () => setGenDuration(a.duration); const e = () => { setGenPlaying(false); setGenProgress(0); };
+    const t = () => setGenProgress(a.currentTime); const d = () => { if (a.duration === Infinity || isNaN(a.duration)) { a.currentTime = 1e101; a.ontimeupdate = () => { a.ontimeupdate = null; a.currentTime = 0; setGenDuration(a.duration); }; } else { setGenDuration(a.duration); } }; const e = () => { setGenPlaying(false); setGenProgress(0); };
     a.addEventListener('timeupdate', t); a.addEventListener('loadedmetadata', d); a.addEventListener('ended', e);
     return () => { a.removeEventListener('timeupdate', t); a.removeEventListener('loadedmetadata', d); a.removeEventListener('ended', e); };
   }, []);
