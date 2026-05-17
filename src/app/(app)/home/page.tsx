@@ -128,7 +128,7 @@ function HomeContent() {
   return (
     <>
       <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-      <audio ref={audioRef} />
+      <audio ref={audioRef} preload="metadata" src={latestTrack?.file_url || undefined} />
       <div style={{ minHeight: '100vh', padding: '36px 32px', fontFamily: "'Outfit', sans-serif" }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
 
@@ -194,7 +194,7 @@ function HomeContent() {
                 <button onClick={() => {
                   if (!audioRef.current) return;
                   if (playing) { audioRef.current.pause(); setPlaying(false); }
-                  else { audioRef.current.src = latestTrack.file_url; audioRef.current.play().catch(() => {}); setPlaying(true); }
+                  else { audioRef.current.play().catch(() => {}); setPlaying(true); }
                 }} style={{
                   width: '44px', height: '44px', borderRadius: '50%', flexShrink: 0, cursor: 'pointer',
                   background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)',
