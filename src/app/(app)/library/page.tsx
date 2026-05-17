@@ -65,6 +65,7 @@ function LibraryContent() {
       setPlaying(null);
     } else {
       if (audioRef.current) {
+        audioRef.current.src = t.file_url;
         audioRef.current.volume = volume;
         audioRef.current.play().catch(() => {});
       }
@@ -130,7 +131,7 @@ function LibraryContent() {
   return (
     <>
       <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-      <audio ref={audioRef} preload="metadata" src={currentTrack?.file_url || undefined} />
+      <audio ref={audioRef} />
       <div style={{ minHeight: '100vh', padding: '36px 32px', paddingBottom: playingTrack ? '100px' : '32px', fontFamily: "'Outfit', sans-serif", position: 'relative' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
