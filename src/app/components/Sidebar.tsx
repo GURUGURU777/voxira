@@ -11,6 +11,7 @@ interface UserProfile {
   plan: string;
   credits: number;
   tracks_count: number;
+  tracks_this_month: number;
 }
 
 const NAV_ITEMS = [
@@ -60,6 +61,7 @@ function SidebarContent() {
           plan: data.profile?.plan || 'free',
           credits: data.profile?.credits ?? 0,
           tracks_count: data.profile?.tracks_count ?? 0,
+          tracks_this_month: data.profile?.tracks_this_month ?? 0,
         });
       })
       .catch(() => {});
@@ -90,7 +92,7 @@ function SidebarContent() {
     : '?';
 
   const maxTracks = profile?.plan === 'premium' ? 200 : profile?.plan === 'pro' ? 50 : 3;
-  const tracksUsed = profile?.tracks_count ?? 0;
+  const tracksUsed = profile?.tracks_this_month ?? 0;
   const progressPct = Math.min((tracksUsed / maxTracks) * 100, 100);
 
   return (

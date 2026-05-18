@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('voice_audio_url, voice_cloned_at, plan, credits, tracks_count, onboarding_completed, goal, meditation_experience, daily_minutes, total_listening_minutes, current_streak')
+    .select('voice_audio_url, voice_cloned_at, plan, credits, tracks_count, tracks_this_month, onboarding_completed, goal, meditation_experience, daily_minutes, total_listening_minutes, current_streak')
     .eq('id', user.id)
     .single();
 
