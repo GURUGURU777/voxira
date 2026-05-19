@@ -111,6 +111,7 @@ const FREQS = [
 export default function LandingPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playProgress, setPlayProgress] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [activeFreq, setActiveFreq] = useState(3);
   const [tracksGenerated, setTracksGenerated] = useState(12847);
   const playRef = useRef<NodeJS.Timeout | null>(null);
@@ -137,18 +138,34 @@ export default function LandingPage() {
   }, []);
 
   useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
     if (isPlaying) {
-      playRef.current = setInterval(() => {
-        setPlayProgress(p => {
-          if (p >= 100) { setIsPlaying(false); return 0; }
-          return p + 0.5;
-        });
-      }, 100);
+      audio.play().catch(() => setIsPlaying(false));
     } else {
-      if (playRef.current) clearInterval(playRef.current);
+      audio.pause();
     }
-    return () => { if (playRef.current) clearInterval(playRef.current); };
   }, [isPlaying]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const onTime = () => {
+      if (audio.duration > 0) {
+        setPlayProgress((audio.currentTime / audio.duration) * 100);
+      }
+    };
+    const onEnd = () => {
+      setIsPlaying(false);
+      setPlayProgress(0);
+    };
+    audio.addEventListener('timeupdate', onTime);
+    audio.addEventListener('ended', onEnd);
+    return () => {
+      audio.removeEventListener('timeupdate', onTime);
+      audio.removeEventListener('ended', onEnd);
+    };
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -241,6 +258,7 @@ export default function LandingPage() {
                 </div>
                 <div style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: '8px', padding: '4px 12px', fontSize: '11px', color: '#c9a84c', letterSpacing: '1px' }}>SAMPLE</div>
               </div>
+              <audio ref={audioRef} src={lang === 'es' ? '/demos/demo-es.mp3' : '/demos/demo-en.mp3'} preload="metadata" />
               <AudioWaveform isPlaying={isPlaying} />
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '20px' }}>
                 <button onClick={() => { setIsPlaying(!isPlaying); if (!isPlaying) setPlayProgress(0); }} style={{
