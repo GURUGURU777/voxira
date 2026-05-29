@@ -59,6 +59,12 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      case 'charge.refunded': {
+        const charge = event.data.object as Stripe.Charge;
+        await handleChargeRefunded(charge);
+        break;
+      }
+
       default:
         console.log(`[stripe-webhook] Unhandled event type: ${event.type}`);
     }
@@ -134,6 +140,29 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
  */
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
+
+  // Cancellation / expiry — downgrade to free instead of re-reading the price.
+  if (subscription.status === 'canceled' || subscription.status === 'incomplete_expired') {
+    const { error } = await getSupabaseAdmin()
+      .from('profiles')
+      .update({
+        plan: 'free',
+        subscription_status: subscription.status,
+        stripe_subscription_id: null,
+        current_period_end: null,
+        plan_updated_at: new Date().toISOString(),
+      })
+      .eq('stripe_customer_id', customerId);
+
+    if (error) {
+      console.error('[stripe-webhook] Failed to downgrade profile on subscription.updated:', error);
+      throw error;
+    }
+
+    console.log(`[stripe-webhook] ✅ Customer ${customerId} downgraded to free (${subscription.status})`);
+    return;
+  }
+
   const priceId = subscription.items.data[0]?.price.id;
 
   if (!priceId) {
@@ -195,4 +224,40 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   }
 
   console.log(`[stripe-webhook] ✅ Customer ${customerId} downgraded to free`);
+}
+
+/**
+ * charge.refunded — fired on any refund. Only downgrade on a FULL refund so
+ * partial refunds don't strip a paying user's access.
+ */
+async function handleChargeRefunded(charge: Stripe.Charge) {
+  const customerId = charge.customer as string | null;
+
+  if (!customerId) {
+    console.error('[stripe-webhook] charge.refunded missing customer id', charge.id);
+    return;
+  }
+
+  if (!charge.refunded) {
+    console.log(`[stripe-webhook] charge.refunded partial for ${customerId} — keeping plan`);
+    return;
+  }
+
+  const { error } = await getSupabaseAdmin()
+    .from('profiles')
+    .update({
+      plan: 'free',
+      subscription_status: 'canceled',
+      stripe_subscription_id: null,
+      current_period_end: null,
+      plan_updated_at: new Date().toISOString(),
+    })
+    .eq('stripe_customer_id', customerId);
+
+  if (error) {
+    console.error('[stripe-webhook] Failed to downgrade profile on refund:', error);
+    throw error;
+  }
+
+  console.log(`[stripe-webhook] ✅ Customer ${customerId} downgraded to free (refund)`);
 }
