@@ -288,31 +288,40 @@ function SidebarContent() {
             <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(201,168,76,0.6)', letterSpacing: 1.5, textTransform: 'uppercase' }}>
               {profile?.plan === 'premium' ? 'Premium' : profile?.plan === 'pro' ? 'Pro' : 'Free'}
             </span>
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>
-              {tracksUsed}/{maxTracks}
-            </span>
+            {profile?.plan !== 'premium' && (
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>
+                {tracksUsed}/{maxTracks}
+              </span>
+            )}
           </div>
           {/* Progress bar */}
-          <div style={{ height: 3, background: 'rgba(255,255,255,0.04)', borderRadius: 2, marginBottom: 10 }}>
-            <div style={{
-              height: '100%',
-              width: `${progressPct}%`,
-              background: 'linear-gradient(90deg, #c9a84c, #dbb960)',
-              borderRadius: 2,
-              transition: 'width 0.5s ease',
-            }} />
-          </div>
-          {profile?.plan !== 'pro' && (
-            <a href="/pricing" style={{
+          {profile?.plan !== 'premium' && (
+            <div style={{ height: 3, background: 'rgba(255,255,255,0.04)', borderRadius: 2, marginBottom: 10 }}>
+              <div style={{
+                height: '100%',
+                width: `${progressPct}%`,
+                background: 'linear-gradient(90deg, #c9a84c, #dbb960)',
+                borderRadius: 2,
+                transition: 'width 0.5s ease',
+              }} />
+            </div>
+          )}
+          <a
+            href={profile?.plan === 'premium' ? '/settings/billing' : '/pricing'}
+            style={{
               fontSize: 11,
               color: '#c9a84c',
               textDecoration: 'none',
               fontWeight: 500,
               opacity: 0.7,
-            }}>
-              {t(lang, 'Upgrade to Pro', 'Upgrade a Pro')}
-            </a>
-          )}
+            }}
+          >
+            {profile?.plan === 'premium'
+              ? t(lang, 'Manage subscription', 'Gestionar suscripcion')
+              : profile?.plan === 'pro'
+              ? t(lang, 'Upgrade to Premium', 'Upgrade a Premium')
+              : t(lang, 'Upgrade to Pro', 'Upgrade a Pro')}
+          </a>
         </div>
 
         {/* User profile */}
