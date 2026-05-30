@@ -20,6 +20,29 @@ export default function SettingsPage() {
   const voiceRef = useRef<HTMLAudioElement>(null);
   const [voicePlaying, setVoicePlaying] = useState(false);
 
+  // Voice recorder modal
+  const MIN_RECORDING_SECONDS = 30;
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [savingVoice, setSavingVoice] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const recorderChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<number | null>(null);
+
+  // Cleanup recorder/stream/timer on unmount so the mic doesn't leak
+  useEffect(() => () => {
+    if (recordingTimerRef.current !== null) window.clearInterval(recordingTimerRef.current);
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try { mediaRecorderRef.current.stop(); } catch {}
+    }
+    mediaStreamRef.current?.getTracks().forEach(t => t.stop());
+  }, []);
+
   useEffect(() => {
     fetch('/api/profile').then(r => r.json()).then(d => {
       setProfile({
@@ -67,6 +90,104 @@ export default function SettingsPage() {
       setPortalLoading(false);
     }
   };
+
+  const stopRecorderAndStream = () => {
+    if (recordingTimerRef.current !== null) {
+      window.clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try { mediaRecorderRef.current.stop(); } catch {}
+    }
+    mediaStreamRef.current?.getTracks().forEach(t => t.stop());
+    mediaStreamRef.current = null;
+  };
+
+  const openVoiceModal = () => {
+    setRecordedBlob(null);
+    setRecordingTime(0);
+    setIsRecording(false);
+    setVoiceError(null);
+    setShowVoiceModal(true);
+  };
+
+  const closeVoiceModal = () => {
+    stopRecorderAndStream();
+    setShowVoiceModal(false);
+    setRecordedBlob(null);
+    setRecordingTime(0);
+    setIsRecording(false);
+    setVoiceError(null);
+  };
+
+  const startRecording = async () => {
+    setVoiceError(null);
+    setRecordedBlob(null);
+    setRecordingTime(0);
+    recorderChunksRef.current = [];
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+      const mr = new MediaRecorder(stream, { mimeType });
+      mediaRecorderRef.current = mr;
+      mr.ondataavailable = (e) => { if (e.data.size > 0) recorderChunksRef.current.push(e.data); };
+      mr.onstop = () => {
+        const blob = new Blob(recorderChunksRef.current, { type: mimeType });
+        setRecordedBlob(blob);
+        mediaStreamRef.current?.getTracks().forEach(t => t.stop());
+        mediaStreamRef.current = null;
+      };
+      mr.start();
+      setIsRecording(true);
+      recordingTimerRef.current = window.setInterval(() => setRecordingTime(t => t + 1), 1000);
+    } catch (e) {
+      setVoiceError('No se pudo acceder al microfono. Revisa los permisos.');
+      stopRecorderAndStream();
+      setIsRecording(false);
+    }
+  };
+
+  const stopRecording = () => {
+    if (recordingTimerRef.current !== null) {
+      window.clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+  };
+
+  const saveVoice = async () => {
+    if (!recordedBlob) return;
+    if (recordingTime < MIN_RECORDING_SECONDS) {
+      setVoiceError(`Necesitas al menos ${MIN_RECORDING_SECONDS} segundos`);
+      return;
+    }
+    setSavingVoice(true);
+    setVoiceError(null);
+    try {
+      const form = new FormData();
+      form.append('audio', recordedBlob, 'recording.webm');
+      form.append('name', `VOXIRA-${Date.now()}`);
+      const res = await fetch('/api/clone-voice', { method: 'POST', body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Error al guardar voz');
+      setProfile(prev => prev ? { ...prev, voice_audio_url: data.voice_audio_url || prev.voice_audio_url } : prev);
+      setShowVoiceModal(false);
+      setRecordedBlob(null);
+      setRecordingTime(0);
+      setToast('Voz actualizada exitosamente');
+      window.setTimeout(() => setToast(null), 3000);
+    } catch (e) {
+      setVoiceError(e instanceof Error ? e.message : 'Error al guardar voz');
+    } finally {
+      setSavingVoice(false);
+    }
+  };
+
+  const formatRecTime = (s: number) => `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
 
   const initials = profile?.name ? profile.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
 
@@ -135,12 +256,12 @@ export default function SettingsPage() {
                   : <div style={{ width: 0, height: 0, borderTop: '5px solid transparent', borderBottom: '5px solid transparent', borderLeft: '9px solid #22c55e', marginLeft: '2px' }} />}
                 </button>
                 <span style={{ fontSize: '13px', color: '#22c55e', fontWeight: 500 }}>Voz guardada</span>
-                <a href="/dashboard" style={{ marginLeft: 'auto', fontSize: '12px', color: 'rgba(255,255,255,0.3)', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '6px 14px' }}>Cambiar voz</a>
+                <button onClick={openVoiceModal} style={{ marginLeft: 'auto', fontSize: '12px', color: 'rgba(255,255,255,0.3)', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Cambiar voz</button>
               </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>No has grabado tu voz aun</span>
-                <a href="/dashboard" style={{ fontSize: '12px', color: '#c9a84c', textDecoration: 'none', border: '1px solid rgba(201,168,76,0.15)', borderRadius: '8px', padding: '6px 14px' }}>Grabar mi voz</a>
+                <button onClick={openVoiceModal} style={{ fontSize: '12px', color: '#c9a84c', background: 'transparent', border: '1px solid rgba(201,168,76,0.15)', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Grabar mi voz</button>
               </div>
             )}
           </div>
@@ -278,6 +399,70 @@ export default function SettingsPage() {
               <button onClick={() => setShowDeleteModal(false)} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', padding: '8px 20px', fontSize: '13px', color: '#ef4444', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Si, eliminar</button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Voice recorder modal */}
+      {showVoiceModal && (
+        <div onClick={() => { if (!isRecording && !savingVoice) closeVoiceModal(); }} style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(4,10,22,0.75)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#0b1426', border: '1px solid rgba(201,168,76,0.15)', borderRadius: '16px', padding: '32px', maxWidth: '440px', width: '100%', fontFamily: "'Outfit', sans-serif" }}>
+            <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontWeight: 400, color: '#fff', margin: '0 0 6px 0' }}>
+              <span style={{ color: '#c9a84c' }}>Grabar</span> tu voz
+            </h3>
+            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: '0 0 24px 0', lineHeight: 1.5 }}>
+              Habla durante al menos {MIN_RECORDING_SECONDS} segundos en un lugar silencioso.
+            </p>
+
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '52px', fontWeight: 300, color: isRecording ? '#c9a84c' : recordedBlob ? '#22c55e' : 'rgba(255,255,255,0.15)', letterSpacing: '4px' }}>
+                {formatRecTime(recordingTime)}
+              </div>
+              {isRecording && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '8px' }}>
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ef4444' }} />
+                  <span style={{ fontSize: '10px', color: 'rgba(239,68,68,0.8)', textTransform: 'uppercase', letterSpacing: '2px' }}>Grabando</span>
+                </div>
+              )}
+              {recordedBlob && !isRecording && (
+                <p style={{ fontSize: '12px', color: '#22c55e', margin: '8px 0 0' }}>Audio capturado</p>
+              )}
+              {isRecording && recordingTime > 0 && recordingTime < MIN_RECORDING_SECONDS && (
+                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', margin: '6px 0 0' }}>Minimo {MIN_RECORDING_SECONDS}s</p>
+              )}
+            </div>
+
+            {voiceError && (
+              <p style={{ fontSize: '12px', color: '#ef4444', textAlign: 'center', margin: '0 0 12px' }}>{voiceError}</p>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+              {!isRecording && !recordedBlob && (
+                <button onClick={startRecording} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '50%', width: '72px', height: '72px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Outfit', sans-serif" }}>
+                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#081020' }} />
+                </button>
+              )}
+              {isRecording && (
+                <button onClick={stopRecording} disabled={recordingTime < MIN_RECORDING_SECONDS} style={{ background: recordingTime < MIN_RECORDING_SECONDS ? 'rgba(239,68,68,0.2)' : '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '72px', height: '72px', cursor: recordingTime < MIN_RECORDING_SECONDS ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: '20px', height: '20px', background: '#fff', borderRadius: '3px' }} />
+                </button>
+              )}
+              {recordedBlob && !isRecording && (
+                <button onClick={() => { setRecordedBlob(null); setRecordingTime(0); setVoiceError(null); }} style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '10px 18px', fontSize: '12px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Grabar de nuevo</button>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={closeVoiceModal} disabled={savingVoice} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '10px 20px', fontSize: '13px', color: 'rgba(255,255,255,0.5)', cursor: savingVoice ? 'default' : 'pointer', fontFamily: "'Outfit', sans-serif" }}>Cancelar</button>
+              <button onClick={saveVoice} disabled={!recordedBlob || savingVoice || recordingTime < MIN_RECORDING_SECONDS} style={{ background: (!recordedBlob || recordingTime < MIN_RECORDING_SECONDS) ? 'rgba(201,168,76,0.2)' : 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '8px', padding: '10px 20px', fontSize: '13px', fontWeight: 600, cursor: (!recordedBlob || savingVoice || recordingTime < MIN_RECORDING_SECONDS) ? 'default' : 'pointer', fontFamily: "'Outfit', sans-serif" }}>{savingVoice ? 'Guardando...' : 'Guardar'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div style={{ position: 'fixed', top: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 200, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '10px', padding: '12px 20px', fontSize: '13px', color: '#22c55e', fontFamily: "'Outfit', sans-serif", backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
+          {toast}
         </div>
       )}
     </>
