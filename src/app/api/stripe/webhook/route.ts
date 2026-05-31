@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { stripe, getPlanFromPriceId } from '@/lib/stripe';
+import { sendPaymentConfirmationEmail } from '@/lib/email';
 
 // Lazy Supabase admin client — avoids env var access at build time
 let _sbAdmin: any = null;
@@ -133,6 +134,24 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   console.log(`[stripe-webhook] ✅ User ${userId} upgraded to ${plan.tier} (${plan.cycle})`);
+
+  // Payment confirmation email — fire-and-forget. Never block the webhook.
+  try {
+    const email = session.customer_details?.email || session.customer_email || undefined;
+    const name = session.customer_details?.name || undefined;
+    const amount = session.amount_total;
+    const currency = session.currency;
+    const tier = plan.tier;
+    if (email && amount != null && currency && (tier === 'pro' || tier === 'premium')) {
+      sendPaymentConfirmationEmail(email, tier, amount, currency, name || undefined).catch((err) => {
+        console.error('[stripe-webhook] sendPaymentConfirmationEmail failed:', err);
+      });
+    } else {
+      console.warn('[stripe-webhook] payment email skipped — missing email/amount/currency or non-billable tier', { hasEmail: !!email, amount, currency, tier });
+    }
+  } catch (e) {
+    console.error('[stripe-webhook] payment email setup error:', e);
+  }
 }
 
 /**
