@@ -3,6 +3,7 @@
 import { Suspense, useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
+import WelcomeModal from '@/app/components/WelcomeModal';
 
 type Lang = 'en' | 'es';
 const t = (lang: Lang, en: string, es: string) => lang === 'es' ? es : en;
@@ -94,6 +95,7 @@ function DashboardContent() {
   const [userAvatar, setUserAvatar] = useState('');
   const savedVoiceAudioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlayingSaved, setIsPlayingSaved] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   // Load user profile on mount
   useEffect(() => {
@@ -103,6 +105,7 @@ function DashboardContent() {
       if (data.profile?.tracks_this_month != null) setTracksThisMonth(data.profile.tracks_this_month);
       if (data.user?.name) setUserName(data.user.name);
       if (data.user?.avatar) setUserAvatar(data.user.avatar);
+      if (data.profile?.onboarding_completed === false) setShowWelcome(true);
     }).catch(() => {});
   }, []);
   const [generatedAudio, setGeneratedAudio] = useState<string | null>(null);
@@ -382,6 +385,9 @@ function DashboardContent() {
     </div>
   </div>
 )}
+
+{/* MODAL DE BIENVENIDA (ONBOARDING) */}
+<WelcomeModal isOpen={showWelcome} onClose={() => setShowWelcome(false)} />
     </>
   );
 }
