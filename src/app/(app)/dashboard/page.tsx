@@ -4,6 +4,7 @@ import { Suspense, useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import WelcomeModal from '@/app/components/WelcomeModal';
+import { Mic } from 'lucide-react';
 
 type Lang = 'en' | 'es';
 const t = (lang: Lang, en: string, es: string) => lang === 'es' ? es : en;
@@ -167,7 +168,7 @@ function DashboardContent() {
     if ((!audioBlob && !savedVoiceUrl) || !selectedFrequency) return;
     try {
       setIsGenerating(true);
-      setStatusMessage(t(lang, '🎙 Cloning your voice...', '🎙 Clonando tu voz...'));
+      setStatusMessage(t(lang, 'Cloning your voice...', 'Clonando tu voz...'));
 
       let voiceAudio = audioBlob;
       // If no new recording, fetch saved voice from Supabase
@@ -288,7 +289,7 @@ function DashboardContent() {
           {/* Saved voice card */}
           {savedVoiceUrl&&!hasRecording&&!isRecording&&(<div style={{background:'rgba(34,197,94,0.04)',border:'1px solid rgba(34,197,94,0.15)',borderRadius:'16px',padding:'22px 26px',marginBottom:'28px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:'14px'}}>
             <div style={{display:'flex',alignItems:'center',gap:'14px'}}>
-              <div style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(34,197,94,0.1)',border:'1px solid rgba(34,197,94,0.25)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'20px'}}>🎙</div>
+              <div style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(34,197,94,0.1)',border:'1px solid rgba(34,197,94,0.25)',display:'flex',alignItems:'center',justifyContent:'center'}}><Mic size={22} color="#22c55e" strokeWidth={2} /></div>
               <div><div style={{fontSize:'15px',fontWeight:600,color:'#22c55e'}}>{t(lang,'Your voice saved','Tu voz guardada')}</div><div style={{fontSize:'12px',color:'rgba(255,255,255,0.35)',marginTop:'2px'}}>{t(lang,'Ready to generate','Lista para generar')}</div></div>
             </div>
             <div style={{display:'flex',gap:'10px',alignItems:'center'}}>
