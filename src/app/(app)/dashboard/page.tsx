@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import WelcomeModal from '@/app/components/WelcomeModal';
 import { Mic } from 'lucide-react';
+import { trackEvent } from '@/lib/fbpixel';
 
 type Lang = 'en' | 'es';
 const t = (lang: Lang, en: string, es: string) => lang === 'es' ? es : en;
@@ -106,7 +107,13 @@ function DashboardContent() {
       if (data.profile?.tracks_this_month != null) setTracksThisMonth(data.profile.tracks_this_month);
       if (data.user?.name) setUserName(data.user.name);
       if (data.user?.avatar) setUserAvatar(data.user.avatar);
-      if (data.profile?.onboarding_completed === false) setShowWelcome(true);
+      if (data.profile?.onboarding_completed === false) {
+        setShowWelcome(true);
+        if (typeof window !== 'undefined' && !localStorage.getItem('fbq_registration_fired')) {
+          trackEvent('CompleteRegistration');
+          localStorage.setItem('fbq_registration_fired', '1');
+        }
+      }
     }).catch(() => {});
   }, []);
   const [generatedAudio, setGeneratedAudio] = useState<string | null>(null);
