@@ -1,6 +1,7 @@
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { trackEvent } from '@/lib/fbpixel';
 
 const GOALS = [
   { id: 'stress', icon: '🧘', label: 'Reducir estres y ansiedad' },
@@ -31,6 +32,14 @@ export default function OnboardingPage() {
   const [experience, setExperience] = useState('');
   const [minutes, setMinutes] = useState(10);
   const [saving, setSaving] = useState(false);
+
+  // Meta Pixel: new users land here first (middleware redirects onboarding_completed===false to /onboarding).
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !localStorage.getItem('fbq_registration_fired')) {
+      trackEvent('CompleteRegistration');
+      localStorage.setItem('fbq_registration_fired', '1');
+    }
+  }, []);
 
   const handleFinish = useCallback(async () => {
     setSaving(true);
