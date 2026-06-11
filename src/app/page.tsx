@@ -214,7 +214,7 @@ export default function LandingPage() {
               <span style={{ fontStyle: 'italic', fontWeight: 600, background: 'linear-gradient(135deg, #c9a84c, #e8d08c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{L('with your own voice', 'con tu propia voz')}</span>
             </h1>
             <p style={{ fontSize: '17px', fontWeight: 300, color: 'rgba(255,255,255,0.45)', marginTop: '24px', maxWidth: '520px', lineHeight: 1.7, animation: 'fadeUp 0.8s ease both 0.3s', opacity: 0 }}>
-              {L('AI clones your voice. Solfeggio frequencies sync your brain. Personalized affirmations rewire your beliefs.', 'La IA clona tu voz. Las frecuencias Solfeggio sincronizan tu cerebro. Afirmaciones personalizadas reprograman tus creencias.')}
+              {L("The affirmations you whisper to yourself, finally in a voice you can't ignore: yours.", 'Las afirmaciones que te susurras a ti misma, por fin en la voz que no puedes ignorar: la tuya.')}
             </p>
             <div style={{ display: 'flex', gap: '16px', marginTop: '44px', animation: 'fadeUp 0.8s ease both 0.45s', opacity: 0 }}>
               <a href={isLoggedIn ? '/dashboard' : '/login'} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', boxShadow: '0 4px 30px rgba(201,168,76,0.25), 0 0 60px rgba(201,168,76,0.08)' }}>{isLoggedIn ? L('Start', 'Comenzar') : L('Start Free', 'Comenzar Gratis')}</a>
