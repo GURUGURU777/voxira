@@ -258,7 +258,7 @@ export default function LandingPage() {
                 </div>
                 <div style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: '8px', padding: '4px 12px', fontSize: '11px', color: '#c9a84c', letterSpacing: '1px' }}>SAMPLE</div>
               </div>
-              <audio ref={audioRef} src={lang === 'es' ? '/demos/demo-es.mp3' : '/demos/demo-en.mp3'} preload="metadata" />
+              <audio ref={audioRef} src={lang === 'es' ? '/demos/demo-es.mp3' : '/demos/demo-en-v2.mp3'} preload="metadata" />
               <AudioWaveform isPlaying={isPlaying} />
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '20px' }}>
                 <button onClick={() => { setIsPlaying(!isPlaying); if (!isPlaying) setPlayProgress(0); }} style={{
@@ -277,7 +277,7 @@ export default function LandingPage() {
                   <div style={{ width: `${playProgress}%`, height: '100%', background: 'linear-gradient(90deg, #c9a84c, #4a9eff)', borderRadius: '2px', transition: 'width 0.1s linear' }} />
                 </div>
                 <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', fontFamily: "'Cormorant Garamond', serif" }}>
-                  {isPlaying ? `0:${Math.floor(playProgress / 100 * 30).toString().padStart(2, '0')}` : '0:30'}
+                  {isPlaying ? `0:${Math.floor(playProgress / 100 * (lang === 'es' ? 30 : 40)).toString().padStart(2, '0')}` : (lang === 'es' ? '0:30' : '0:40')}
                 </span>
               </div>
               <div style={{ display: 'flex', gap: '8px', marginTop: '20px', flexWrap: 'wrap' }}>
