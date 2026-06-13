@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { t } from '@/lib/i18n';
 
 interface Profile { name: string; email: string; avatar: string; voice_audio_url: string | null; plan: string; }
 
@@ -11,7 +12,7 @@ export default function SettingsPage() {
   const [editName, setEditName] = useState('');
   const [nameDirty, setNameDirty] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [lang, setLang] = useState<'en' | 'es'>('es');
+  const [lang, setLang] = useState<'en' | 'es'>('en');
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -178,7 +179,7 @@ export default function SettingsPage() {
       setShowVoiceModal(false);
       setRecordedBlob(null);
       setRecordingTime(0);
-      setToast('Voz actualizada exitosamente');
+      setToast(t(lang, 'Voice updated successfully', 'Voz actualizada exitosamente'));
       window.setTimeout(() => setToast(null), 3000);
     } catch (e) {
       setVoiceError(e instanceof Error ? e.message : 'Error al guardar voz');
@@ -198,7 +199,7 @@ export default function SettingsPage() {
     <>
       <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
       <div style={{ minHeight: '100vh', padding: '36px 32px', fontFamily: "'Outfit', sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: '14px' }}>Cargando...</p>
+        <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: '14px' }}>{t(lang, 'Loading...', 'Cargando...')}</p>
       </div>
     </>
   );
@@ -211,12 +212,12 @@ export default function SettingsPage() {
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
 
           <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '34px', fontWeight: 300, color: '#fff', margin: '0 0 32px 0' }}>
-            <span style={{ color: '#c9a84c', fontWeight: 400 }}>Configuracion</span>
+            <span style={{ color: '#c9a84c', fontWeight: 400 }}>{t(lang, 'Settings', 'Configuracion')}</span>
           </h1>
 
           {/* ═══ 1 — PROFILE ═══ */}
           <div style={card}>
-            <p style={label}>Perfil</p>
+            <p style={label}>{t(lang, 'Profile', 'Perfil')}</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
               {profile?.avatar ? (
                 <img src={profile.avatar} alt="" style={{ width: 56, height: 56, borderRadius: '50%', border: '2px solid rgba(201,168,76,0.15)' }} referrerPolicy="no-referrer" />
@@ -235,13 +236,13 @@ export default function SettingsPage() {
               <button onClick={handleSaveName} disabled={saving} style={{
                 background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '8px',
                 padding: '8px 20px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
-              }}>{saving ? 'Guardando...' : 'Guardar cambios'}</button>
+              }}>{saving ? t(lang, 'Saving...', 'Guardando...') : t(lang, 'Save changes', 'Guardar cambios')}</button>
             )}
           </div>
 
           {/* ═══ 2 — VOICE ═══ */}
           <div style={card}>
-            <p style={label}>Tu voz</p>
+            <p style={label}>{t(lang, 'Your voice', 'Tu voz')}</p>
             {profile?.voice_audio_url ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <button onClick={() => {
@@ -255,20 +256,20 @@ export default function SettingsPage() {
                   {voicePlaying ? <div style={{ display: 'flex', gap: '2px' }}><div style={{ width: '2px', height: '10px', background: '#22c55e', borderRadius: '1px' }} /><div style={{ width: '2px', height: '10px', background: '#22c55e', borderRadius: '1px' }} /></div>
                   : <div style={{ width: 0, height: 0, borderTop: '5px solid transparent', borderBottom: '5px solid transparent', borderLeft: '9px solid #22c55e', marginLeft: '2px' }} />}
                 </button>
-                <span style={{ fontSize: '13px', color: '#22c55e', fontWeight: 500 }}>Voz guardada</span>
-                <button onClick={openVoiceModal} style={{ marginLeft: 'auto', fontSize: '12px', color: 'rgba(255,255,255,0.3)', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Cambiar voz</button>
+                <span style={{ fontSize: '13px', color: '#22c55e', fontWeight: 500 }}>{t(lang, 'Voice saved', 'Voz guardada')}</span>
+                <button onClick={openVoiceModal} style={{ marginLeft: 'auto', fontSize: '12px', color: 'rgba(255,255,255,0.3)', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Change voice', 'Cambiar voz')}</button>
               </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>No has grabado tu voz aun</span>
-                <button onClick={openVoiceModal} style={{ fontSize: '12px', color: '#c9a84c', background: 'transparent', border: '1px solid rgba(201,168,76,0.15)', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Grabar mi voz</button>
+                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>{t(lang, "You haven't recorded your voice yet", 'No has grabado tu voz aun')}</span>
+                <button onClick={openVoiceModal} style={{ fontSize: '12px', color: '#c9a84c', background: 'transparent', border: '1px solid rgba(201,168,76,0.15)', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Record my voice', 'Grabar mi voz')}</button>
               </div>
             )}
           </div>
 
           {/* ═══ 3 — LANGUAGE ═══ */}
           <div style={card}>
-            <p style={label}>Idioma</p>
+            <p style={label}>{t(lang, 'Language', 'Idioma')}</p>
             <div style={{ display: 'flex', gap: '8px' }}>
               {[{ id: 'es' as const, label: 'Espanol' }, { id: 'en' as const, label: 'English' }].map(l => {
                 const sel = lang === l.id;
@@ -287,11 +288,11 @@ export default function SettingsPage() {
           {/* ═══ 4 — PLANS ═══ */}
           <div style={{ ...card, padding: '28px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <p style={{ ...label, margin: 0 }}>Plan y precios</p>
+              <p style={{ ...label, margin: 0 }}>{t(lang, 'Plans & pricing', 'Plan y precios')}</p>
               <div style={{ display: 'flex', gap: '0', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
-                <button onClick={() => setBilling('monthly')} style={{ padding: '6px 14px', fontSize: '11px', border: 'none', borderRadius: '7px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", background: billing === 'monthly' ? 'rgba(201,168,76,0.1)' : 'transparent', color: billing === 'monthly' ? '#c9a84c' : 'rgba(255,255,255,0.3)' }}>Mensual</button>
+                <button onClick={() => setBilling('monthly')} style={{ padding: '6px 14px', fontSize: '11px', border: 'none', borderRadius: '7px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", background: billing === 'monthly' ? 'rgba(201,168,76,0.1)' : 'transparent', color: billing === 'monthly' ? '#c9a84c' : 'rgba(255,255,255,0.3)' }}>{t(lang, 'Monthly', 'Mensual')}</button>
                 <button onClick={() => setBilling('annual')} style={{ padding: '6px 14px', fontSize: '11px', border: 'none', borderRadius: '7px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", background: billing === 'annual' ? 'rgba(201,168,76,0.1)' : 'transparent', color: billing === 'annual' ? '#c9a84c' : 'rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  Anual <span style={{ background: 'rgba(34,197,94,0.15)', color: '#22c55e', fontSize: '9px', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>-20%</span>
+                  {t(lang, 'Annual', 'Anual')} <span style={{ background: 'rgba(34,197,94,0.15)', color: '#22c55e', fontSize: '9px', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>-20%</span>
                 </button>
               </div>
             </div>
@@ -300,14 +301,14 @@ export default function SettingsPage() {
               {/* FREE */}
               <div style={{ background: 'rgba(255,255,255,0.02)', border: `1px solid ${profile?.plan === 'free' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)'}`, borderRadius: '12px', padding: '20px' }}>
                 <div style={{ fontSize: '14px', color: '#fff', fontWeight: 600, marginBottom: '4px' }}>Free</div>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: '#fff', marginBottom: '16px' }}>$0<span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>/mes</span></div>
-                {['5 tracks por mes', 'Duracion max 5 min', 'Sonidos sintetizados', '1 frecuencia por sesion'].map(f => (
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: '#fff', marginBottom: '16px' }}>$0<span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>{t(lang, '/mo', '/mes')}</span></div>
+                {[t(lang,'5 tracks/month','5 tracks por mes'), t(lang,'Max 5 min duration','Duracion max 5 min'), t(lang,'Synthesized sounds','Sonidos sintetizados'), t(lang,'1 frequency per session','1 frecuencia por sesion')].map(f => (
                   <div key={f} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
                     <span style={{ color: '#22c55e', fontSize: '12px' }}>✓</span>
                     <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>{f}</span>
                   </div>
                 ))}
-                <button disabled style={{ marginTop: '14px', width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '10px', fontSize: '12px', color: 'rgba(255,255,255,0.25)', cursor: 'default', fontFamily: "'Outfit', sans-serif" }}>Plan actual</button>
+                <button disabled style={{ marginTop: '14px', width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '10px', fontSize: '12px', color: 'rgba(255,255,255,0.25)', cursor: 'default', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Current plan', 'Plan actual')}</button>
               </div>
 
               {/* PRO */}
@@ -315,20 +316,20 @@ export default function SettingsPage() {
                 <div style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', fontSize: '9px', fontWeight: 700, padding: '3px 12px', borderRadius: '6px', letterSpacing: '1px' }}>MAS POPULAR</div>
                 <div style={{ fontSize: '14px', color: '#c9a84c', fontWeight: 600, marginBottom: '4px' }}>Pro</div>
                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: '#fff', marginBottom: '16px' }}>
-                  ${billing === 'annual' ? '7.99' : '9.99'}<span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>/mes</span>
+                  ${billing === 'annual' ? '7.99' : '9.99'}<span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>{t(lang, '/mo', '/mes')}</span>
                 </div>
-                {['20 tracks por mes', 'Duracion hasta 15 min', 'Sonidos ambientales premium', 'Todas las frecuencias'].map(f => (
+                {[t(lang,'20 tracks/month','20 tracks por mes'), t(lang,'Up to 15 min','Duracion hasta 15 min'), t(lang,'Premium ambient sounds','Sonidos ambientales premium'), t(lang,'All frequencies','Todas las frecuencias')].map(f => (
                   <div key={f} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
                     <span style={{ color: '#22c55e', fontSize: '12px' }}>✓</span>
                     <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>{f}</span>
                   </div>
                 ))}
                 {profile?.plan === 'pro' ? (
-                <button disabled style={{ marginTop: '14px', width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '10px', fontSize: '12px', color: 'rgba(255,255,255,0.25)', cursor: 'default', fontFamily: "'Outfit', sans-serif" }}>Plan actual</button>
+                <button disabled style={{ marginTop: '14px', width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '10px', fontSize: '12px', color: 'rgba(255,255,255,0.25)', cursor: 'default', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Current plan', 'Plan actual')}</button>
               ) : profile?.plan === 'premium' ? (
-                <button onClick={handleManageSubscription} disabled={portalLoading} style={{ marginTop: '14px', width: '100%', background: 'transparent', border: '1px solid rgba(201,168,76,0.2)', color: '#c9a84c', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{portalLoading ? 'Abriendo...' : 'Administrar suscripcion'}</button>
+                <button onClick={handleManageSubscription} disabled={portalLoading} style={{ marginTop: '14px', width: '100%', background: 'transparent', border: '1px solid rgba(201,168,76,0.2)', color: '#c9a84c', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{portalLoading ? t(lang,'Opening...','Abriendo...') : t(lang,'Manage subscription','Administrar suscripcion')}</button>
               ) : (
-                <button onClick={() => router.push('/pricing')} style={{ marginTop: '14px', width: '100%', background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Upgrade a Pro</button>
+                <button onClick={() => router.push('/pricing')} style={{ marginTop: '14px', width: '100%', background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Upgrade to Pro', 'Upgrade a Pro')}</button>
               )}
               </div>
 
@@ -336,18 +337,18 @@ export default function SettingsPage() {
               <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '20px' }}>
                 <div style={{ fontSize: '14px', color: '#fff', fontWeight: 600, marginBottom: '4px' }}>Premium</div>
                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: '#fff', marginBottom: '16px' }}>
-                  ${billing === 'annual' ? '15.99' : '19.99'}<span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>/mes</span>
+                  ${billing === 'annual' ? '15.99' : '19.99'}<span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>{t(lang, '/mo', '/mes')}</span>
                 </div>
-                {['Tracks ilimitados', 'Duracion hasta 60 min', 'Ciclos 21 dias con IA', 'Sonidos premium', 'Todas las frecuencias', 'Soporte prioritario'].map(f => (
+                {[t(lang,'Unlimited tracks','Tracks ilimitados'), t(lang,'Up to 60 min','Duracion hasta 60 min'), t(lang,'21-day AI cycles','Ciclos 21 dias con IA'), t(lang,'Premium sounds','Sonidos premium'), t(lang,'All frequencies','Todas las frecuencias'), t(lang,'Priority support','Soporte prioritario')].map(f => (
                   <div key={f} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
                     <span style={{ color: '#22c55e', fontSize: '12px' }}>✓</span>
                     <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>{f}</span>
                   </div>
                 ))}
                 {profile?.plan === 'premium' ? (
-                <button onClick={handleManageSubscription} disabled={portalLoading} style={{ marginTop: '14px', width: '100%', background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)', color: '#c9a84c', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{portalLoading ? 'Abriendo...' : 'Administrar suscripcion'}</button>
+                <button onClick={handleManageSubscription} disabled={portalLoading} style={{ marginTop: '14px', width: '100%', background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)', color: '#c9a84c', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{portalLoading ? t(lang,'Opening...','Abriendo...') : t(lang,'Manage subscription','Administrar suscripcion')}</button>
               ) : (
-                <button onClick={() => router.push('/pricing')} style={{ marginTop: '14px', width: '100%', background: 'transparent', border: '1px solid rgba(201,168,76,0.2)', color: '#c9a84c', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Upgrade a Premium</button>
+                <button onClick={() => router.push('/pricing')} style={{ marginTop: '14px', width: '100%', background: 'transparent', border: '1px solid rgba(201,168,76,0.2)', color: '#c9a84c', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Upgrade to Premium', 'Upgrade a Premium')}</button>
               )}
               </div>
             </div>
@@ -355,20 +356,20 @@ export default function SettingsPage() {
 
           {/* ═══ 5 — ACCOUNT ═══ */}
           <div style={card}>
-            <p style={label}>Cuenta</p>
+            <p style={label}>{t(lang, 'Account', 'Cuenta')}</p>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '10px 20px', fontSize: '13px', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Cerrar sesion</button>
-              <button onClick={() => setShowDeleteModal(true)} style={{ background: 'transparent', border: '1px solid rgba(239,68,68,0.1)', borderRadius: '8px', padding: '10px 20px', fontSize: '13px', color: 'rgba(239,68,68,0.5)', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Eliminar mi cuenta</button>
+              <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '10px 20px', fontSize: '13px', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Log out', 'Cerrar sesion')}</button>
+              <button onClick={() => setShowDeleteModal(true)} style={{ background: 'transparent', border: '1px solid rgba(239,68,68,0.1)', borderRadius: '8px', padding: '10px 20px', fontSize: '13px', color: 'rgba(239,68,68,0.5)', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Delete my account', 'Eliminar mi cuenta')}</button>
             </div>
           </div>
 
           {/* ═══ 6 — LEGAL ═══ */}
           <div style={card}>
-            <p style={label}>Legal</p>
+            <p style={label}>{t(lang, 'Legal', 'Legal')}</p>
             <div style={{ display: 'flex', gap: '16px' }}>
-              <a href="/terms" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>Terminos de Servicio</a>
-              <a href="/privacy" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>Politica de Privacidad</a>
-              <a href="mailto:contacto@afirmia.app" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>Contacto</a>
+              <a href="/terms" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>{t(lang, 'Terms of Service', 'Terminos de Servicio')}</a>
+              <a href="/privacy" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>{t(lang, 'Privacy Policy', 'Politica de Privacidad')}</a>
+              <a href="mailto:contacto@afirmia.app" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>{t(lang, 'Contact', 'Contacto')}</a>
             </div>
           </div>
 
@@ -390,13 +391,13 @@ export default function SettingsPage() {
       {showDeleteModal && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }} onClick={() => setShowDeleteModal(false)}>
           <div onClick={e => e.stopPropagation()} style={{ background: '#111827', border: '1px solid rgba(239,68,68,0.15)', borderRadius: '16px', padding: '28px', maxWidth: '400px', width: '100%' }}>
-            <h3 style={{ fontSize: '18px', color: '#fff', fontWeight: 600, margin: '0 0 10px 0', fontFamily: "'Outfit', sans-serif" }}>Eliminar cuenta</h3>
+            <h3 style={{ fontSize: '18px', color: '#fff', fontWeight: 600, margin: '0 0 10px 0', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Delete account', 'Eliminar cuenta')}</h3>
             <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.6, margin: '0 0 20px 0' }}>
-              Esta accion es irreversible. Se eliminaran todos tus tracks, ciclos y datos personales.
+              {t(lang, 'This action is irreversible. All your tracks, cycles and personal data will be deleted.', 'Esta accion es irreversible. Se eliminaran todos tus tracks, ciclos y datos personales.')}
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowDeleteModal(false)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '8px 20px', fontSize: '13px', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Cancelar</button>
-              <button onClick={() => setShowDeleteModal(false)} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', padding: '8px 20px', fontSize: '13px', color: '#ef4444', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Si, eliminar</button>
+              <button onClick={() => setShowDeleteModal(false)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '8px 20px', fontSize: '13px', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Cancel', 'Cancelar')}</button>
+              <button onClick={() => setShowDeleteModal(false)} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', padding: '8px 20px', fontSize: '13px', color: '#ef4444', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Yes, delete', 'Si, eliminar')}</button>
             </div>
           </div>
         </div>
@@ -407,10 +408,10 @@ export default function SettingsPage() {
         <div onClick={() => { if (!isRecording && !savingVoice) closeVoiceModal(); }} style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(4,10,22,0.75)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: '#0b1426', border: '1px solid rgba(201,168,76,0.15)', borderRadius: '16px', padding: '32px', maxWidth: '440px', width: '100%', fontFamily: "'Outfit', sans-serif" }}>
             <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontWeight: 400, color: '#fff', margin: '0 0 6px 0' }}>
-              <span style={{ color: '#c9a84c' }}>Grabar</span> tu voz
+              <span style={{ color: '#c9a84c' }}>{t(lang, 'Record', 'Grabar')}</span> {t(lang, 'your voice', 'tu voz')}
             </h3>
             <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: '0 0 24px 0', lineHeight: 1.5 }}>
-              Habla durante al menos {MIN_RECORDING_SECONDS} segundos en un lugar silencioso.
+              {t(lang, `Speak for at least ${MIN_RECORDING_SECONDS} seconds in a quiet place.`, `Habla durante al menos ${MIN_RECORDING_SECONDS} segundos en un lugar silencioso.`)}
             </p>
 
             <div style={{ textAlign: 'center', padding: '20px 0' }}>
@@ -420,14 +421,14 @@ export default function SettingsPage() {
               {isRecording && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '8px' }}>
                   <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ef4444' }} />
-                  <span style={{ fontSize: '10px', color: 'rgba(239,68,68,0.8)', textTransform: 'uppercase', letterSpacing: '2px' }}>Grabando</span>
+                  <span style={{ fontSize: '10px', color: 'rgba(239,68,68,0.8)', textTransform: 'uppercase', letterSpacing: '2px' }}>{t(lang, 'Recording', 'Grabando')}</span>
                 </div>
               )}
               {recordedBlob && !isRecording && (
-                <p style={{ fontSize: '12px', color: '#22c55e', margin: '8px 0 0' }}>Audio capturado</p>
+                <p style={{ fontSize: '12px', color: '#22c55e', margin: '8px 0 0' }}>{t(lang, 'Audio captured', 'Audio capturado')}</p>
               )}
               {isRecording && recordingTime > 0 && recordingTime < MIN_RECORDING_SECONDS && (
-                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', margin: '6px 0 0' }}>Minimo {MIN_RECORDING_SECONDS}s</p>
+                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', margin: '6px 0 0' }}>{t(lang, `Min ${MIN_RECORDING_SECONDS}s`, `Minimo ${MIN_RECORDING_SECONDS}s`)}</p>
               )}
             </div>
 
@@ -447,13 +448,13 @@ export default function SettingsPage() {
                 </button>
               )}
               {recordedBlob && !isRecording && (
-                <button onClick={() => { setRecordedBlob(null); setRecordingTime(0); setVoiceError(null); }} style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '10px 18px', fontSize: '12px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Grabar de nuevo</button>
+                <button onClick={() => { setRecordedBlob(null); setRecordingTime(0); setVoiceError(null); }} style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '10px 18px', fontSize: '12px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Record again', 'Grabar de nuevo')}</button>
               )}
             </div>
 
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-              <button onClick={closeVoiceModal} disabled={savingVoice} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '10px 20px', fontSize: '13px', color: 'rgba(255,255,255,0.5)', cursor: savingVoice ? 'default' : 'pointer', fontFamily: "'Outfit', sans-serif" }}>Cancelar</button>
-              <button onClick={saveVoice} disabled={!recordedBlob || savingVoice || recordingTime < MIN_RECORDING_SECONDS} style={{ background: (!recordedBlob || recordingTime < MIN_RECORDING_SECONDS) ? 'rgba(201,168,76,0.2)' : 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '8px', padding: '10px 20px', fontSize: '13px', fontWeight: 600, cursor: (!recordedBlob || savingVoice || recordingTime < MIN_RECORDING_SECONDS) ? 'default' : 'pointer', fontFamily: "'Outfit', sans-serif" }}>{savingVoice ? 'Guardando...' : 'Guardar'}</button>
+              <button onClick={closeVoiceModal} disabled={savingVoice} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '10px 20px', fontSize: '13px', color: 'rgba(255,255,255,0.5)', cursor: savingVoice ? 'default' : 'pointer', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Cancel', 'Cancelar')}</button>
+              <button onClick={saveVoice} disabled={!recordedBlob || savingVoice || recordingTime < MIN_RECORDING_SECONDS} style={{ background: (!recordedBlob || recordingTime < MIN_RECORDING_SECONDS) ? 'rgba(201,168,76,0.2)' : 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '8px', padding: '10px 20px', fontSize: '13px', fontWeight: 600, cursor: (!recordedBlob || savingVoice || recordingTime < MIN_RECORDING_SECONDS) ? 'default' : 'pointer', fontFamily: "'Outfit', sans-serif" }}>{savingVoice ? t(lang,'Saving...','Guardando...') : t(lang,'Save','Guardar')}</button>
             </div>
           </div>
         </div>
