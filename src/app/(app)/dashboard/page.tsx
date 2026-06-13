@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useState, useRef, useEffect, useCallback } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import WelcomeModal from '@/app/components/WelcomeModal';
 import { Mic } from 'lucide-react';
@@ -70,9 +70,7 @@ function Steps({ currentStep, lang }: { currentStep: Step; lang: Lang }) {
 
 function DashboardContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const paramLang = searchParams.get('lang');
-  const [lang, setLang] = useState<Lang>(paramLang === 'es' ? 'es' : 'en');
+  const [lang, setLang] = useState<Lang>('en');
   const [step, setStep] = useState<Step>(1);
   const [goal, setGoal] = useState('');
   const [selectedFrequency, setSelectedFrequency] = useState<Frequency | null>(null);
@@ -98,6 +96,12 @@ function DashboardContent() {
   const savedVoiceAudioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlayingSaved, setIsPlayingSaved] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+
+  // Single source of language: localStorage 'voxira-lang' (default 'en').
+  useEffect(() => {
+    const saved = localStorage.getItem('voxira-lang');
+    if (saved === 'en' || saved === 'es') setLang(saved);
+  }, []);
 
   // Load user profile on mount
   useEffect(() => {
@@ -148,7 +152,7 @@ function DashboardContent() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const toggleLang = useCallback(() => { const n = lang === 'en' ? 'es' : 'en'; setLang(n); router.replace(`/dashboard?lang=${n}`, { scroll: false }); }, [lang, router]);
+  const toggleLang = useCallback(() => { const n = lang === 'en' ? 'es' : 'en'; setLang(n); localStorage.setItem('voxira-lang', n); }, [lang]);
 
   useEffect(() => { if (!goal || goal.trim().length < 5) { setRecommendedHz(null); return; } const l = goal.toLowerCase(); const fm: Record<string, number> = {fear:396,miedo:396,anxiety:396,ansiedad:396,guilt:396,culpa:396,trauma:396,change:417,cambio:417,transform:417,harmony:432,balance:432,equilibrio:432,nature:432,naturaleza:432,confidence:528,confianza:528,love:528,amor:528,peace:528,paz:528,heal:528,sanar:528,miracle:528,milagro:528,body:432,cuerpo:432,relationship:639,relaciones:639,connection:639,familia:639,family:639,partner:639,pareja:639,abundance:741,abundancia:741,creativity:741,creatividad:741,expression:741,money:741,dinero:741,wealth:741,riqueza:741,millionaire:741,millonario:741,rich:741,rico:741,prosper:741,prosperidad:741,manifest:741,manifestar:741,intuition:852,intuicion:852,purpose:963,proposito:963,universe:963,universo:963,spiritual:963,espiritual:963,awaken:852,despertar:852}; const hc: Record<number, number> = {}; for (const [kw, hz] of Object.entries(fm)) { if (l.includes(kw)) { hc[hz] = (hc[hz] || 0) + 1; } } const s = Object.entries(hc).sort((a, b) => b[1] - a[1]); setRecommendedHz(s.length > 0 ? Number(s[0][0]) : null); }, [goal]);
 
@@ -259,7 +263,7 @@ function DashboardContent() {
         <div style={{position:'relative',zIndex:1,maxWidth:'860px',margin:'0 auto'}}>
           <header style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'48px'}}>
             <span style={{fontSize:'12px',fontWeight:300,color:'rgba(255,255,255,0.15)',letterSpacing:'1px'}}>Personal Mindset Frequencies</span>
-            <a href={`/?lang=${lang}`} style={{textDecoration:'none'}}><VoxiraLogo/></a>
+            <a href="/" style={{textDecoration:'none'}}><VoxiraLogo/></a>
             <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
               <button onClick={toggleLang} style={{background:'rgba(12,26,46,0.6)',border:'1px solid rgba(61,142,207,0.1)',borderRadius:'8px',padding:'6px 12px',fontSize:'11px',color:'rgba(255,255,255,0.4)',cursor:'pointer',letterSpacing:'1px',textTransform:'uppercase'}}>{lang==='en'?'ES':'EN'}</button>
               <div style={{width:'34px',height:'34px',borderRadius:'50%',background:'rgba(12,26,46,0.6)',border:'1px solid rgba(61,142,207,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>

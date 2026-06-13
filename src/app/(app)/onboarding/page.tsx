@@ -2,28 +2,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { trackEvent } from '@/lib/fbpixel';
-
-const GOALS = [
-  { id: 'stress', icon: '🧘', label: 'Reducir estres y ansiedad' },
-  { id: 'confidence', icon: '💪', label: 'Aumentar confianza' },
-  { id: 'abundance', icon: '💰', label: 'Atraer abundancia' },
-  { id: 'relationships', icon: '❤️', label: 'Mejorar relaciones' },
-  { id: 'habits', icon: '🧠', label: 'Superar adicciones' },
-  { id: 'spiritual', icon: '✨', label: 'Crecimiento espiritual' },
-];
-
-const EXPERIENCE = [
-  { id: 'never', label: 'Nunca, soy principiante' },
-  { id: 'sometimes', label: 'Algunas veces, tengo algo de experiencia' },
-  { id: 'regular', label: 'Si, practico regularmente' },
-];
-
-const DURATIONS = [
-  { min: 5, label: '5 min', desc: 'Tengo poco tiempo' },
-  { min: 10, label: '10 min', desc: 'Un momento para mi' },
-  { min: 15, label: '15 min', desc: 'Sesion completa' },
-  { min: 30, label: '30 min', desc: 'Inmersion profunda' },
-];
+import { t, type Lang } from '@/lib/i18n';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -32,6 +11,35 @@ export default function OnboardingPage() {
   const [experience, setExperience] = useState('');
   const [minutes, setMinutes] = useState(10);
   const [saving, setSaving] = useState(false);
+  const [lang, setLang] = useState<Lang>('en');
+
+  // Single source of language: localStorage 'voxira-lang' (default 'en').
+  useEffect(() => {
+    const saved = localStorage.getItem('voxira-lang');
+    if (saved === 'en' || saved === 'es') setLang(saved);
+  }, []);
+
+  const GOALS = [
+    { id: 'stress', icon: '🧘', label: t(lang, 'Reduce stress and anxiety', 'Reducir estres y ansiedad') },
+    { id: 'confidence', icon: '💪', label: t(lang, 'Boost confidence', 'Aumentar confianza') },
+    { id: 'abundance', icon: '💰', label: t(lang, 'Attract abundance', 'Atraer abundancia') },
+    { id: 'relationships', icon: '❤️', label: t(lang, 'Improve relationships', 'Mejorar relaciones') },
+    { id: 'habits', icon: '🧠', label: t(lang, 'Overcome addictions', 'Superar adicciones') },
+    { id: 'spiritual', icon: '✨', label: t(lang, 'Spiritual growth', 'Crecimiento espiritual') },
+  ];
+
+  const EXPERIENCE = [
+    { id: 'never', label: t(lang, "Never, I'm a beginner", 'Nunca, soy principiante') },
+    { id: 'sometimes', label: t(lang, 'Sometimes, I have some experience', 'Algunas veces, tengo algo de experiencia') },
+    { id: 'regular', label: t(lang, 'Yes, I practice regularly', 'Si, practico regularmente') },
+  ];
+
+  const DURATIONS = [
+    { min: 5, label: '5 min', desc: t(lang, 'I have little time', 'Tengo poco tiempo') },
+    { min: 10, label: '10 min', desc: t(lang, 'A moment for myself', 'Un momento para mi') },
+    { min: 15, label: '15 min', desc: t(lang, 'Full session', 'Sesion completa') },
+    { min: 30, label: '30 min', desc: t(lang, 'Deep immersion', 'Inmersion profunda') },
+  ];
 
   // Meta Pixel: new users land here first (middleware redirects onboarding_completed===false to /onboarding).
   useEffect(() => {
@@ -69,9 +77,9 @@ export default function OnboardingPage() {
           {step === 1 && (
             <div style={{ animation: 'fadeUp 0.5s ease' }}>
               <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '30px', fontWeight: 300, color: '#fff', margin: '0 0 8px 0' }}>
-                Cual es tu <span style={{ color: '#c9a84c', fontWeight: 400 }}>objetivo</span> principal?
+                {t(lang, 'What is your main ', 'Cual es tu ')}<span style={{ color: '#c9a84c', fontWeight: 400 }}>{t(lang, 'goal', 'objetivo')}</span>{t(lang, '?', ' principal?')}
               </h1>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.3)', marginBottom: '28px' }}>Esto nos ayuda a personalizar tu experiencia</p>
+              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.3)', marginBottom: '28px' }}>{t(lang, 'This helps us personalize your experience', 'Esto nos ayuda a personalizar tu experiencia')}</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
                 {GOALS.map(g => (
                   <button key={g.id} onClick={() => { setGoal(g.id); setStep(2); }} style={{
@@ -91,9 +99,9 @@ export default function OnboardingPage() {
           {step === 2 && (
             <div style={{ animation: 'fadeUp 0.5s ease' }}>
               <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '30px', fontWeight: 300, color: '#fff', margin: '0 0 8px 0' }}>
-                Has practicado <span style={{ color: '#c9a84c', fontWeight: 400 }}>meditacion</span>?
+                {t(lang, 'Have you practiced ', 'Has practicado ')}<span style={{ color: '#c9a84c', fontWeight: 400 }}>{t(lang, 'meditation', 'meditacion')}</span>?
               </h1>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.3)', marginBottom: '28px' }}>Adaptaremos la intensidad a tu nivel</p>
+              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.3)', marginBottom: '28px' }}>{t(lang, "We'll adapt the intensity to your level", 'Adaptaremos la intensidad a tu nivel')}</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {EXPERIENCE.map(e => (
                   <button key={e.id} onClick={() => { setExperience(e.id); setStep(3); }} style={{
@@ -103,7 +111,7 @@ export default function OnboardingPage() {
                   }}>{e.label}</button>
                 ))}
               </div>
-              <button onClick={() => setStep(1)} style={{ marginTop: '16px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.25)', fontSize: '12px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>← Atras</button>
+              <button onClick={() => setStep(1)} style={{ marginTop: '16px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.25)', fontSize: '12px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>← {t(lang, 'Back', 'Atras')}</button>
             </div>
           )}
 
@@ -111,9 +119,9 @@ export default function OnboardingPage() {
           {step === 3 && (
             <div style={{ animation: 'fadeUp 0.5s ease' }}>
               <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '30px', fontWeight: 300, color: '#fff', margin: '0 0 8px 0' }}>
-                Cuantos minutos al <span style={{ color: '#c9a84c', fontWeight: 400 }}>dia</span>?
+                {t(lang, 'How many minutes a ', 'Cuantos minutos al ')}<span style={{ color: '#c9a84c', fontWeight: 400 }}>{t(lang, 'day', 'dia')}</span>?
               </h1>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.3)', marginBottom: '28px' }}>Elige lo que se adapte a tu rutina</p>
+              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.3)', marginBottom: '28px' }}>{t(lang, 'Choose what fits your routine', 'Elige lo que se adapte a tu rutina')}</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginBottom: '28px' }}>
                 {DURATIONS.map(d => {
                   const sel = minutes === d.min;
@@ -134,8 +142,8 @@ export default function OnboardingPage() {
                 width: '100%', background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none',
                 borderRadius: '14px', padding: '16px', fontSize: '15px', fontWeight: 700, cursor: 'pointer',
                 fontFamily: "'Outfit', sans-serif", letterSpacing: '0.5px', opacity: saving ? 0.5 : 1,
-              }}>{saving ? 'Guardando...' : 'Comenzar mi transformacion'}</button>
-              <button onClick={() => setStep(2)} style={{ marginTop: '12px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.25)', fontSize: '12px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", display: 'block', margin: '12px auto 0' }}>← Atras</button>
+              }}>{saving ? t(lang, 'Saving...', 'Guardando...') : t(lang, 'Start my transformation', 'Comenzar mi transformacion')}</button>
+              <button onClick={() => setStep(2)} style={{ marginTop: '12px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.25)', fontSize: '12px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", display: 'block', margin: '12px auto 0' }}>← {t(lang, 'Back', 'Atras')}</button>
             </div>
           )}
         </div>

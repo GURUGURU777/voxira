@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { t, type Lang } from '@/lib/i18n';
 
 interface CycleDay { id: string; day_number: number; completed: boolean; }
@@ -24,11 +24,8 @@ export default function CyclesPage() {
 }
 
 function CyclesContent() {
-  const searchParams = useSearchParams();
-  const paramLang = searchParams?.get('lang');
-  const lang: Lang = paramLang === 'es' ? 'es' : 'en';
-
   const router = useRouter();
+  const [lang, setLang] = useState<Lang>('en');
   const [cycles, setCycles] = useState<Cycle[]>([]);
   const [loading, setLoading] = useState(true);
   const [userPlan, setUserPlan] = useState<string>('free');
@@ -74,6 +71,12 @@ function CyclesContent() {
     habitos: t(lang, 'Describe the habit you want to transform...', 'Describe el habito que quieres transformar...'),
     espiritualidad: t(lang, 'Describe the spiritual aspect you want to develop...', 'Describe el aspecto espiritual que quieres desarrollar...'),
   };
+
+  // Single source of language: localStorage 'voxira-lang' (default 'en').
+  useEffect(() => {
+    const saved = localStorage.getItem('voxira-lang');
+    if (saved === 'en' || saved === 'es') setLang(saved);
+  }, []);
 
   useEffect(() => {
     fetch('/api/cycles').then(r => r.json()).then(d => setCycles(d.cycles || [])).catch(() => {}).finally(() => setLoading(false));

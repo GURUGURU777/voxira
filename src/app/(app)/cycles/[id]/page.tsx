@@ -2,24 +2,26 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
+import { t, type Lang } from '@/lib/i18n';
 
 interface CycleDay { id: string; day_number: number; completed: boolean; completed_at: string | null; track_id: string | null; emotional_score: number | null; tracks: { file_url: string } | null; }
 interface Cycle { id: string; intention: string; frequency: number; current_day: number; completed: boolean; started_at: string; completed_at: string | null; preferred_time: string | null; cycle_days: CycleDay[]; }
 
 const FC: Record<number, string> = { 396: '#c9a84c', 417: '#d85a30', 432: '#639922', 528: '#639922', 639: '#d4537e', 741: '#388add', 852: '#1d9e75', 963: '#534ab7' };
 const FN: Record<number, string> = { 396: 'Liberation', 417: 'Change', 432: 'Harmony', 528: 'Miracle', 639: 'Connection', 741: 'Expression', 852: 'Intuition', 963: 'Crown' };
-const WEEKDAYS = ['L', 'M', 'Mi', 'J', 'V', 'S', 'D'];
+const WEEKDAYS_EN = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+const WEEKDAYS_ES = ['L', 'M', 'Mi', 'J', 'V', 'S', 'D'];
 const MOOD_EMOJIS = ['😟', '😐', '🙂', '😊', '🤩'];
 const PHASES = [
-  { name: 'Aceptacion y Reconocimiento', color: '#388add', range: [1, 7] },
-  { name: 'Transformacion y Accion', color: '#c9a84c', range: [8, 14] },
-  { name: 'Integracion y Poder', color: '#22c55e', range: [15, 21] },
+  { nameEn: 'Acceptance & Recognition', nameEs: 'Aceptacion y Reconocimiento', color: '#388add', range: [1, 7] },
+  { nameEn: 'Transformation & Action', nameEs: 'Transformacion y Accion', color: '#c9a84c', range: [8, 14] },
+  { nameEn: 'Integration & Power', nameEs: 'Integracion y Poder', color: '#22c55e', range: [15, 21] },
 ];
 
 function getDayDate(s: string, n: number): Date { const d = new Date(s); d.setDate(d.getDate() + n - 1); return d; }
 function isToday(d: Date): boolean { const n = new Date(); return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate(); }
 function isPast(d: Date): boolean { const n = new Date(); n.setHours(0,0,0,0); const x = new Date(d); x.setHours(0,0,0,0); return x < n; }
-function fmtShort(d: Date): string { return d.toLocaleDateString('es', { month: 'short', day: 'numeric' }); }
+function fmtShort(d: Date, lang: Lang): string { return d.toLocaleDateString(lang === 'es' ? 'es' : 'en-US', { month: 'short', day: 'numeric' }); }
 function fmtTime(s: number) { if (!s || !isFinite(s)) return '0:00'; return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`; }
 function getPhase(day: number) { return PHASES[day <= 7 ? 0 : day <= 14 ? 1 : 2]; }
 function getStreak(days: CycleDay[], startedAt: string): number {
@@ -31,10 +33,15 @@ function getStreak(days: CycleDay[], startedAt: string): number {
   }
   return streak;
 }
-function getPhaseIntention(intention: string, dayNum: number): string {
-  if (dayNum <= 7) return intention + ` [FASE DE ACEPTACIÓN - DÍA ${dayNum}/21: Genera afirmaciones suaves de aceptación y reconocimiento. El usuario está tomando consciencia de su patrón. Sin presión, con compasión y apertura.]`;
-  if (dayNum <= 14) return intention + ` [FASE DE TRANSFORMACIÓN - DÍA ${dayNum}/21: Genera afirmaciones de empoderamiento y acción concreta. El usuario ya reconoció su patrón y está listo para el cambio activo. Afirmaciones directas y poderosas.]`;
-  return intention + ` [FASE DE INTEGRACIÓN - DÍA ${dayNum}/21: Genera afirmaciones de certeza absoluta, como si el cambio ya ocurrió. El usuario está consolidando su nueva identidad. Afirmaciones en presente, con total convicción.]`;
+function getPhaseIntention(intention: string, dayNum: number, lang: Lang): string {
+  if (lang === 'es') {
+    if (dayNum <= 7) return intention + ` [FASE DE ACEPTACIÓN - DÍA ${dayNum}/21: Genera afirmaciones suaves de aceptación y reconocimiento. El usuario está tomando consciencia de su patrón. Sin presión, con compasión y apertura.]`;
+    if (dayNum <= 14) return intention + ` [FASE DE TRANSFORMACIÓN - DÍA ${dayNum}/21: Genera afirmaciones de empoderamiento y acción concreta. El usuario ya reconoció su patrón y está listo para el cambio activo. Afirmaciones directas y poderosas.]`;
+    return intention + ` [FASE DE INTEGRACIÓN - DÍA ${dayNum}/21: Genera afirmaciones de certeza absoluta, como si el cambio ya ocurrió. El usuario está consolidando su nueva identidad. Afirmaciones en presente, con total convicción.]`;
+  }
+  if (dayNum <= 7) return intention + ` [ACCEPTANCE PHASE - DAY ${dayNum}/21: Generate gentle affirmations of acceptance and recognition. The user is becoming aware of their pattern. No pressure, with compassion and openness.]`;
+  if (dayNum <= 14) return intention + ` [TRANSFORMATION PHASE - DAY ${dayNum}/21: Generate affirmations of empowerment and concrete action. The user has recognized their pattern and is ready for active change. Direct and powerful affirmations.]`;
+  return intention + ` [INTEGRATION PHASE - DAY ${dayNum}/21: Generate affirmations of absolute certainty, as if the change already happened. The user is consolidating their new identity. Present-tense affirmations, with total conviction.]`;
 }
 
 // ── Custom Player ──
@@ -72,7 +79,7 @@ function Player({ src }: { src: string }) {
 }
 
 // ── Emotional Chart ──
-function EmotionalChart({ days, startedAt }: { days: CycleDay[]; startedAt: string }) {
+function EmotionalChart({ days, startedAt, lang }: { days: CycleDay[]; startedAt: string; lang: Lang }) {
   const scored = days.filter(d => d.completed && d.emotional_score).sort((a, b) => a.day_number - b.day_number);
   if (scored.length < 2) return null;
   const w = 600; const h = 120; const padX = 30; const padY = 15;
@@ -82,7 +89,7 @@ function EmotionalChart({ days, startedAt }: { days: CycleDay[]; startedAt: stri
   const line = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
   return (
     <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '14px', padding: '20px', marginBottom: '24px' }}>
-      <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '12px' }}>Evolucion emocional</p>
+      <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '12px' }}>{t(lang, 'Emotional evolution', 'Evolucion emocional')}</p>
       <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: 'auto' }}>
         {/* Phase dividers */}
         <line x1={padX + 7 * xStep - xStep / 2} y1={padY} x2={padX + 7 * xStep - xStep / 2} y2={h - padY} stroke="rgba(255,255,255,0.04)" strokeDasharray="4" />
@@ -111,6 +118,13 @@ export default function CycleDetailPage() {
   const [genStatus, setGenStatus] = useState('');
   const [genAudioUrl, setGenAudioUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [lang, setLang] = useState<Lang>('en');
+
+  // Single source of language: localStorage 'voxira-lang' (default 'en').
+  useEffect(() => {
+    const saved = localStorage.getItem('voxira-lang');
+    if (saved === 'en' || saved === 'es') setLang(saved);
+  }, []);
 
   useEffect(() => {
     fetch(`/api/cycles?id=${cycleId}`).then(r => r.json()).then(d => setCycle(d.cycle || null)).catch(() => {}).finally(() => setLoading(false));
@@ -141,7 +155,7 @@ export default function CycleDetailPage() {
 
     if (canReuse) {
       try {
-        setGenStatus('✨ Preparando tu sesion de fase...');
+        setGenStatus(t(lang, '✨ Preparing your phase session...', '✨ Preparando tu sesion de fase...'));
         const reusedTrackId = phaseAnchorDay.track_id;
         const reusedFileUrl = phaseAnchorDay.tracks?.file_url || null;
 
@@ -153,7 +167,7 @@ export default function CycleDetailPage() {
             cycle_days: prev.cycle_days.map(d => d.day_number === todayDay.day_number ? { ...d, completed: true, completed_at: new Date().toISOString(), track_id: reusedTrackId, tracks: reusedFileUrl ? { file_url: reusedFileUrl } : d.tracks, emotional_score: emotionalScore } : d) };
         });
         if (reusedFileUrl) setGenAudioUrl(reusedFileUrl);
-        setGenStatus('✅ Sesion del dia ' + todayDay.day_number + ' lista! (audio de tu fase actual)');
+        setGenStatus(t(lang, `✅ Day ${todayDay.day_number} session ready! (audio from your current phase)`, `✅ Sesion del dia ${todayDay.day_number} lista! (audio de tu fase actual)`));
       } catch (err) {
         setGenStatus(`❌ ${err instanceof Error ? err.message : 'Error'}`);
       } finally {
@@ -164,24 +178,24 @@ export default function CycleDetailPage() {
     // ═══ FIN CACHÉ POR FASE ═══
 
     try {
-      setGenStatus('🎙 Obteniendo tu voz...');
+      setGenStatus(t(lang, '🎙 Getting your voice...', '🎙 Obteniendo tu voz...'));
       const profileData = await (await fetch('/api/profile')).json();
       const voiceUrl = profileData.profile?.voice_audio_url;
-      if (!voiceUrl) { setGenStatus('❌ No tienes voz guardada. Ve al Dashboard para grabar tu voz.'); setIsGenerating(false); return; }
+      if (!voiceUrl) { setGenStatus(t(lang, '❌ No saved voice. Go to the Dashboard to record your voice.', '❌ No tienes voz guardada. Ve al Dashboard para grabar tu voz.')); setIsGenerating(false); return; }
 
-      setGenStatus('🎙 Clonando tu voz...');
+      setGenStatus(t(lang, '🎙 Cloning your voice...', '🎙 Clonando tu voz...'));
       const voiceBlob = await (await fetch(voiceUrl)).blob();
       const cloneForm = new FormData(); cloneForm.append('audio', voiceBlob, 'voice.webm'); cloneForm.append('name', `VOXIRA-cycle-${Date.now()}`);
       const cloneData = await (await fetch('/api/clone-voice', { method: 'POST', body: cloneForm })).json();
       if (!cloneData.voice_id) throw new Error(cloneData.error || 'Clone failed');
 
       const phase = getPhase(todayDay.day_number);
-      setGenStatus(`✨ Generando afirmaciones fase ${PHASES.indexOf(phase) + 1}...`);
-      const enrichedIntention = getPhaseIntention(cycle.intention, todayDay.day_number);
-      const genData = await (await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: cloneData.voice_id, intention: enrichedIntention, frequency: cycle.frequency, duration: selectedDuration, lang: 'es' }) })).json();
+      setGenStatus(t(lang, `✨ Generating phase ${PHASES.indexOf(phase) + 1} affirmations...`, `✨ Generando afirmaciones fase ${PHASES.indexOf(phase) + 1}...`));
+      const enrichedIntention = getPhaseIntention(cycle.intention, todayDay.day_number, lang);
+      const genData = await (await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: cloneData.voice_id, intention: enrichedIntention, frequency: cycle.frequency, duration: selectedDuration, lang }) })).json();
       if (!genData.audio) throw new Error(genData.error || 'Generation failed');
 
-      setGenStatus('💾 Guardando sesion...');
+      setGenStatus(t(lang, '💾 Saving session...', '💾 Guardando sesion...'));
       const sb = createClient();
       const { data: { user: u } } = await sb.auth.getUser();
       if (!u) throw new Error('Not authenticated');
@@ -200,20 +214,21 @@ export default function CycleDetailPage() {
           cycle_days: prev.cycle_days.map(d => d.day_number === todayDay.day_number ? { ...d, completed: true, completed_at: new Date().toISOString(), track_id: trackData.track?.id, tracks: { file_url: publicUrl }, emotional_score: emotionalScore } : d) };
       });
       setGenAudioUrl(publicUrl);
-      setGenStatus('✅ Sesion del dia ' + todayDay.day_number + ' completada!');
+      setGenStatus(t(lang, `✅ Day ${todayDay.day_number} session completed!`, `✅ Sesion del dia ${todayDay.day_number} completada!`));
     } catch (err) { setGenStatus(`❌ ${err instanceof Error ? err.message : 'Error'}`); } finally { setIsGenerating(false); }
   }, [cycle, selectedDuration, emotionalScore]);
 
   const handleDelete = useCallback(async () => {
-    if (!confirm('Eliminar este ciclo?')) return;
+    if (!confirm(t(lang, 'Delete this cycle?', 'Eliminar este ciclo?'))) return;
     await fetch(`/api/cycles?id=${cycleId}`, { method: 'DELETE' });
     router.push('/cycles');
   }, [cycleId, router]);
 
-  if (loading) return (<><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" /><div style={{ minHeight: '100vh', padding: '36px 32px', fontFamily: "'Outfit', sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: 'rgba(201,168,76,0.6)', fontSize: '14px' }}>Cargando ciclo...</p></div></>);
-  if (!cycle) return (<><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" /><div style={{ minHeight: '100vh', padding: '36px 32px', fontFamily: "'Outfit', sans-serif", textAlign: 'center', paddingTop: '80px' }}><p style={{ color: 'rgba(255,255,255,0.3)' }}>Ciclo no encontrado</p><a href="/cycles" style={{ color: '#c9a84c', fontSize: '13px' }}>← Volver</a></div></>);
+  if (loading) return (<><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" /><div style={{ minHeight: '100vh', padding: '36px 32px', fontFamily: "'Outfit', sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: 'rgba(201,168,76,0.6)', fontSize: '14px' }}>{t(lang, 'Loading cycle...', 'Cargando ciclo...')}</p></div></>);
+  if (!cycle) return (<><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" /><div style={{ minHeight: '100vh', padding: '36px 32px', fontFamily: "'Outfit', sans-serif", textAlign: 'center', paddingTop: '80px' }}><p style={{ color: 'rgba(255,255,255,0.3)' }}>{t(lang, 'Cycle not found', 'Ciclo no encontrado')}</p><a href="/cycles" style={{ color: '#c9a84c', fontSize: '13px' }}>← {t(lang, 'Back', 'Volver')}</a></div></>);
 
   const color = FC[cycle.frequency] || '#c9a84c';
+  const WEEKDAYS = lang === 'es' ? WEEKDAYS_ES : WEEKDAYS_EN;
   const sortedDays = [...cycle.cycle_days].sort((a, b) => a.day_number - b.day_number);
   const completedDays = sortedDays.filter(d => d.completed).length;
   const pct = (completedDays / 21) * 100;
@@ -245,18 +260,18 @@ export default function CycleDetailPage() {
       <div style={{ minHeight: '100vh', padding: '36px 32px', fontFamily: "'Outfit', sans-serif" }}>
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
 
-          <a href="/cycles" style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', textDecoration: 'none', display: 'inline-block', marginBottom: '24px' }}>← Todos los ciclos</a>
+          <a href="/cycles" style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', textDecoration: 'none', display: 'inline-block', marginBottom: '24px' }}>← {t(lang, 'All cycles', 'Todos los ciclos')}</a>
 
           {/* ═══ A — HEADER ═══ */}
           <div style={{ marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
               <span style={{ fontSize: '11px', color, fontWeight: 600, background: `${color}12`, border: `1px solid ${color}25`, borderRadius: '6px', padding: '3px 10px' }}>{cycle.frequency}Hz {FN[cycle.frequency] || ''}</span>
-              <span style={{ fontSize: '11px', color: phase.color, fontWeight: 500, background: `${phase.color}12`, border: `1px solid ${phase.color}25`, borderRadius: '6px', padding: '3px 10px' }}>Fase {phaseIdx + 1}: {phase.name}</span>
-              {cycle.completed && <span style={{ fontSize: '11px', color: '#22c55e', background: 'rgba(34,197,94,0.1)', borderRadius: '6px', padding: '3px 10px' }}>Completado</span>}
+              <span style={{ fontSize: '11px', color: phase.color, fontWeight: 500, background: `${phase.color}12`, border: `1px solid ${phase.color}25`, borderRadius: '6px', padding: '3px 10px' }}>{t(lang, 'Phase', 'Fase')} {phaseIdx + 1}: {t(lang, phase.nameEn, phase.nameEs)}</span>
+              {cycle.completed && <span style={{ fontSize: '11px', color: '#22c55e', background: 'rgba(34,197,94,0.1)', borderRadius: '6px', padding: '3px 10px' }}>{t(lang, 'Completed', 'Completado')}</span>}
             </div>
             <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '26px', fontWeight: 400, color: '#fff', margin: '0 0 6px 0', lineHeight: 1.4, fontStyle: 'italic' }}>{cycle.intention}</h1>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>{fmtShort(startDate)} — {fmtShort(endDate)} {endDate.getFullYear()}</span>
+              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>{fmtShort(startDate, lang)} — {fmtShort(endDate, lang)} {endDate.getFullYear()}</span>
               {cycle.preferred_time && <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.2)' }}>🕐 {cycle.preferred_time}</span>}
             </div>
           </div>
@@ -267,7 +282,7 @@ export default function CycleDetailPage() {
               {todayCompleted ? (
                 <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)', borderRadius: '14px', padding: '18px 24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(34,197,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', color: '#22c55e', flexShrink: 0 }}>✓</div>
-                  <span style={{ fontSize: '16px', color: '#22c55e', fontWeight: 600 }}>Dia {todayDay.day_number} completado</span>
+                  <span style={{ fontSize: '16px', color: '#22c55e', fontWeight: 600 }}>{t(lang, 'Day', 'Dia')} {todayDay.day_number} {t(lang, 'completed', 'completado')}</span>
                 </div>
               ) : (
                 <button onClick={() => document.getElementById('session-section')?.scrollIntoView({ behavior: 'smooth' })} style={{
@@ -275,7 +290,7 @@ export default function CycleDetailPage() {
                   padding: '20px 28px', fontSize: '16px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
                   letterSpacing: '0.5px', boxShadow: '0 4px 30px rgba(201,168,76,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
                 }}>
-                  <span style={{ fontSize: '20px' }}>🎧</span> Escuchar sesion del dia {todayDay.day_number}
+                  <span style={{ fontSize: '20px' }}>🎧</span> {t(lang, `Listen to day ${todayDay.day_number} session`, `Escuchar sesion del dia ${todayDay.day_number}`)}
                 </button>
               )}
             </div>
@@ -286,11 +301,11 @@ export default function CycleDetailPage() {
             <div style={{ background: `${phase.color}08`, border: `1px solid ${phase.color}15`, borderRadius: '12px', padding: '14px 18px', marginBottom: '24px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: phase.color, marginTop: '5px', flexShrink: 0 }} />
               <div>
-                <span style={{ fontSize: '13px', color: phase.color, fontWeight: 600 }}>Fase {phaseIdx + 1}: {phase.name}</span>
+                <span style={{ fontSize: '13px', color: phase.color, fontWeight: 600 }}>{t(lang, 'Phase', 'Fase')} {phaseIdx + 1}: {t(lang, phase.nameEn, phase.nameEs)}</span>
                 <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: '4px 0 0', lineHeight: 1.5 }}>
-                  {phaseIdx === 0 && 'Tu subconsciente comienza a escuchar y aceptar nuevas creencias con compasion y apertura.'}
-                  {phaseIdx === 1 && 'Los viejos patrones se disuelven, nuevos habitos emergen. Activando el cambio con empoderamiento.'}
-                  {phaseIdx === 2 && 'Tus nuevas creencias se convierten en tu estado natural. Consolidando tu nueva identidad.'}
+                  {phaseIdx === 0 && t(lang, 'Your subconscious begins to listen and accept new beliefs with compassion and openness.', 'Tu subconsciente comienza a escuchar y aceptar nuevas creencias con compasion y apertura.')}
+                  {phaseIdx === 1 && t(lang, 'Old patterns dissolve, new habits emerge. Activating change with empowerment.', 'Los viejos patrones se disuelven, nuevos habitos emergen. Activando el cambio con empoderamiento.')}
+                  {phaseIdx === 2 && t(lang, 'Your new beliefs become your natural state. Consolidating your new identity.', 'Tus nuevas creencias se convierten en tu estado natural. Consolidando tu nueva identidad.')}
                 </p>
               </div>
             </div>
@@ -309,16 +324,16 @@ export default function CycleDetailPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-              {streak > 0 && <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>Racha</div><div style={{ fontSize: '18px', fontWeight: 600, color: '#c9a84c' }}>🔥 {streak}</div></div>}
-              <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>Fase</div><div style={{ fontSize: '18px', fontWeight: 600, color: phase.color }}>{phaseIdx + 1}/3</div></div>
-              <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>Progreso</div><div style={{ fontSize: '18px', fontWeight: 600, color: '#fff' }}>{Math.round(pct)}%</div></div>
+              {streak > 0 && <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>{t(lang, 'Streak', 'Racha')}</div><div style={{ fontSize: '18px', fontWeight: 600, color: '#c9a84c' }}>🔥 {streak}</div></div>}
+              <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>{t(lang, 'Phase', 'Fase')}</div><div style={{ fontSize: '18px', fontWeight: 600, color: phase.color }}>{phaseIdx + 1}/3</div></div>
+              <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>{t(lang, 'Progress', 'Progreso')}</div><div style={{ fontSize: '18px', fontWeight: 600, color: '#fff' }}>{Math.round(pct)}%</div></div>
             </div>
           </div>
 
           {/* ═══ C — EMOTIONAL CHECK-IN ═══ */}
           {todayDay && !todayCompleted && !emotionalSaved && !cycle.completed && (
             <div style={{ ...card, marginBottom: '24px', background: 'rgba(201,168,76,0.03)', border: '1px solid rgba(201,168,76,0.08)' }}>
-              <p style={{ fontSize: '14px', color: '#fff', margin: '0 0 14px 0', fontWeight: 500 }}>Como te sientes hoy?</p>
+              <p style={{ fontSize: '14px', color: '#fff', margin: '0 0 14px 0', fontWeight: 500 }}>{t(lang, 'How do you feel today?', 'Como te sientes hoy?')}</p>
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                 {MOOD_EMOJIS.map((em, i) => {
                   const val = i + 1; const sel = emotionalScore === val;
@@ -332,8 +347,8 @@ export default function CycleDetailPage() {
                 })}
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', padding: '0 8px' }}>
-                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.15)' }}>Mal</span>
-                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.15)' }}>Excelente</span>
+                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.15)' }}>{t(lang, 'Bad', 'Mal')}</span>
+                <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.15)' }}>{t(lang, 'Excellent', 'Excelente')}</span>
               </div>
             </div>
           )}
@@ -361,7 +376,7 @@ export default function CycleDetailPage() {
                         {day.completed ? '✓' : missed ? '○' : day.day_number}
                       </div>
                       <div style={{ fontSize: '9px', color: today ? 'rgba(201,168,76,0.6)' : 'rgba(255,255,255,0.15)', marginTop: '1px' }}>
-                        {date.getDate()} {date.toLocaleDateString('es', { month: 'short' })}
+                        {date.getDate()} {date.toLocaleDateString(lang === 'es' ? 'es' : 'en-US', { month: 'short' })}
                       </div>
                       {day.emotional_score && <div style={{ fontSize: '10px', marginTop: '1px' }}>{MOOD_EMOJIS[day.emotional_score - 1]}</div>}
                     </div>
@@ -373,18 +388,18 @@ export default function CycleDetailPage() {
 
           {/* ═══ PHASES PREVIEW ═══ */}
           <div style={{ ...card, marginBottom: '24px' }}>
-            <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '14px' }}>Tu programa de 3 fases</p>
+            <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '14px' }}>{t(lang, 'Your 3-phase program', 'Tu programa de 3 fases')}</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
               {[
-                { n: 1, name: 'Aceptacion', desc: 'Tomaras consciencia de tus patrones con compasion y apertura', days: '1-7', color: '#388add', icon: <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round"><path d="M14 22v-10"/><path d="M14 12c0-4 3-6 6-8"/><path d="M14 12c0-4-3-6-6-8"/><path d="M10 22h8"/></svg> },
-                { n: 2, name: 'Transformacion', desc: 'Activaras el cambio con afirmaciones de empoderamiento', days: '8-14', color: '#c9a84c', icon: <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3L10 15h8L12 25"/></svg> },
-                { n: 3, name: 'Integracion', desc: 'Consolidaras tu nueva identidad con certeza absoluta', days: '15-21', color: '#22c55e', icon: <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round"><path d="M14 10V4M8.5 12l-4-3M19.5 12l4-3"/><path d="M6 20h16"/><path d="M8 20a6 6 0 0112 0"/></svg> },
+                { n: 1, name: t(lang, 'Acceptance', 'Aceptacion'), desc: t(lang, 'You will become aware of your patterns with compassion and openness', 'Tomaras consciencia de tus patrones con compasion y apertura'), days: '1-7', color: '#388add', icon: <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round"><path d="M14 22v-10"/><path d="M14 12c0-4 3-6 6-8"/><path d="M14 12c0-4-3-6-6-8"/><path d="M10 22h8"/></svg> },
+                { n: 2, name: t(lang, 'Transformation', 'Transformacion'), desc: t(lang, 'You will activate change with affirmations of empowerment', 'Activaras el cambio con afirmaciones de empoderamiento'), days: '8-14', color: '#c9a84c', icon: <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3L10 15h8L12 25"/></svg> },
+                { n: 3, name: t(lang, 'Integration', 'Integracion'), desc: t(lang, 'You will consolidate your new identity with absolute certainty', 'Consolidaras tu nueva identidad con certeza absoluta'), days: '15-21', color: '#22c55e', icon: <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round"><path d="M14 10V4M8.5 12l-4-3M19.5 12l4-3"/><path d="M6 20h16"/><path d="M8 20a6 6 0 0112 0"/></svg> },
               ].map(p => {
                 const isCurrent = phaseIdx === p.n - 1;
                 return (
                   <div key={p.n} style={{ background: isCurrent ? `${p.color}08` : 'rgba(255,255,255,0.01)', border: `1px solid ${isCurrent ? p.color + '20' : 'rgba(255,255,255,0.03)'}`, borderRadius: '12px', padding: '16px', opacity: isCurrent ? 1 : 0.5, transition: 'all 0.3s' }}>
                     <div style={{ marginBottom: '8px' }}>{p.icon}</div>
-                    <div style={{ fontSize: '11px', color: p.color, fontWeight: 600, marginBottom: '4px' }}>Fase {p.n} · Dias {p.days}</div>
+                    <div style={{ fontSize: '11px', color: p.color, fontWeight: 600, marginBottom: '4px' }}>{t(lang, 'Phase', 'Fase')} {p.n} · {t(lang, 'Days', 'Dias')} {p.days}</div>
                     <div style={{ fontSize: '13px', color: '#fff', fontWeight: 500, marginBottom: '4px' }}>{p.name}</div>
                     <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', lineHeight: 1.5 }}>{p.desc}</div>
                   </div>
@@ -394,16 +409,16 @@ export default function CycleDetailPage() {
           </div>
 
           {/* ═══ E — EMOTIONAL CHART ═══ */}
-          <EmotionalChart days={sortedDays} startedAt={cycle.started_at} />
+          <EmotionalChart days={sortedDays} startedAt={cycle.started_at} lang={lang} />
 
           {/* ═══ MOTIVATIONAL MESSAGE ═══ */}
           {todayDay && !cycle.completed && (
             <div style={{ padding: '0 4px', marginBottom: '24px' }}>
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', fontStyle: 'italic', margin: 0, lineHeight: 1.6 }}>
-                {completedDays >= 15 && '¡Estas en la recta final! Tu subconsciente ya esta integrando tus nuevas creencias.'}
-                {completedDays < 15 && streak >= 3 && `¡Increible! Llevas ${streak} dias seguidos. Tu mente esta creando nuevos caminos.`}
-                {completedDays < 15 && streak < 3 && !todayCompleted && 'Cada dia es una nueva oportunidad. Escucha tu sesion de hoy.'}
-                {completedDays < 15 && streak < 3 && todayCompleted && 'Excelente sesion. Tu mente esta procesando nuevas creencias mientras descansas.'}
+                {completedDays >= 15 && t(lang, "You're in the home stretch! Your subconscious is already integrating your new beliefs.", '¡Estas en la recta final! Tu subconsciente ya esta integrando tus nuevas creencias.')}
+                {completedDays < 15 && streak >= 3 && t(lang, `Amazing! You've kept it up for ${streak} days in a row. Your mind is creating new pathways.`, `¡Increible! Llevas ${streak} dias seguidos. Tu mente esta creando nuevos caminos.`)}
+                {completedDays < 15 && streak < 3 && !todayCompleted && t(lang, 'Every day is a new opportunity. Listen to your session today.', 'Cada dia es una nueva oportunidad. Escucha tu sesion de hoy.')}
+                {completedDays < 15 && streak < 3 && todayCompleted && t(lang, 'Excellent session. Your mind is processing new beliefs while you rest.', 'Excelente sesion. Tu mente esta procesando nuevas creencias mientras descansas.')}
               </p>
             </div>
           )}
@@ -412,10 +427,10 @@ export default function CycleDetailPage() {
           {todayDay && !cycle.completed && (
             <div id="session-section" style={{ ...card, marginBottom: '24px', background: 'rgba(201,168,76,0.03)', border: '1px solid rgba(201,168,76,0.08)' }}>
               <p style={{ fontSize: '10px', color: '#c9a84c', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '4px' }}>
-                {todayCompleted ? `Dia ${todayDay.day_number} — completado` : `Sesion del dia ${todayDay.day_number} — Fase ${phaseIdx + 1}`}
+                {todayCompleted ? t(lang, `Day ${todayDay.day_number} — completed`, `Dia ${todayDay.day_number} — completado`) : t(lang, `Day ${todayDay.day_number} session — Phase ${phaseIdx + 1}`, `Sesion del dia ${todayDay.day_number} — Fase ${phaseIdx + 1}`)}
               </p>
               <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', margin: '0 0 14px 0' }}>
-                Hoy, {new Date().toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'numeric' })}
+                {t(lang, 'Today', 'Hoy')}, {new Date().toLocaleDateString(lang === 'es' ? 'es' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
 
               {(todayTrackUrl || genAudioUrl) && <div style={{ marginBottom: '14px' }}><Player src={genAudioUrl || todayTrackUrl!} /></div>}
@@ -423,7 +438,7 @@ export default function CycleDetailPage() {
               {!todayCompleted && !genAudioUrl && (
                 <>
                   {genStatus && <p style={{ fontSize: '13px', color: genStatus.includes('❌') ? '#ef4444' : '#c9a84c', margin: '0 0 14px 0' }}>{genStatus}</p>}
-                  <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '8px' }}>Duracion</p>
+                  <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '8px' }}>{t(lang, 'Duration', 'Duracion')}</p>
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                     {[5, 10, 15, 30].map(d => {
                       const sel = selectedDuration === d;
@@ -434,7 +449,7 @@ export default function CycleDetailPage() {
                     background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '10px',
                     padding: '12px 28px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif",
                     opacity: isGenerating ? 0.4 : 1, letterSpacing: '0.5px',
-                  }}>{isGenerating ? '⏳ Generando...' : `Generar sesion del dia ${todayDay.day_number}`}</button>
+                  }}>{isGenerating ? t(lang, '⏳ Generating...', '⏳ Generando...') : t(lang, `Generate day ${todayDay.day_number} session`, `Generar sesion del dia ${todayDay.day_number}`)}</button>
                 </>
               )}
             </div>
@@ -444,17 +459,17 @@ export default function CycleDetailPage() {
           {cycle.completed && (
             <div style={{ background: 'linear-gradient(160deg, rgba(34,197,94,0.06), rgba(201,168,76,0.04))', border: '1px solid rgba(34,197,94,0.15)', borderRadius: '16px', padding: '28px', marginBottom: '24px', textAlign: 'center' }}>
               <div style={{ fontSize: '40px', marginBottom: '12px' }}>🎉</div>
-              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '26px', fontWeight: 400, color: '#fff', margin: '0 0 8px 0' }}>Ciclo completado!</h2>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '26px', fontWeight: 400, color: '#fff', margin: '0 0 8px 0' }}>{t(lang, 'Cycle completed!', 'Ciclo completado!')}</h2>
               <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginBottom: '20px', fontStyle: 'italic' }}>&ldquo;{cycle.intention}&rdquo;</p>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>Dias</div><div style={{ fontSize: '22px', fontWeight: 600, color: '#22c55e' }}>21/21</div></div>
-                <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>Mejor racha</div><div style={{ fontSize: '22px', fontWeight: 600, color: '#c9a84c' }}>🔥 {streak}</div></div>
-                {avgEmotion && <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>Promedio emocional</div><div style={{ fontSize: '22px', fontWeight: 600, color: '#c9a84c' }}>{avgEmotion}/5</div></div>}
+                <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>{t(lang, 'Days', 'Dias')}</div><div style={{ fontSize: '22px', fontWeight: 600, color: '#22c55e' }}>21/21</div></div>
+                <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>{t(lang, 'Best streak', 'Mejor racha')}</div><div style={{ fontSize: '22px', fontWeight: 600, color: '#c9a84c' }}>🔥 {streak}</div></div>
+                {avgEmotion && <div><div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>{t(lang, 'Emotional average', 'Promedio emocional')}</div><div style={{ fontSize: '22px', fontWeight: 600, color: '#c9a84c' }}>{avgEmotion}/5</div></div>}
               </div>
               {/* Shareable card */}
               <div id="share-card" style={{ background: 'linear-gradient(160deg, #0b1121, #0d1526)', border: '1px solid rgba(201,168,76,0.15)', borderRadius: '14px', padding: '24px', margin: '0 auto', maxWidth: '340px', textAlign: 'center' }}>
                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '14px', color: 'rgba(255,255,255,0.3)', letterSpacing: '6px', marginBottom: '12px' }}>AFIRMIA</div>
-                <div style={{ fontSize: '13px', color: '#22c55e', fontWeight: 600, marginBottom: '8px' }}>✓ 21 dias completados</div>
+                <div style={{ fontSize: '13px', color: '#22c55e', fontWeight: 600, marginBottom: '8px' }}>✓ {t(lang, '21 days completed', '21 dias completados')}</div>
                 <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', fontStyle: 'italic', margin: '0 0 10px 0', lineHeight: 1.5 }}>&ldquo;{cycle.intention}&rdquo;</p>
                 <span style={{ fontSize: '11px', color, fontWeight: 600 }}>{cycle.frequency}Hz — {FN[cycle.frequency] || ''}</span>
               </div>
@@ -463,7 +478,7 @@ export default function CycleDetailPage() {
 
           {/* Delete */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '40px' }}>
-            <button onClick={handleDelete} style={{ fontSize: '12px', color: 'rgba(239,68,68,0.4)', background: 'none', border: '1px solid rgba(239,68,68,0.08)', borderRadius: '8px', padding: '8px 16px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Eliminar ciclo</button>
+            <button onClick={handleDelete} style={{ fontSize: '12px', color: 'rgba(239,68,68,0.4)', background: 'none', border: '1px solid rgba(239,68,68,0.08)', borderRadius: '8px', padding: '8px 16px', cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Delete cycle', 'Eliminar ciclo')}</button>
           </div>
         </div>
       </div>
