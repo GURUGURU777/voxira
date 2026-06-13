@@ -65,10 +65,10 @@ export async function POST(request: NextRequest) {
     .eq('id', user.id)
     .single();
 
-  if (profile?.plan === 'free' && profile?.has_used_free_cycle) {
+  if (profile?.plan === 'free') {
     return withCookies(NextResponse.json({
       error: 'free_cycle_used',
-      message: 'Ya usaste tu ciclo gratis. Upgrade a Pro para ciclos ilimitados.',
+      message: 'Los ciclos de 21 dias son exclusivos de Pro. Haz upgrade para comenzar.',
     }, { status: 403 }));
   }
   // ═══ FIN GATE ═══

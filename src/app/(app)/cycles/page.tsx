@@ -97,11 +97,11 @@ function CyclesContent() {
   const handleGenerateIntention = useCallback(async () => {
     setGenerating(true);
     try {
-      const res = await fetch('/api/cycles/generate-intention', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ area, pattern, emotions }) });
+      const res = await fetch('/api/cycles/generate-intention', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ area, pattern, emotions, lang }) });
       const d = await res.json();
       if (d.intention) { setAiIntention(d.intention); setAiFrequency(d.frequency || 528); setAiReason(d.frequency_reason || ''); setCreateStep(3); }
     } catch {} finally { setGenerating(false); }
-  }, [area, pattern, emotions]);
+  }, [area, pattern, emotions, lang]);
 
   const handleCreateCycle = useCallback(async () => {
     if (!aiIntention.trim()) return;
@@ -142,7 +142,7 @@ function CyclesContent() {
               </div>
               {createStep === 0 && (
                 <button onClick={() => {
-                  if (userPlan === 'free' && hasUsedFreeCycle) {
+                  if (userPlan === 'free') {
                     setBlockedModalOpen(true);
                   } else {
                     setCreateStep(1);
@@ -308,7 +308,7 @@ function CyclesContent() {
               {/* CTA */}
               <button
                 onClick={() => {
-                  if (userPlan === 'free' && hasUsedFreeCycle) {
+                  if (userPlan === 'free') {
                     router.push('/pricing');
                   } else {
                     setCreateStep(1);
@@ -329,7 +329,7 @@ function CyclesContent() {
                   boxShadow: '0 4px 30px rgba(201,168,76,0.25)',
                 }}
               >
-                {userPlan === 'free' && hasUsedFreeCycle ? t(lang, 'Unlock unlimited cycles', 'Desbloquea ciclos ilimitados') : t(lang, 'Start your first cycle', 'Comienza tu primer ciclo')}
+                {userPlan === 'free' ? t(lang, 'Unlock unlimited cycles', 'Desbloquea ciclos ilimitados') : t(lang, 'Start your first cycle', 'Comienza tu primer ciclo')}
               </button>
             </div>
           )}
