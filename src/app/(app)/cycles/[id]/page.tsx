@@ -439,6 +439,12 @@ export default function CycleDetailPage() {
               <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', margin: '0 0 14px 0' }}>
                 {t(lang, 'Today', 'Hoy')}, {new Date().toLocaleDateString(lang === 'es' ? 'es' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
+              {!cycleLocked && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(201,168,76,0.05)', border: '1px solid rgba(201,168,76,0.12)', borderRadius: '10px', padding: '10px 14px', marginBottom: '14px' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M3 14v-2a9 9 0 0118 0v2"/><rect x="2.5" y="14" width="4" height="7" rx="1.5"/><rect x="17.5" y="14" width="4" height="7" rx="1.5"/></svg>
+                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.4 }}>{t(lang, 'For best results, use headphones — binaural frequencies need both ears.', 'Para mejores resultados usa audifonos — las frecuencias binaurales necesitan ambos oidos.')}</span>
+                </div>
+              )}
 
               {(todayTrackUrl || genAudioUrl) && <div style={{ marginBottom: '14px' }}><Player src={genAudioUrl || todayTrackUrl!} /></div>}
 
