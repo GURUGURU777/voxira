@@ -145,7 +145,7 @@ function CyclesContent() {
               </div>
               {createStep === 0 && (
                 <button onClick={() => {
-                  if (userPlan === 'free') {
+                  if (userPlan === 'free' && hasUsedFreeCycle) {
                     setBlockedModalOpen(true);
                   } else {
                     setCreateStep(1);
@@ -311,7 +311,7 @@ function CyclesContent() {
               {/* CTA */}
               <button
                 onClick={() => {
-                  if (userPlan === 'free') {
+                  if (userPlan === 'free' && hasUsedFreeCycle) {
                     router.push('/pricing');
                   } else {
                     setCreateStep(1);
@@ -332,7 +332,7 @@ function CyclesContent() {
                   boxShadow: '0 4px 30px rgba(201,168,76,0.25)',
                 }}
               >
-                {userPlan === 'free' ? t(lang, 'Unlock unlimited cycles', 'Desbloquea ciclos ilimitados') : t(lang, 'Start your first cycle', 'Comienza tu primer ciclo')}
+                {userPlan === 'free' && hasUsedFreeCycle ? t(lang, 'Unlock unlimited cycles', 'Desbloquea ciclos ilimitados') : userPlan === 'free' ? t(lang, 'Try your free Day 1', 'Prueba tu Dia 1 gratis') : t(lang, 'Start your first cycle', 'Comienza tu primer ciclo')}
               </button>
             </div>
           )}

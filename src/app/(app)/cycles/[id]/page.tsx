@@ -119,6 +119,7 @@ export default function CycleDetailPage() {
   const [genAudioUrl, setGenAudioUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [lang, setLang] = useState<Lang>('en');
+  const [userPlan, setUserPlan] = useState<string>('free');
 
   // Single source of language: localStorage 'voxira-lang' (default 'en').
   useEffect(() => {
@@ -129,6 +130,10 @@ export default function CycleDetailPage() {
   useEffect(() => {
     fetch(`/api/cycles?id=${cycleId}`).then(r => r.json()).then(d => setCycle(d.cycle || null)).catch(() => {}).finally(() => setLoading(false));
   }, [cycleId]);
+
+  useEffect(() => {
+    fetch('/api/profile').then(r => r.json()).then(d => { if (d.profile) setUserPlan(d.profile.plan || 'free'); }).catch(() => {});
+  }, []);
 
   const handleSaveEmotion = useCallback(async (score: number) => {
     if (!cycle) return;
@@ -236,6 +241,7 @@ export default function CycleDetailPage() {
   const endDate = getDayDate(cycle.started_at, 21);
   const todayDay = sortedDays.find(d => isToday(getDayDate(cycle.started_at, d.day_number)));
   const todayCompleted = todayDay?.completed || false;
+  const cycleLocked = userPlan === 'free' && !!todayDay && todayDay.day_number >= 2;
   const todayTrackUrl = todayDay?.tracks?.file_url || null;
   const streak = getStreak(sortedDays, cycle.started_at);
   const phase = todayDay ? getPhase(todayDay.day_number) : PHASES[0];
@@ -331,7 +337,7 @@ export default function CycleDetailPage() {
           </div>
 
           {/* ═══ C — EMOTIONAL CHECK-IN ═══ */}
-          {todayDay && !todayCompleted && !emotionalSaved && !cycle.completed && (
+          {todayDay && !cycleLocked && !todayCompleted && !emotionalSaved && !cycle.completed && (
             <div style={{ ...card, marginBottom: '24px', background: 'rgba(201,168,76,0.03)', border: '1px solid rgba(201,168,76,0.08)' }}>
               <p style={{ fontSize: '14px', color: '#fff', margin: '0 0 14px 0', fontWeight: 500 }}>{t(lang, 'How do you feel today?', 'Como te sientes hoy?')}</p>
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
@@ -435,7 +441,16 @@ export default function CycleDetailPage() {
 
               {(todayTrackUrl || genAudioUrl) && <div style={{ marginBottom: '14px' }}><Player src={genAudioUrl || todayTrackUrl!} /></div>}
 
-              {!todayCompleted && !genAudioUrl && (
+              {cycleLocked && (
+                <div style={{ textAlign: 'center', padding: '8px 0 4px' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '10px' }}>🔒</div>
+                  <p style={{ fontSize: '15px', color: '#fff', fontWeight: 600, margin: '0 0 6px' }}>{t(lang, 'Day 1 is free', 'El Dia 1 es gratis')}</p>
+                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: '0 0 16px', lineHeight: 1.5 }}>{t(lang, 'Go Pro to continue your 21-day reset and keep transforming your mind.', 'Hazte Pro para continuar tu reset de 21 dias y seguir transformando tu mente.')}</p>
+                  <button onClick={() => router.push('/pricing')} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '10px', padding: '12px 28px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif", letterSpacing: '0.5px' }}>{t(lang, 'Continue with Pro', 'Continuar con Pro')}</button>
+                </div>
+              )}
+
+              {!cycleLocked && !todayCompleted && !genAudioUrl && (
                 <>
                   {genStatus && <p style={{ fontSize: '13px', color: genStatus.includes('❌') ? '#ef4444' : '#c9a84c', margin: '0 0 14px 0' }}>{genStatus}</p>}
                   <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '8px' }}>{t(lang, 'Duration', 'Duracion')}</p>

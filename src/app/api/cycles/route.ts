@@ -65,10 +65,10 @@ export async function POST(request: NextRequest) {
     .eq('id', user.id)
     .single();
 
-  if (profile?.plan === 'free') {
+  if (profile?.plan === 'free' && profile?.has_used_free_cycle) {
     return withCookies(NextResponse.json({
       error: 'free_cycle_used',
-      message: 'Los ciclos de 21 dias son exclusivos de Pro. Haz upgrade para comenzar.',
+      message: 'Ya usaste tu ciclo gratis. Hazte Pro para ciclos ilimitados.',
     }, { status: 403 }));
   }
   // ═══ FIN GATE ═══
@@ -112,6 +112,21 @@ export async function PATCH(request: NextRequest) {
   const { cycle_id, day_number, track_id, emotional_score } = body;
 
   if (!cycle_id || !day_number) return withCookies(NextResponse.json({ error: 'Missing cycle_id or day_number' }, { status: 400 }));
+
+  // GATE: Dia 1 gratis; Dia 2+ es Pro
+  if (day_number >= 2) {
+    const { data: gateProfile } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', user.id)
+      .single();
+    if (gateProfile?.plan === 'free') {
+      return withCookies(NextResponse.json({
+        error: 'cycle_day_locked',
+        message: 'El Dia 1 es gratis. Hazte Pro para continuar tu reset de 21 dias.',
+      }, { status: 403 }));
+    }
+  }
 
   // Fetch cycle to validate date
   const { data: cycleData } = await supabase.from('cycles').select('started_at').eq('id', cycle_id).eq('user_id', user.id).single();
