@@ -302,7 +302,7 @@ export default function SettingsPage() {
               <div style={{ background: 'rgba(255,255,255,0.02)', border: `1px solid ${profile?.plan === 'free' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)'}`, borderRadius: '12px', padding: '20px' }}>
                 <div style={{ fontSize: '14px', color: '#fff', fontWeight: 600, marginBottom: '4px' }}>Free</div>
                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: 600, color: '#fff', marginBottom: '16px' }}>$0<span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>{t(lang, '/mo', '/mes')}</span></div>
-                {[t(lang,'5 tracks/month','5 tracks por mes'), t(lang,'Max 5 min duration','Duracion max 5 min'), t(lang,'Synthesized sounds','Sonidos sintetizados'), t(lang,'1 frequency per session','1 frecuencia por sesion')].map(f => (
+                {[t(lang,'3 free audios','3 audios gratis'), t(lang,'Max 5 min duration','Duracion max 5 min'), t(lang,'Synthesized sounds','Sonidos sintetizados'), t(lang,'1 frequency per session','1 frecuencia por sesion')].map(f => (
                   <div key={f} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
                     <span style={{ color: '#22c55e', fontSize: '12px' }}>✓</span>
                     <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>{f}</span>

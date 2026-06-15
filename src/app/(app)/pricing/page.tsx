@@ -36,7 +36,7 @@ function PricingContent() {
       priceYearly: 0,
       tagline: t(lang, 'Try mental reprogramming', 'Prueba la reprogramacion mental'),
       features: [
-        t(lang, '3 audios per month', '3 audios por mes'),
+        t(lang, '3 free audios (one-time)', '3 audios gratis (una vez)'),
         t(lang, 'Max duration: 5 minutes', 'Duracion maxima: 5 minutos'),
         t(lang, '2 Solfeggio frequencies (528, 396)', '2 frecuencias Solfeggio (528, 396)'),
         t(lang, 'No ambient sounds', 'Sin sonidos ambientales'),

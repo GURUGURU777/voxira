@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     const resetAt = new Date(profile.tracks_month_reset_at || new Date());
     const nowDate = new Date();
     const daysSinceReset = (nowDate.getTime() - resetAt.getTime()) / (1000 * 60 * 60 * 24);
-    if (daysSinceReset >= 30) {
+    if (daysSinceReset >= 30 && (profile.plan === 'pro' || profile.plan === 'premium')) {
       currentMonthCount = 0;
       await supabase
         .from('profiles')
