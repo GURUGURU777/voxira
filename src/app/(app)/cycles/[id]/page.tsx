@@ -118,6 +118,7 @@ export default function CycleDetailPage() {
   const [genStatus, setGenStatus] = useState('');
   const [genAudioUrl, setGenAudioUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [needsVoice, setNeedsVoice] = useState(false);
   const [lang, setLang] = useState<Lang>('en');
   const [userPlan, setUserPlan] = useState<string>('free');
 
@@ -186,7 +187,7 @@ export default function CycleDetailPage() {
       setGenStatus(t(lang, '🎙 Getting your voice...', '🎙 Obteniendo tu voz...'));
       const profileData = await (await fetch('/api/profile')).json();
       const voiceUrl = profileData.profile?.voice_audio_url;
-      if (!voiceUrl) { setGenStatus(t(lang, '❌ No saved voice. Go to the Dashboard to record your voice.', '❌ No tienes voz guardada. Ve al Dashboard para grabar tu voz.')); setIsGenerating(false); return; }
+      if (!voiceUrl) { setNeedsVoice(true); setGenStatus(''); setIsGenerating(false); return; }
 
       setGenStatus(t(lang, '🎙 Cloning your voice...', '🎙 Clonando tu voz...'));
       const voiceBlob = await (await fetch(voiceUrl)).blob();
@@ -453,6 +454,14 @@ export default function CycleDetailPage() {
               {!cycleLocked && !todayCompleted && !genAudioUrl && (
                 <>
                   {genStatus && <p style={{ fontSize: '13px', color: genStatus.includes('❌') ? '#ef4444' : '#c9a84c', margin: '0 0 14px 0' }}>{genStatus}</p>}
+
+                  {needsVoice && (
+                    <div style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: '12px', padding: '16px 18px', marginBottom: '16px' }}>
+                      <p style={{ fontSize: '14px', color: '#fff', fontWeight: 600, margin: '0 0 4px' }}>🎙 {t(lang, 'First, record your voice', 'Primero graba tu voz')}</p>
+                      <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: '0 0 12px', lineHeight: 1.5 }}>{t(lang, 'Your affirmations play in YOUR cloned voice. Record it once (about 15s), then come back here.', 'Tus afirmaciones suenan en TU voz clonada. Grabala una vez (unos 15s) y regresa aqui.')}</p>
+                      <button onClick={() => router.push('/settings')} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', border: 'none', borderRadius: '10px', padding: '10px 22px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>{t(lang, 'Record my voice', 'Grabar mi voz')}</button>
+                    </div>
+                  )}
                   <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '8px' }}>{t(lang, 'Duration', 'Duracion')}</p>
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                     {[5, 10, 15, 30].map(d => {
