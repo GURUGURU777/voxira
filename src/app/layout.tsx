@@ -4,16 +4,16 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: 'AFIRMIA — Subconscious Reprogramming with Voice AI',
-  description: 'Reprogram your subconscious mind with personalized affirmations, your own voice, and Solfeggio binaural frequencies. 21-day transformation cycles.',
+  title: 'AFIRMIA — Your 21-day self-esteem reset, in your own voice',
+  description: 'A 21-day self-esteem reset where affirmations are spoken in your own cloned voice — over Solfeggio binaural frequencies. Free to start, no card.',
   icons: {
     icon: '/favicon_32.png',
     shortcut: '/favicon_32.png',
     apple: '/afirmia_180.png',
   },
   openGraph: {
-    title: 'AFIRMIA — Subconscious Reprogramming',
-    description: 'Reprogram your subconscious mind with your own voice and Solfeggio frequencies.',
+    title: 'AFIRMIA — Your 21-day self-esteem reset, in your own voice',
+    description: 'A 21-day self-esteem reset — in your own cloned voice, over Solfeggio frequencies.',
     url: 'https://afirmia.app',
     siteName: 'AFIRMIA',
     images: [
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AFIRMIA — Subconscious Reprogramming',
-    description: 'Reprogram your subconscious mind with your own voice and Solfeggio frequencies.',
+    title: 'AFIRMIA — Your 21-day self-esteem reset, in your own voice',
+    description: 'A 21-day self-esteem reset — in your own cloned voice, over Solfeggio frequencies.',
     images: ['/afirmia_512.png'],
   },
 };
