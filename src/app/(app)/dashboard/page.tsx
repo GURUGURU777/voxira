@@ -348,6 +348,14 @@ function DashboardContent() {
             </div>
           </div>)}
 
+          {generatedAudio && !paramCycleId && (
+          <div style={{textAlign:'center',marginBottom:'20px',padding:'24px',background:'linear-gradient(160deg,rgba(201,168,76,0.08),rgba(201,168,76,0.02))',border:'1px solid rgba(201,168,76,0.18)',borderRadius:'18px'}}>
+            <p style={{fontSize:'15px',color:'#fff',fontWeight:600,margin:'0 0 4px',fontFamily:"'Outfit',sans-serif"}}>{t(lang,'Loved hearing your own voice?','¿Te gustó oír tu propia voz?')}</p>
+            <p style={{fontSize:'13px',color:'rgba(255,255,255,0.5)',margin:'0 0 16px',lineHeight:1.5}}>{t(lang,'Make it stick. Start your 21-day self-esteem reset — Day 1 is free.','Hazlo permanente. Empieza tu reset de autoestima de 21 días — el Día 1 es gratis.')}</p>
+            <a href="/cycles" style={{display:'inline-block',background:'linear-gradient(135deg,#c9a84c,#dbb960)',color:'#0a0e1a',textDecoration:'none',borderRadius:'12px',padding:'14px 36px',fontSize:'15px',fontWeight:700,fontFamily:"'Outfit',sans-serif",boxShadow:'0 4px 24px rgba(201,168,76,0.25)'}}>{t(lang,'Start my 21-day reset →','Empezar mi reset de 21 días →')}</a>
+          </div>
+          )}
+
           {generatedAudio ? (
           <div style={{display:'flex',justifyContent:'center',gap:'12px',flexWrap:'wrap'}}>
             <a href="/library" style={{background:'linear-gradient(135deg,#c9a84c,#dbb960)',color:'#0a0e1a',textDecoration:'none',borderRadius:'12px',padding:'16px 32px',fontSize:'14px',fontWeight:500,fontFamily:"'Outfit',sans-serif"}}>{t(lang,'Go to Library','Ir a Biblioteca')}</a>
