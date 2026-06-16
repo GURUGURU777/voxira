@@ -21,7 +21,7 @@ const STEPS = [
   {
     num: '03',
     title: 'Clone your voice',
-    desc: '30 seconds — AI does the rest',
+    desc: '15 seconds — AI does the rest',
     highlight: false,
   },
 ];

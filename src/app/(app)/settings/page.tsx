@@ -22,7 +22,7 @@ export default function SettingsPage() {
   const [voicePlaying, setVoicePlaying] = useState(false);
 
   // Voice recorder modal
-  const MIN_RECORDING_SECONDS = 30;
+  const MIN_RECORDING_SECONDS = 15;
   const [showVoiceModal, setShowVoiceModal] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
