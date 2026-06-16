@@ -210,11 +210,11 @@ export default function LandingPage() {
               {L('elevate your mind, heal your soul', 'eleva tu mente, sana tu alma')}
             </p>
             <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 400, lineHeight: 1.15, margin: 0, maxWidth: '800px', animation: 'fadeUp 0.8s ease both 0.15s', opacity: 0 }}>
-              {L('Reprogram your mind ', 'Reprograma tu mente ')}
-              <span style={{ fontStyle: 'italic', fontWeight: 600, background: 'linear-gradient(135deg, #c9a84c, #e8d08c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{L('with your own voice', 'con tu propia voz')}</span>
+              {L('Your 21-day self-esteem reset — ', 'Tu reset de autoestima de 21 días — ')}
+              <span style={{ fontStyle: 'italic', fontWeight: 600, background: 'linear-gradient(135deg, #c9a84c, #e8d08c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{L('in your own voice', 'en tu propia voz')}</span>
             </h1>
             <p style={{ fontSize: '17px', fontWeight: 300, color: 'rgba(255,255,255,0.45)', marginTop: '24px', maxWidth: '520px', lineHeight: 1.7, animation: 'fadeUp 0.8s ease both 0.3s', opacity: 0 }}>
-              {L("The affirmations you whisper to yourself, finally in a voice you can't ignore: yours.", 'Las afirmaciones que te susurras a ti misma, por fin en la voz que no puedes ignorar: la tuya.')}
+              {L("21 days of affirmations in the one voice you can't ignore — yours.", '21 días de afirmaciones en la única voz que no puedes ignorar — la tuya.')}
             </p>
             <div style={{ display: 'flex', gap: '16px', marginTop: '44px', animation: 'fadeUp 0.8s ease both 0.45s', opacity: 0 }}>
               <a href={isLoggedIn ? '/dashboard' : '/login'} style={{ background: 'linear-gradient(135deg, #c9a84c, #dbb960)', color: '#081020', textDecoration: 'none', borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', boxShadow: '0 4px 30px rgba(201,168,76,0.25), 0 0 60px rgba(201,168,76,0.08)' }}>{isLoggedIn ? L('Start', 'Comenzar') : L('Start Free', 'Comenzar Gratis')}</a>
@@ -369,7 +369,8 @@ export default function LandingPage() {
                 borderRadius: '14px', padding: '18px 44px', fontSize: '15px', fontWeight: 700,
                 letterSpacing: '0.5px', fontFamily: "'Outfit', sans-serif",
                 boxShadow: '0 4px 30px rgba(201,168,76,0.25)',
-              }}>{L('Start Your 21-Day Journey — Free', 'Comienza tu viaje de 21 dias — Gratis')}</a>
+              }}>{L('Start Free', 'Comenzar Gratis')}</a>
+              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginTop: '14px', letterSpacing: '0.5px' }}>{L('No card required · Your own voice', 'Sin tarjeta · Tu propia voz')}</p>
             </div>
           </section>
 
