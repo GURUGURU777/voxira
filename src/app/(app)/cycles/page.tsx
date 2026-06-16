@@ -121,6 +121,7 @@ function CyclesContent() {
         setCycles(p => [d.cycle, ...p]);
         setHasUsedFreeCycle(true);
         resetCreate();
+        router.push('/cycles/' + d.cycle.id);
       }
     } catch {} finally { setCreating(false); }
   }, [aiIntention, aiFrequency]);
